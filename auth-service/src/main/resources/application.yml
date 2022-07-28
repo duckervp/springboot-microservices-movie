@@ -1,0 +1,26 @@
+service:
+  auth:
+    hostname: ${AUTH_SERVICE_HOSTNAME}
+  mysql:
+    hostname: ${MYSQL_HOSTNAME}
+    port: ${MYSQL_PORT}
+    database: ${MYSQL_DATABASE}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  jpa:
+    openInView: false
+    databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddlAuto: update
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${service.mysql.hostname}:${service.mysql.port}/${service.mysql.database}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: ${service.mysql.username}
+    password: ${service.mysql.password}
+  application:
+    name: auth-service
