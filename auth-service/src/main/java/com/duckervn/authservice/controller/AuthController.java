@@ -1,26 +1,32 @@
 package com.duckervn.authservice.controller;
 
 import com.duckervn.authservice.common.Credential;
+import com.duckervn.authservice.domain.entity.User;
 import com.duckervn.authservice.domain.model.getToken.TokenOutput;
 import com.duckervn.authservice.domain.model.register.RegisterInput;
+import com.duckervn.authservice.resolver.annotation.UserInfo;
 import com.duckervn.authservice.service.IUserService;
 import com.duckervn.authservice.service.client.OAuth2AuthorizationClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/oauth2/user")
-public class AuthController {
+@RequestMapping("/user")
+public class AuthController extends BaseController {
     private final IUserService userService;
 
     private final OAuth2AuthorizationClient authorizationClient;
+
+    @GetMapping
+    public ResponseEntity<?> fetchUser(@UserInfo Optional<User> user) {
+        return successfulResponse(user);
+    }
 
     @PostMapping("/register")
     public TokenOutput register(@RequestBody @Valid RegisterInput registerInput) {

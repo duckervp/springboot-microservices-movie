@@ -13,9 +13,17 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>microservices-ultimate</name>
     <description>microservices-ultimate</description>
+    <packaging>pom</packaging>
     <properties>
         <java.version>11</java.version>
     </properties>
+
+    <modules>
+        <module>auth-service</module>
+        <module>discovery-service</module>
+        <module>movie-service</module>
+        <module>gateway-service</module>
+    </modules>
 
     <build>
         <plugins>

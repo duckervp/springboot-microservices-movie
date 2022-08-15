@@ -1,0 +1,49 @@
+service:
+  discovery:
+    hostname: ${DISCOVERY_HOSTNAME}
+    port: ${DISCOVERY_PORT}
+  auth:
+    hostname: ${AUTH_HOSTNAME}
+    port: ${AUTH_PORT}
+  movie:
+    hostname: ${MOVIE_HOSTNAME}
+    port: ${MOVIE_PORT}
+
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+      routes:
+        - id: auth-service
+          uri:
+            http://${service.auth.hostname}:${service.auth.port}/
+          predicates:
+            - Path=/oauth2/**, /user/**
+        - id: movie-service
+          uri:
+            http://${service.movie.hostname}:${service.movie.port}/
+          predicates:
+            - Path=/user/**
+        - id: stream-service
+          uri:
+            http://${service.stream.hostname}:${service.stream.port}/
+          predicates:
+            - Path=/stream/**
+
+server:
+  port: ${GATEWAY_PORT}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${service.discovery.hostname}:${service.discovery.port}/eureka/

@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.server.authorization.config.TokenSett
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,7 @@ public class UserService implements IUserService {
 
         User user = objectMapper.convertValue(registerInput, User.class);
         user.setId(registerInput.getUsername());
+        user.setCreatedAt(LocalDateTime.now());
         if (Objects.nonNull(registerInput.getDobs())) {
             user.setDob(convertStringToLocalDate(registerInput.getDobs()));
         }
@@ -77,5 +79,16 @@ public class UserService implements IUserService {
         List<Integer> dobs = Arrays.stream(localDateString.split("[/-:]"))
                 .map(Integer::parseInt).collect(Collectors.toList());
         return LocalDate.of(dobs.get(2), dobs.get(1), dobs.get(0));
+    }
+
+    /**
+     * Find user
+     * @param id client id | username
+     * @return User
+     */
+    @Override
+    public User findById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Not found any user with id " + id));
     }
 }
