@@ -1,11 +1,14 @@
 package com.duckervn.movieservice.service;
 
+import com.duckervn.movieservice.domain.dto.MovieDTO;
 import com.duckervn.movieservice.domain.entity.Movie;
-
-import java.util.List;
+import com.duckervn.movieservice.domain.model.addmovie.MovieInput;
+import com.duckervn.movieservice.domain.model.page.PageOutput;
 
 public interface IMovieService {
-    void save(Movie movie);
+    void save(MovieInput movieInput);
     Movie findById(Long id);
-    List<Movie> findAll();
+    PageOutput<?> findMovie(String name, Integer releaseYear, String country, Long genreId, Integer pageNo, Integer pageSize);
+    void update(MovieInput movieInput);
+    MovieDTO findMovieDTOById(Long id);
 }

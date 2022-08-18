@@ -1,17 +1,19 @@
 package com.duckervn.movieservice.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,31 +25,96 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private LocalDate releaseDate;
+    private Integer releaseYear;
     private Integer totalEpisode;
     private String country;
     private String bannerUrl;
     private String posterUrl;
     private String description;
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Episode> episodes;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "movie_id")
+    private Set<Episode> episodes = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_genre",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    private Set<Genre> genres;
-    @ManyToMany(cascade = CascadeType.ALL)
+    private Set<Genre> genres = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(
             name = "movie_character",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "character_id")
     )
-    private Set<Character> characters;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Character> characters = new HashSet<>();
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY,
+            cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "producer_id")
     private Producer producer;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+
+    public void addEpisode(Episode episode) {
+        if (Objects.nonNull(episode.getId()) &&
+                !episodes.stream()
+                        .map(Episode::getId)
+                        .collect(Collectors.toList())
+                        .contains(episode.getId())) {
+            episodes.add(episode);
+            episode.setMovie(this);
+        }
+    }
+
+    public void removeEpisode(Episode episode) {
+        episodes.remove(episode);
+        episode.setMovie(null);
+    }
+
+    public void addCharacter(Character character) {
+        if (Objects.nonNull(character.getId()) &&
+                !characters.stream()
+                        .map(Character::getId)
+                        .collect(Collectors.toList())
+                        .contains(character.getId())) {
+            characters.add(character);
+            character.getMovies().add(this);
+        }
+    }
+
+    public void removeCharacter(Character character) {
+        characters.remove(character);
+        character.getMovies().remove(this);
+    }
+
+    public void addGenre(Genre genre) {
+        if (Objects.nonNull(genre.getId()) &&
+                !genres.stream()
+                        .map(Genre::getId)
+                        .collect(Collectors.toList())
+                        .contains(genre.getId())) {
+            genres.add(genre);
+            genre.getMovies().add(this);
+        }
+    }
+
+    public void removeGenre(Genre genre) {
+        genres.remove(genre);
+        genre.getMovies().remove(this);
+    }
+
+    public void addProducer(Producer producer) {
+        this.setProducer(producer);
+        producer.getMovies().add(this);
+    }
+
+    public void removeProducer(Producer producer) {
+        this.setProducer(null);
+        producer.getMovies().remove(this);
+    }
+
+
 }

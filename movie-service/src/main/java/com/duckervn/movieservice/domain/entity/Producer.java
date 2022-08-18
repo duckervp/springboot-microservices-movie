@@ -1,16 +1,17 @@
 package com.duckervn.movieservice.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,8 +24,26 @@ public class Producer {
     private Long id;
     private String name;
     private String description;
-    @OneToMany(mappedBy = "producer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "producer_id")
     private Set<Movie> movies;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+
+    public void addMovie(Movie movie) {
+        if (Objects.nonNull(movie.getId()) &&
+                !movies.stream()
+                        .map(Movie::getId)
+                        .collect(Collectors.toList())
+                        .contains(movie.getId())) {
+            movies.add(movie);
+            movie.setProducer(this);
+        }
+    }
+
+    public void removeMovie(Movie movie) {
+        movies.remove(movie);
+        movie.setProducer(null);
+    }
 }

@@ -16,10 +16,14 @@ spring:
   application:
     name: movie-service
   jpa:
+    showSql: true
     openInView: false
     databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddlAuto: update
+    properties:
+      hibernate:
+        format_sql: true
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${service.mysql.hostname}:${service.mysql.port}/${service.mysql.database}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true

@@ -1,10 +1,8 @@
 package com.duckervn.movieservice.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -24,9 +22,20 @@ public class Episode {
     private Long duration;
     private String url;
     private String description;
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")
     private Movie movie;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+
+    public void addMovie(Movie movie) {
+        this.setMovie(movie);
+        movie.getEpisodes().add(this);
+    }
+
+    public void removeMovie(Movie movie) {
+        this.setMovie(null);
+        movie.getEpisodes().remove(this);
+    }
 }
