@@ -1,8 +1,7 @@
 package com.duckervn.movieservice.controller;
 
-import com.duckervn.movieservice.domain.entity.Episode;
 import com.duckervn.movieservice.domain.model.addepisode.EpisodeInput;
-import com.duckervn.movieservice.domain.model.findEpisode.EpisodeOutput;
+import com.duckervn.movieservice.domain.model.findepisode.EpisodeOutput;
 import com.duckervn.movieservice.service.IEpisodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -1,0 +1,67 @@
+version: "3"
+
+services:
+  discovery-service:
+    image: duckervn/msult-discovery-service
+    environment:
+      DISCOVERY_HOSTNAME: dicoverty-service
+      DISCOVERY_PORT: 8761
+    ports:
+      - "8761:8761"
+    build:
+      context: "./discovery-service"
+      dockerfile: "Dockerfile"
+
+  auth-service:
+    image: duckervn/msult-auth-service
+    environment:
+      DISCOVERY_HOSTNAME: discovery-service
+      DISCOVERY_PORT: 8761
+      AUTH_SERVICE_HOSTNAME: auth-service
+      MYSQL_HOSTNAME: 172.17.0.1
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ult_user
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+      SERVER_PORT: 8909
+    ports:
+      - "8909:8909"
+    build:
+      context: "./auth-service"
+      dockerfile: "Dockerfile"
+
+  movie-service:
+    image: duckervn/msult-movie-service
+    environment:
+      DISCOVERY_HOSTNAME: discovery-service
+      DISCOVERY_PORT: 8761
+      AUTH_SERVICE_HOSTNAME: auth-service
+      AUTH_SERVICE_PORT: 8909
+      MYSQL_HOSTNAME: 172.17.0.1
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ult_movie
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+      SERVER_PORT: 8910
+    ports:
+      - "8910:8910"
+    build:
+      context: "./movie-service"
+      dockerfile: "Dockerfile"
+
+  gate-service:
+    image: duckervn/msult-gateway-service
+    environment:
+      DISCOVERY_HOSTNAME: discovery-service
+      DISCOVERY_PORT: 8761
+      AUTH_SERVICE_HOSTNAME: auth-service
+      AUTH_SERVICE_PORT: 8909
+      MOVIE_SERVICE_HOSTNAME: localhost
+      MOVIE_SERVICE_PORT: 8910
+      GATEWAY_PORT: 8762
+    ports:
+      - "8762:8762"
+    build:
+      context: "./gateway-service"
+      dockerfile: "Dockerfile"
+

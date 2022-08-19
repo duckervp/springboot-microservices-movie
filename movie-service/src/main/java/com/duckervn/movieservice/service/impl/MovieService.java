@@ -46,7 +46,8 @@ public class MovieService implements IMovieService {
             movie.setProducer(producer);
         } else {
             producer = producerService.findById(producer.getId());
-            movie.addProducer(producer);
+            movie.setProducer(producer);
+//            movie.addProducer(producer);
         }
         movie.setCreatedAt(LocalDateTime.now());
         movieRepository.save(movie);

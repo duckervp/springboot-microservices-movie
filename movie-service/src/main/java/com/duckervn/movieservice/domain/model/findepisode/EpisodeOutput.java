@@ -1,7 +1,6 @@
-package com.duckervn.movieservice.domain.model.findEpisode;
+package com.duckervn.movieservice.domain.model.findepisode;
 
 import com.duckervn.movieservice.domain.dto.MovieDTO;
-import com.duckervn.movieservice.domain.entity.Movie;
 
 import java.time.LocalDateTime;
 

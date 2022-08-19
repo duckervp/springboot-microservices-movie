@@ -4,7 +4,7 @@ import com.duckervn.movieservice.domain.dto.EpisodeDTO;
 import com.duckervn.movieservice.domain.entity.Episode;
 import com.duckervn.movieservice.domain.entity.Movie;
 import com.duckervn.movieservice.domain.model.addepisode.EpisodeInput;
-import com.duckervn.movieservice.domain.model.findEpisode.EpisodeOutput;
+import com.duckervn.movieservice.domain.model.findepisode.EpisodeOutput;
 import com.duckervn.movieservice.repository.EpisodeRepository;
 import com.duckervn.movieservice.service.IEpisodeService;
 import com.duckervn.movieservice.service.IMovieService;

@@ -82,14 +82,14 @@ public class CustomMovieRepository implements ICustomMovieRepository {
 
         long totalElements = ((BigInteger) countQuery.getSingleResult()).longValue();
 
-        if (pageable.getPageNumber() > totalElements / pageable.getPageSize() + 1 ) {
+        if (pageable.getPageNumber() > totalElements / pageable.getPageSize() + 1) {
             // page number get over total page
             return List.of(new PageOutput<>(new ArrayList<>(), pageable.getPageNumber(), pageable.getPageSize(), totalElements));
 
         }
 
         List<Object[]> results = findQuery.getResultList();
-        if(CollectionUtils.isEmpty(results)) {
+        if (CollectionUtils.isEmpty(results)) {
             return List.of(new PageOutput<>(new ArrayList<>(), pageable.getPageNumber(), pageable.getPageSize(), totalElements));
         }
 
@@ -112,6 +112,7 @@ public class CustomMovieRepository implements ICustomMovieRepository {
 
     /**
      * Convert Sql Timestamp object to LocalDateTime
+     *
      * @param object Object instance of Timestamp
      * @return LocalDateTime value
      */
@@ -124,6 +125,7 @@ public class CustomMovieRepository implements ICustomMovieRepository {
 
     /**
      * Convert object BigInteger to Long
+     *
      * @param object Object instance of BigInteger
      * @return Long value
      */

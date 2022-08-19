@@ -2,6 +2,7 @@ package com.duckervn.movieservice.repository;
 
 import com.duckervn.movieservice.domain.dto.MovieDTO;
 import com.duckervn.movieservice.domain.entity.Movie;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,5 +18,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             "poster_url AS posterUrl, description, created_at AS createdAt, modified_at AS modifiedAt " +
             "FROM movie WHERE id = :id", nativeQuery = true)
     Optional<MovieDTO> findMovieDTOById(Long id);
+    @EntityGraph(Movie.FULL_MOVIE_GRAPH)
+    Optional<Movie> findById(Long id);
 
 }
