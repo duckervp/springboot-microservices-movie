@@ -1,4 +1,4 @@
-package com.savvycom.gateway;
+package com.duckervn.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

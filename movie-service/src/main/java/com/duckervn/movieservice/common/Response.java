@@ -1,4 +1,4 @@
-package com.duckervn.authservice.common;
+package com.duckervn.movieservice.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

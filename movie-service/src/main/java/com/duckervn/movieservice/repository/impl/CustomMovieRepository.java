@@ -88,6 +88,7 @@ public class CustomMovieRepository implements ICustomMovieRepository {
 
         }
 
+        @SuppressWarnings("unchecked")
         List<Object[]> results = findQuery.getResultList();
         if (CollectionUtils.isEmpty(results)) {
             return List.of(new PageOutput<>(new ArrayList<>(), pageable.getPageNumber(), pageable.getPageSize(), totalElements));

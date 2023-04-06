@@ -25,8 +25,7 @@ public class Producer {
     private String name;
     private String description;
     @JsonIgnore
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "producer_id")
+    @OneToMany(mappedBy = "producer", cascade = CascadeType.ALL)
     private Set<Movie> movies;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;

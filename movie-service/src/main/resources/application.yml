@@ -12,6 +12,9 @@ service:
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
 
+server:
+  port: ${MOVIE_PORT}
+
 spring:
   application:
     name: movie-service

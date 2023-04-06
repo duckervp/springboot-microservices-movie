@@ -1,12 +1,11 @@
 package com.duckervn.movieservice.controller;
 
-import com.duckervn.movieservice.domain.entity.Producer;
 import com.duckervn.movieservice.domain.model.addproducer.ProducerInput;
 import com.duckervn.movieservice.service.IProducerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/producer")
@@ -15,17 +14,17 @@ public class ProducerController {
     private final IProducerService producerService;
 
     @PostMapping
-    public void save(@RequestBody ProducerInput producerInput) {
-        producerService.save(producerInput);
+    public ResponseEntity<?> save(@RequestBody ProducerInput producerInput) {
+        return new ResponseEntity<>(producerService.save(producerInput), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<Producer> findAll() {
-        return producerService.findAll();
+    public ResponseEntity<?> findAll() {
+        return ResponseEntity.ok(producerService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Producer findById(@PathVariable Long id) {
-        return producerService.findById(id);
+    public ResponseEntity<?> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(producerService.findById(id));
     }
 }

@@ -1,6 +1,15 @@
 version: "3"
 
 services:
+  mysql-db:
+    image: mysql:latest
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    volumes:
+      - db:/var/lib/mysql_data
   discovery-service:
     image: duckervn/msult-discovery-service
     environment:
@@ -18,7 +27,7 @@ services:
       DISCOVERY_HOSTNAME: discovery-service
       DISCOVERY_PORT: 8761
       AUTH_SERVICE_HOSTNAME: auth-service
-      MYSQL_HOSTNAME: 172.17.0.1
+      MYSQL_HOSTNAME: mysql-db
       MYSQL_PORT: 3306
       MYSQL_DATABASE: ult_user
       MYSQL_USERNAME: root
@@ -29,6 +38,9 @@ services:
     build:
       context: "./auth-service"
       dockerfile: "Dockerfile"
+    depends_on:
+      - mysql-db
+      - discovery-service
 
   movie-service:
     image: duckervn/msult-movie-service
@@ -37,7 +49,7 @@ services:
       DISCOVERY_PORT: 8761
       AUTH_SERVICE_HOSTNAME: auth-service
       AUTH_SERVICE_PORT: 8909
-      MYSQL_HOSTNAME: 172.17.0.1
+      MYSQL_HOSTNAME: mysql-db
       MYSQL_PORT: 3306
       MYSQL_DATABASE: ult_movie
       MYSQL_USERNAME: root
@@ -48,6 +60,9 @@ services:
     build:
       context: "./movie-service"
       dockerfile: "Dockerfile"
+    depends_on:
+      - mysql-db
+      - discovery-service
 
   gate-service:
     image: duckervn/msult-gateway-service
@@ -56,7 +71,7 @@ services:
       DISCOVERY_PORT: 8761
       AUTH_SERVICE_HOSTNAME: auth-service
       AUTH_SERVICE_PORT: 8909
-      MOVIE_SERVICE_HOSTNAME: localhost
+      MOVIE_SERVICE_HOSTNAME: movie-service
       MOVIE_SERVICE_PORT: 8910
       GATEWAY_PORT: 8762
     ports:
@@ -64,4 +79,10 @@ services:
     build:
       context: "./gateway-service"
       dockerfile: "Dockerfile"
+    depends_on:
+      - discovery-service
+      - auth-service
+      - movie-service
 
+volumes:
+  db:

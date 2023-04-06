@@ -12,7 +12,7 @@ service:
     password: ${MYSQL_PASSWORD}
 
 server:
-  port: ${SERVER_PORT}
+  port: ${AUTH_SERVICE_PORT}
 
 spring:
   jpa:

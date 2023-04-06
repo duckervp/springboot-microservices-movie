@@ -1,14 +1,15 @@
 package com.duckervn.movieservice.service;
 
+import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.entity.Genre;
 import com.duckervn.movieservice.domain.model.addgenre.GenreInput;
 
-import java.util.List;
-
 public interface IGenreService {
-    Genre findById(Long id);
+    Response findById(Long id);
 
-    void save(GenreInput genreInput);
+    Response save(GenreInput genreInput);
 
-    List<Genre> findAll();
+    void save(Genre genre);
+
+    Response findAll();
 }

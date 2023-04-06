@@ -1,13 +1,12 @@
 package com.duckervn.movieservice.service;
 
-import com.duckervn.movieservice.domain.entity.Episode;
+import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.model.addepisode.EpisodeInput;
-import com.duckervn.movieservice.domain.model.findepisode.EpisodeOutput;
 
 public interface IEpisodeService {
-    void save(EpisodeInput episodeInput);
+    Response save(EpisodeInput episodeInput);
 
-    Episode findById(Long id);
+    Response findById(Long id);
 
-    EpisodeOutput findEpisodeOutputById(Long id);
+    Response findEpisodeOutputById(Long id);
 }

@@ -1,8 +1,8 @@
-package com.duckervn.authservice.controller;
+package com.duckervn.movieservice.controller;
 
-import com.duckervn.authservice.common.RespMessage;
-import com.duckervn.authservice.common.Response;
-import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
+import com.duckervn.movieservice.common.Response;
+import com.duckervn.movieservice.common.RespMessage;
+import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;

@@ -33,7 +33,7 @@ spring:
           uri:
             http://${service.movie.hostname}:${service.movie.port}/
           predicates:
-            - Path=/user/**
+            - Path=/movie/**
         - id: stream-service
           uri:
             http://${service.stream.hostname}:${service.stream.port}/

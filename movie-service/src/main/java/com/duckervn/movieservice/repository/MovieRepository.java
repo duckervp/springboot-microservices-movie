@@ -18,7 +18,11 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             "poster_url AS posterUrl, description, created_at AS createdAt, modified_at AS modifiedAt " +
             "FROM movie WHERE id = :id", nativeQuery = true)
     Optional<MovieDTO> findMovieDTOById(Long id);
+
     @EntityGraph(Movie.FULL_MOVIE_GRAPH)
     Optional<Movie> findById(Long id);
+
+    @Query(value = "SELECT * FROM movie WHERE id in (:movieIds)", nativeQuery = true)
+    List<Movie> findAllById(List<Long> movieIds);
 
 }

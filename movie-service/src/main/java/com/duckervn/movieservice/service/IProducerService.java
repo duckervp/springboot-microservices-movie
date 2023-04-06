@@ -1,17 +1,17 @@
 package com.duckervn.movieservice.service;
 
-import com.duckervn.movieservice.domain.dto.ProducerDTO;
+import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.entity.Producer;
 import com.duckervn.movieservice.domain.model.addproducer.ProducerInput;
 
-import java.util.List;
-
 public interface IProducerService {
-    Producer findById(Long id);
+    Response findById(Long id);
 
-    void save(ProducerInput producerInput);
+    Response save(ProducerInput producerInput);
 
-    ProducerDTO findProductDTOById(Long id);
+    Response save(Producer producer);
 
-    List<Producer> findAll();
+    Response findProductDTOById(Long id);
+
+    Response findAll();
 }
