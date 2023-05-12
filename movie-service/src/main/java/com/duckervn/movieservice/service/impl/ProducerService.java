@@ -1,7 +1,7 @@
 package com.duckervn.movieservice.service.impl;
 
-import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.common.RespMessage;
+import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.common.Utils;
 import com.duckervn.movieservice.domain.dto.ProducerDTO;
 import com.duckervn.movieservice.domain.entity.Producer;
@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -28,16 +30,20 @@ public class ProducerService implements IProducerService {
      * @return producer
      */
     @Override
-    public Response findById(Long id) {
-        Producer producer = producerRepository.findById(id)
-                .orElseThrow(ResourceNotFoundException::new);
+    public Response findProducer(Long id) {
+        Producer producer = findById(id);
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_PRODUCER)
                 .result(producer).build();
     }
 
+    @Override
+    public Producer findById(Long id) {
+        return producerRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    }
+
     /**
      * @param producerInput product input
-     * @return
+     * @return Response
      */
     @Override
     public Response save(ProducerInput producerInput) {
@@ -47,7 +53,7 @@ public class ProducerService implements IProducerService {
 
     /**
      * @param producer product
-     * @return
+     * @return Response
      */
     @Override
     public Response save(Producer producer) {
@@ -76,5 +82,42 @@ public class ProducerService implements IProducerService {
     public Response findAll() {
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_PRODUCERS)
                 .results(Utils.toObjectList(producerRepository.findAll())).build();
+    }
+
+    @Override
+    public Response update(Long producerId, ProducerInput producerInput) {
+        Producer producer = findById(producerId);
+
+        if (Objects.nonNull(producerInput.getName())) {
+            producer.setName(producerInput.getName());
+        }
+
+        if (Objects.nonNull(producerInput.getDescription())) {
+            producer.setDescription(producerInput.getDescription());
+        }
+
+        producer.setModifiedAt(LocalDateTime.now());
+
+        producerRepository.save(producer);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_PRODUCER).build();
+    }
+
+    @Override
+    public Response delete(Long producerId) {
+        Producer producer = findById(producerId);
+
+        producerRepository.delete(producer);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_PRODUCER).build();
+    }
+
+    @Override
+    public Response delete(List<Long> producerIds) {
+        List<Producer> producers = producerRepository.findByIds(producerIds);
+
+        producerRepository.deleteAll(producers);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_PRODUCERS).build();
     }
 }

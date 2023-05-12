@@ -17,11 +17,11 @@ public class WebSecurityConfig {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET).permitAll()
-//                .anyRequest()
-//                .authenticated()
-//                .and()
-//                .oauth2ResourceServer()
-//                .jwt()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .oauth2ResourceServer()
+                .jwt()
                 ;
         return http.build();
     }

@@ -21,15 +21,28 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MovieInput {
     private Long id;
+
     private String name;
+
     private Integer releaseYear;
+
     private Integer totalEpisode;
+
     private String country;
+
     private String bannerUrl;
+
     private String posterUrl;
+
     private String description;
+
     private Set<Episode> episodes;
+
     private Set<Genre> genres;
+
     private Set<Character> characters;
+
     private Producer producer;
+
+    private String slug;
 }

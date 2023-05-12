@@ -23,13 +23,18 @@ public class Character {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
+
     private String avatarUrl;
+
     private String description;
     @JsonIgnore
     @ManyToMany(mappedBy = "characters")
     private Set<Movie> movies = new HashSet<>();
+
     private LocalDateTime createdAt;
+
     private LocalDateTime modifiedAt;
 
     public void addMovie(Movie movie) {

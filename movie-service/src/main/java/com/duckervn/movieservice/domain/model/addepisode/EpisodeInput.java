@@ -11,9 +11,14 @@ import lombok.NoArgsConstructor;
 @Builder
 public class EpisodeInput {
     private Long id;
+
     private String name;
+
     private Long duration;
+
     private String url;
+
     private String description;
+
     private Long movieId;
 }

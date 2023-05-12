@@ -28,12 +28,12 @@ spring:
           uri:
             http://${service.auth.hostname}:${service.auth.port}/
           predicates:
-            - Path=/oauth2/**, /user/**
+            - Path=/oauth2/**, /users/**
         - id: movie-service
           uri:
             http://${service.movie.hostname}:${service.movie.port}/
           predicates:
-            - Path=/movie/**
+            - Path=/movies/**, /genres/**, /characters/**, /episodes/**, /producers/**
         - id: stream-service
           uri:
             http://${service.stream.hostname}:${service.stream.port}/

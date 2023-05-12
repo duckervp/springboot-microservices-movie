@@ -48,6 +48,6 @@ public class  RegisterInput {
     @NotBlankIfNotNull(message = "address must not be blank")
     private String address;
 
-    @NotBlankIfNotNull(message = "dobs must not be blank")
-    private String dobs;
+    @NotBlankIfNotNull(message = "birthdate must not be blank")
+    private String birthdate;
 }

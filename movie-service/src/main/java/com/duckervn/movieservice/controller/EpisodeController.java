@@ -6,14 +6,16 @@ import com.duckervn.movieservice.service.IEpisodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/episode")
+@RequestMapping("/episodes")
 @RequiredArgsConstructor
 public class EpisodeController {
     private final IEpisodeService episodeService;
 
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping
     public ResponseEntity<?> save(@RequestBody EpisodeInput episodeInput) {
         return new ResponseEntity<>(episodeService.save(episodeInput), HttpStatus.CREATED);

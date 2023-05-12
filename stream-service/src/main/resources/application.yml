@@ -1,0 +1,10 @@
+s3:
+  accessKey: AKIAWMTNGN6ZZCBNPRXX
+  secretKey: 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
+  bucketName: s3bucket4723
+
+storage:
+  local: C:\Users\ductr\Downloads\movie\
+
+server:
+  port: 8911

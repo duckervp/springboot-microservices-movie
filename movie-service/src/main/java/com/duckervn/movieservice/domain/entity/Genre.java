@@ -23,12 +23,19 @@ public class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
+
     private String description;
+
+    private String slug;
+
     @JsonIgnore
     @ManyToMany(mappedBy = "genres")
     private Set<Movie> movies = new HashSet<>();
+
     private LocalDateTime createdAt;
+
     private LocalDateTime modifiedAt;
 
     public void addMovie(Movie movie) {

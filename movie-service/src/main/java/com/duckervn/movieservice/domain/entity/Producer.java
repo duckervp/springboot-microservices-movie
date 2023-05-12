@@ -22,12 +22,17 @@ public class Producer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
+
     private String description;
+
     @JsonIgnore
     @OneToMany(mappedBy = "producer", cascade = CascadeType.ALL)
     private Set<Movie> movies;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime modifiedAt;
 
     public void addMovie(Movie movie) {

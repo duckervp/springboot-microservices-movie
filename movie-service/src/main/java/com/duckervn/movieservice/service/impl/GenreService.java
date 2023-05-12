@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -27,29 +29,44 @@ public class GenreService implements IGenreService {
      * @return genre
      */
     @Override
-    public Response findById(Long id) {
-        Genre genre = genreRepository.findById(id)
-                .orElseThrow(ResourceNotFoundException::new);
+    public Response findGenre(Long id) {
+        Genre genre = findById(id);
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_GENRE)
                 .result(genre).build();
     }
 
+    @Override
+    public Genre findById(Long id) {
+        return genreRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    }
+
     /**
      * @param genreInput genre input
-     * @return
+     * @return Response
      */
     @Override
     public Response save(GenreInput genreInput) {
         Genre genre = objectMapper.convertValue(genreInput, Genre.class);
+
         save(genre);
+
         return Response.builder().code(HttpStatus.CREATED.value())
-                .message(RespMessage.CREATED_GENRE).build();
+                .message(RespMessage.CREATED_GENRE)
+                .result(genre).build();
     }
 
+    /**
+     * Save genre with audit field
+     * @param genre genre entity
+     */
     @Override
     public void save(Genre genre) {
+        genre.setSlug(Utils.genSlug(genre.getName()));
+
         genre.setCreatedAt(LocalDateTime.now());
+
         genre.setModifiedAt(LocalDateTime.now());
+
         genreRepository.save(genre);
     }
 
@@ -61,5 +78,48 @@ public class GenreService implements IGenreService {
         return Response.builder().code(HttpStatus.OK.value())
                 .message(RespMessage.FOUND_ALL_GENRES)
                 .results(Utils.toObjectList(genreRepository.findAll())).build();
+    }
+
+    @Override
+    public Response update(Long genreId, GenreInput genreInput) {
+        Genre genre = findById(genreId);
+
+        if (Objects.nonNull(genreInput.getName())) {
+            genre.setName(genreInput.getName());
+        }
+
+        if (Objects.nonNull(genreInput.getDescription())) {
+            genre.setDescription(genreInput.getDescription());
+        }
+
+        genre.setSlug(Utils.genSlug(genre.getName()));
+
+        genre.setModifiedAt(LocalDateTime.now());
+
+        genreRepository.save(genre);
+
+        return Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.UPDATED_GENRE)
+                .result(genre)
+                .build();
+    }
+
+    @Override
+    public Response delete(Long genreId) {
+        Genre genre = findById(genreId);
+
+        genreRepository.delete(genre);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_GENRE).build();
+    }
+
+    @Override
+    public Response delete(List<Long> genreIds) {
+        List<Genre> genres = genreRepository.findByIds(genreIds);
+
+        genreRepository.deleteAll(genres);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_GENRES).build();
     }
 }

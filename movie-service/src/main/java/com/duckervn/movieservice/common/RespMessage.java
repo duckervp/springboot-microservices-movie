@@ -29,6 +29,8 @@ public class RespMessage {
 
     public static final String DELETED_GENRE = "Deleted Genre successfully!";
 
+    public static final String DELETED_GENRES = "Deleted Genres successfully!";
+
     // Episode
 
     public static final String CREATED_EPISODE = "Created a Episode successfully!";
@@ -52,6 +54,8 @@ public class RespMessage {
 
     public static final String DELETED_MOVIE = "Deleted Movie successfully!";
 
+    public static final String RESET_SLUG = "Reset Movie Slug successfully!";
+
     // Producer
 
     public static final String CREATED_PRODUCER = "Created a Producer successfully!";
@@ -63,4 +67,6 @@ public class RespMessage {
     public static final String UPDATED_PRODUCER = "Update Producer successfully!";
 
     public static final String DELETED_PRODUCER = "Deleted Producer successfully!";
+
+    public static final String DELETED_PRODUCERS = "Deleted Producers successfully!";
 }

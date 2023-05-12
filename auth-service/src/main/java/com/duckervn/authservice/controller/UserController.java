@@ -1,10 +1,12 @@
 package com.duckervn.authservice.controller;
 
 import com.duckervn.authservice.common.Credential;
+import com.duckervn.authservice.common.RespMessage;
 import com.duckervn.authservice.common.Response;
 import com.duckervn.authservice.domain.entity.User;
 import com.duckervn.authservice.domain.model.getToken.TokenOutput;
 import com.duckervn.authservice.domain.model.register.RegisterInput;
+import com.duckervn.authservice.domain.model.updateuser.UpdateUserInput;
 import com.duckervn.authservice.resolver.annotation.UserInfo;
 import com.duckervn.authservice.service.IUserService;
 import com.duckervn.authservice.service.client.OAuth2AuthorizationClient;
@@ -19,8 +21,8 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
-public class AuthController {
+@RequestMapping("/users")
+public class UserController {
     private final IUserService userService;
 
     private final OAuth2AuthorizationClient authorizationClient;
@@ -30,8 +32,18 @@ public class AuthController {
         return ResponseEntity.ok(
                 Response.builder()
                         .code(HttpStatus.OK.value())
-                        .message("Found User successfully!")
+                        .message(RespMessage.FOUND_USER)
                         .result(user).build());
+    }
+
+    @PatchMapping("/{userId}")
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody @Valid UpdateUserInput input) {
+        return ResponseEntity.ok(userService.updateUser(userId, input));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.deleteUser(userId));
     }
 
     @PostMapping("/register")

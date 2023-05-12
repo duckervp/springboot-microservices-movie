@@ -4,7 +4,9 @@ import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.common.RespMessage;
 import com.duckervn.movieservice.common.Utils;
 import com.duckervn.movieservice.domain.entity.Character;
+import com.duckervn.movieservice.domain.entity.Character;
 import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
+import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
 import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
 import com.duckervn.movieservice.repository.CharacterRepository;
 import com.duckervn.movieservice.service.ICharacterService;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +30,15 @@ public class CharacterService implements ICharacterService {
      * @return character
      */
     @Override
-    public Response findById(Long id) {
-        Character character =  characterRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    public Response findCharacter(Long id) {
+        Character character =  findById(id);
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_CHARACTER)
                 .result(character).build();
+    }
+
+    @Override
+    public Character findById(Long id) {
+        return characterRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
@@ -55,5 +63,37 @@ public class CharacterService implements ICharacterService {
     public Response findAll() {
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_CHARACTERS)
                 .results(Utils.toObjectList(characterRepository.findAll())).build();
+    }
+
+    @Override
+    public Response update(Long characterId, CharacterInput characterInput) {
+        Character character = findById(characterId);
+
+        if (Objects.nonNull(characterInput.getName())) {
+            character.setName(characterInput.getName());
+        }
+
+        if (Objects.nonNull(characterInput.getAvatarUrl())) {
+            character.setAvatarUrl(characterInput.getAvatarUrl());
+        }
+
+        if (Objects.nonNull(characterInput.getDescription())) {
+            character.setDescription(characterInput.getDescription());
+        }
+
+        character.setModifiedAt(LocalDateTime.now());
+
+        characterRepository.save(character);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_GENRE).build();
+    }
+
+    @Override
+    public Response delete(Long characterId) {
+        Character character = findById(characterId);
+
+        characterRepository.delete(character);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_GENRE).build();
     }
 }

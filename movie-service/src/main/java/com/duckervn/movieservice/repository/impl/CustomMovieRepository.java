@@ -26,12 +26,12 @@ public class CustomMovieRepository implements ICustomMovieRepository {
      * @param name        movie name
      * @param releaseYear release year
      * @param country     country
-     * @param genreId     genre
+     * @param genre     genre
      * @param pageable    paging info
      * @return list of movie after paging
      */
     @Override
-    public List<?> findMovieOutput(String name, Integer releaseYear, String country, Long genreId, Pageable pageable) {
+    public List<?> findMovieOutput(String name, Integer releaseYear, String country, String genre, Pageable pageable) {
         Assert.isTrue(pageable.getPageNumber() > 0, "pageNo is greater than zero");
         Assert.isTrue(pageable.getPageSize() > 0, "pageSize is greater than zero");
         StringBuilder countQueryString = new StringBuilder();
@@ -43,12 +43,13 @@ public class CustomMovieRepository implements ICustomMovieRepository {
         findQueryString.append("SELECT m.id, m.name, m.release_year AS releaseYear, ");
         findQueryString.append("m.total_episode AS totalEpisode, m.country, m.banner_url AS bannerUrl, ");
         findQueryString.append("m.poster_url AS posterUrl, m.description, m.created_at AS createdAt, ");
-        findQueryString.append("m.modified_at AS modifiedAt FROM movie AS m ");
+        findQueryString.append("m.modified_at AS modifiedAt, m.slug AS slug FROM movie AS m ");
 
-        if (Objects.nonNull(genreId)) {
+        if (Objects.nonNull(genre)) {
             conditions.append("INNER JOIN movie_genre AS mg ON m.id = mg.movie_id ")
-                    .append("WHERE mg.genre_id = :genreId ");
-            mapping.put("genreId", genreId);
+                    .append("INNER JOIN genre AS g ON g.id = mg.genre_id ")
+                    .append("WHERE g.slug = :genre ");
+            mapping.put("genre", genre);
         } else {
             conditions.append("WHERE 1=1 ");
         }
@@ -106,6 +107,7 @@ public class CustomMovieRepository implements ICustomMovieRepository {
                         .description((String) objects[7])
                         .createdAt(toLocalDateTime(objects[8]))
                         .modifiedAt(toLocalDateTime(objects[9]))
+                        .slug((String) objects[10])
                         .build())
                 .collect(Collectors.toList());
         return List.of(new PageOutput<>(movieOutputs, pageable.getPageNumber(), pageable.getPageSize(), totalElements));

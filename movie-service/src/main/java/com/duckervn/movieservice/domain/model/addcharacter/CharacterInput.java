@@ -14,8 +14,12 @@ import java.util.List;
 @Builder
 public class CharacterInput {
     private Long id;
+
     private String name;
+
     private String avatarUrl;
+
     private String description;
+
     private List<Long> movieIds;
 }

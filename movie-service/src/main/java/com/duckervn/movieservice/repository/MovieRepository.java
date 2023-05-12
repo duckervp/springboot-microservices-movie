@@ -22,7 +22,10 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @EntityGraph(Movie.FULL_MOVIE_GRAPH)
     Optional<Movie> findById(Long id);
 
-    @Query(value = "SELECT * FROM movie WHERE id in (:movieIds)", nativeQuery = true)
-    List<Movie> findAllById(List<Long> movieIds);
+    @EntityGraph(Movie.FULL_MOVIE_GRAPH)
+    Optional<Movie> findBySlug(String slug);
+
+    @Query(value = "SELECT * FROM movie m WHERE m.id in (:movieIds)", nativeQuery = true)
+    List<Movie> findByIds(List<Long> movieIds);
 
 }

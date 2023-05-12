@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -41,6 +42,9 @@ public class User {
     private String address;
 
     private LocalDate dob;
+
+    @Column(columnDefinition = "integer default 1")
+    private Integer status;
 
     private LocalDateTime createdAt;
 

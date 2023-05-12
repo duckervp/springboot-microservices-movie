@@ -18,15 +18,22 @@ public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
+
     private Long duration;
+
     private String url;
+
     private String description;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")
     private Movie movie;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime modifiedAt;
 
     public void addMovie(Movie movie) {

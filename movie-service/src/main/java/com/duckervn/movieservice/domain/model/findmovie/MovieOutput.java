@@ -13,13 +13,24 @@ import java.time.LocalDateTime;
 @Builder
 public class MovieOutput {
     private Long id;
+
     private String name;
+
     private Integer releaseYear;
+
     private Integer totalEpisode;
+
     private String country;
+
     private String bannerUrl;
+
     private String posterUrl;
+
     private String description;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime modifiedAt;
+
+    private String slug;
 }

@@ -23,6 +23,7 @@
         <module>discovery-service</module>
         <module>movie-service</module>
         <module>gateway-service</module>
+        <module>stream-service</module>
     </modules>
 
     <build>

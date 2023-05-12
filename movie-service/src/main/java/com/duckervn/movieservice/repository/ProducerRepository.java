@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,4 +21,7 @@ public interface ProducerRepository extends JpaRepository<Producer, Long> {
     @Query(value = "SELECT id, name, description,  created_at AS createdAt, modified_at AS modifiedAt " +
             "FROM producer WHERE id = :id", nativeQuery = true)
     Optional<ProducerDTO> findProducerDTOById(Long id);
+
+    @Query(value = "SELECT * from producer p WHERE p.id IN (:producerIds)", nativeQuery = true)
+    List<Producer> findByIds(List<Long> producerIds);
 }

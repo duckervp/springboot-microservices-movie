@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-@Table(name = "movie")
+@Table(name = "movie", indexes = @Index(columnList = "slug"))
 @NamedEntityGraph(
         name = Movie.FULL_MOVIE_GRAPH,
         attributeNodes = {
@@ -34,16 +34,29 @@ public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
     private Integer releaseYear;
+
     private Integer totalEpisode;
+
     private String country;
+
     private String bannerUrl;
+
     private String posterUrl;
+
     private String description;
+
+    @Column(unique = true)
+    private String slug;
+
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "movie_id")
     private Set<Episode> episodes = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
             name = "movie_genre",
@@ -51,6 +64,7 @@ public class Movie {
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
     private Set<Genre> genres = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
             name = "movie_character",
@@ -58,10 +72,13 @@ public class Movie {
             inverseJoinColumns = @JoinColumn(name = "character_id")
     )
     private Set<Character> characters = new HashSet<>();
+
     @ManyToOne
     @JoinColumn(name = "producer_id")
     private Producer producer;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime modifiedAt;
 
     public void addEpisode(Episode episode) {

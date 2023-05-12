@@ -1,6 +1,11 @@
 package com.duckervn.authservice.service.impl;
 
 import com.duckervn.authservice.common.Credential;
+import com.duckervn.authservice.common.RespMessage;
+import com.duckervn.authservice.common.Response;
+import com.duckervn.authservice.domain.entity.Gender;
+import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
+import com.duckervn.authservice.domain.model.updateuser.UpdateUserInput;
 import com.duckervn.authservice.service.IUserService;
 import com.duckervn.authservice.common.Scope;
 import com.duckervn.authservice.domain.entity.User;
@@ -9,6 +14,7 @@ import com.duckervn.authservice.repository.UserRepository;
 import com.duckervn.authservice.service.JpaRegisteredClientRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -48,8 +54,8 @@ public class UserService implements IUserService {
         User user = objectMapper.convertValue(registerInput, User.class);
         user.setId(registerInput.getUsername());
         user.setCreatedAt(LocalDateTime.now());
-        if (Objects.nonNull(registerInput.getDobs())) {
-            user.setDob(convertStringToLocalDate(registerInput.getDobs()));
+        if (Objects.nonNull(registerInput.getBirthdate())) {
+            user.setDob(convertStringToLocalDate(registerInput.getBirthdate()));
         }
 
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
@@ -88,7 +94,57 @@ public class UserService implements IUserService {
      */
     @Override
     public User findById(String id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Not found any user with id " + id));
+        return userRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    }
+
+    /**
+     * Update user
+     * @param userId user id
+     * @param input update info
+     * @return Response
+     */
+    @Override
+    public Response updateUser(String userId, UpdateUserInput input) {
+        User user = findById(userId);
+
+        if (Objects.nonNull(input.getName())) {
+            user.setName(input.getName());
+        }
+
+        if (Objects.nonNull(input.getEmail())) {
+            user.setEmail(input.getEmail());
+        }
+
+        if (Objects.nonNull(input.getGender())) {
+            user.setGender(Gender.valueOf(input.getGender()));
+        }
+
+        if (Objects.nonNull(input.getPhoneNumber())) {
+            user.setPhoneNumber(input.getPhoneNumber());
+        }
+
+        if (Objects.nonNull(input.getAddress())) {
+            user.setAddress(input.getAddress());
+        }
+
+        if (Objects.nonNull(input.getBirthdate())) {
+            user.setDob(convertStringToLocalDate(input.getBirthdate()));
+        }
+
+        if (Objects.nonNull(input.getStatus()) && Arrays.asList(0, 1).contains(input.getStatus())) {
+            user.setStatus(input.getStatus());
+        }
+
+        user.setModifiedAt(LocalDateTime.now());
+        userRepository.save(user);
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_USER).build();
+    }
+
+    @Override
+    public Response deleteUser(String userId) {
+        User user = findById(userId);
+        jpaRegisteredClientRepository.getClientRepository().deleteByClientId(user.getId());
+        userRepository.delete(user);
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_USER).build();
     }
 }
