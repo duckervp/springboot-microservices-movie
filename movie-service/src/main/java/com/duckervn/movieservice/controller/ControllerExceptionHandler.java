@@ -22,16 +22,20 @@ public class ControllerExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleException(MethodArgumentNotValidException e) {
         log.info("Error: ", e);
+
         String message = e.getMessage();
+
         if (e.hasFieldErrors()) {
             message = e.getFieldErrors().stream()
                     .map(ObjectError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
         }
+
         Response response =  Response.builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .message(message)
                 .build();
+
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -39,10 +43,12 @@ public class ControllerExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleException(IllegalArgumentException e) {
         log.info("Error: ", e);
+
         Response response =  Response.builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
+
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -50,10 +56,12 @@ public class ControllerExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<?> handleException(ResourceNotFoundException e) {
         log.info("Error: ", e);
+
         Response response =  Response.builder()
                 .code(HttpStatus.NOT_FOUND.value())
                 .message(RespMessage.RESOURCE_NOT_FOUND)
                 .build();
+
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -61,10 +69,12 @@ public class ControllerExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<?> handleException(Exception e) {
         log.info("Error: ", e);
+
         Response response =  Response.builder()
                 .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .message(!StringUtils.isEmpty(e.getMessage()) ? e.getMessage() : "Internal Server Error")
+                .message("Internal Server Error")
                 .build();
+
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

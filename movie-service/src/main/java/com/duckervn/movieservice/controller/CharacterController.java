@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/characters")
@@ -28,10 +29,16 @@ public class CharacterController {
         return ResponseEntity.ok(characterService.update(characterId, characterInput));
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/{characterId}")
     public ResponseEntity<?> delete(@PathVariable Long characterId) {
         return ResponseEntity.ok(characterService.delete(characterId));
+    }
+
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @DeleteMapping
+    public ResponseEntity<?> delete(@RequestParam List<Long> characterIds) {
+        return ResponseEntity.ok(characterService.delete(characterIds));
     }
 
     @GetMapping

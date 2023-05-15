@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/producers")
@@ -33,6 +34,12 @@ public class ProducerController {
     @DeleteMapping("/{producerId}")
     public ResponseEntity<?> delete(@PathVariable Long producerId) {
         return ResponseEntity.ok(producerService.delete(producerId));
+    }
+
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @DeleteMapping
+    public ResponseEntity<?> delete(@RequestParam List<Long> producerIds) {
+        return ResponseEntity.ok(producerService.delete(producerIds));
     }
 
     @GetMapping

@@ -229,7 +229,7 @@ public class MovieService implements IMovieService {
 
     @Override
     public Response delete(List<Long> ids) {
-        List<Movie> movies = movieRepository.findByIds(ids);
+        List<Movie> movies = movieRepository.findAllById(ids);
 
         movieRepository.deleteAll(movies);
 

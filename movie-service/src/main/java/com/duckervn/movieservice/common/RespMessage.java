@@ -17,6 +17,8 @@ public class RespMessage {
 
     public static final String DELETED_CHARACTER = "Deleted Character successfully!";
 
+    public static final String DELETED_CHARACTERS = "Deleted Characters successfully!";
+
     // Genre
 
     public static final String FOUND_GENRE = "Found Genre successfully!";
@@ -41,6 +43,8 @@ public class RespMessage {
 
     public static final String UPDATED_EPISODE = "Update Episode successfully!";
     public static final String DELETED_EPISODE = "Deleted Episode successfully!";
+
+    public static final String DELETED_EPISODES = "Deleted Episode successfully!";
 
     // Movie
 

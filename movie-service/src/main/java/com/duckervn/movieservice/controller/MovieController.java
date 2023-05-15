@@ -32,25 +32,25 @@ public class MovieController {
         return ResponseEntity.ok(movieService.findMovie(name, releaseYear, country, genre, pageNo, pageSize));
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping()
     public ResponseEntity<?> save(@RequestBody @Valid MovieInput movieInput) {
         return new ResponseEntity<>(movieService.save(movieInput), HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody @Valid MovieInput movieInput) {
         return ResponseEntity.ok(movieService.update(id, movieInput));
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
         return ResponseEntity.ok(movieService.delete(id));
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping
     public ResponseEntity<?> deleteMovie(@RequestParam List<Long> movieIds) {
         return ResponseEntity.ok(movieService.delete(movieIds));

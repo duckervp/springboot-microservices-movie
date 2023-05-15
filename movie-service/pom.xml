@@ -16,6 +16,7 @@
     <properties>
         <java.version>11</java.version>
         <spring-cloud.version>2021.0.3</spring-cloud.version>
+<!--        <logback.version>7.2</logback.version>-->
     </properties>
     <dependencies>
         <dependency>
@@ -71,6 +72,12 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>7.3</version>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>

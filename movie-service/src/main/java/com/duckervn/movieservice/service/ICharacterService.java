@@ -5,6 +5,8 @@ import com.duckervn.movieservice.domain.entity.Character;
 import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
 import com.duckervn.movieservice.domain.model.addgenre.GenreInput;
 
+import java.util.List;
+
 public interface ICharacterService {
     Response findCharacter(Long id);
 
@@ -19,4 +21,6 @@ public interface ICharacterService {
     Response update(Long characterId, CharacterInput characterInput);
 
     Response delete(Long characterId);
+
+    Response delete(List<Long> characterIds);
 }

@@ -9,19 +9,25 @@ import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
 import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
 import com.duckervn.movieservice.repository.CharacterRepository;
+import com.duckervn.movieservice.repository.MovieCharacterRepository;
 import com.duckervn.movieservice.service.ICharacterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CharacterService implements ICharacterService {
     private final CharacterRepository characterRepository;
+
+    private final MovieCharacterRepository movieCharacterRepository;
 
     private final ObjectMapper objectMapper;
 
@@ -85,15 +91,30 @@ public class CharacterService implements ICharacterService {
 
         characterRepository.save(character);
 
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_GENRE).build();
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_CHARACTER).build();
     }
 
     @Override
     public Response delete(Long characterId) {
         Character character = findById(characterId);
 
+        movieCharacterRepository.deleteByCharacterId(characterId);
+
         characterRepository.delete(character);
 
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_GENRE).build();
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_CHARACTER).build();
+    }
+
+    @Override
+    public Response delete(List<Long> characterIds) {
+        List<Character> characters = characterRepository.findAllById(characterIds);
+
+        movieCharacterRepository.findByCharacterIdIn(characterIds);
+
+        movieCharacterRepository.deleteByCharacterIdIn(characterIds);
+
+        characterRepository.deleteAll(characters);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_CHARACTERS).build();
     }
 }

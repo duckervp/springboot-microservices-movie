@@ -1,9 +1,7 @@
 package com.duckervn.movieservice.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,6 +29,7 @@ import java.util.stream.Collectors;
 )
 public class Movie {
     public static final String FULL_MOVIE_GRAPH = "full-movie-graph";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,12 +47,13 @@ public class Movie {
 
     private String posterUrl;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(unique = true)
     private String slug;
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "movie_id")
     private Set<Episode> episodes = new HashSet<>();
 

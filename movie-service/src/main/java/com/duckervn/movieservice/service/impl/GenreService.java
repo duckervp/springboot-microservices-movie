@@ -7,20 +7,25 @@ import com.duckervn.movieservice.domain.entity.Genre;
 import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.movieservice.domain.model.addgenre.GenreInput;
 import com.duckervn.movieservice.repository.GenreRepository;
+import com.duckervn.movieservice.repository.MovieGenreRepository;
 import com.duckervn.movieservice.service.IGenreService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class GenreService implements IGenreService {
     private final GenreRepository genreRepository;
+
+    private final MovieGenreRepository movieGenreRepository;
 
     private final ObjectMapper objectMapper;
 
@@ -109,6 +114,8 @@ public class GenreService implements IGenreService {
     public Response delete(Long genreId) {
         Genre genre = findById(genreId);
 
+        movieGenreRepository.deleteByGenreId(genreId);
+
         genreRepository.delete(genre);
 
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_GENRE).build();
@@ -116,7 +123,9 @@ public class GenreService implements IGenreService {
 
     @Override
     public Response delete(List<Long> genreIds) {
-        List<Genre> genres = genreRepository.findByIds(genreIds);
+        List<Genre> genres = genreRepository.findAllById(genreIds);
+
+        movieGenreRepository.deleteByGenreIdIn(genreIds);
 
         genreRepository.deleteAll(genres);
 
