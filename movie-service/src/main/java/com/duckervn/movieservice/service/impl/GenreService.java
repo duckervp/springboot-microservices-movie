@@ -21,7 +21,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(rollbackOn = Exception.class)
 public class GenreService implements IGenreService {
     private final GenreRepository genreRepository;
 

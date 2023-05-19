@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <springProperty name="SERVICE_NAME" source="spring.application.name" defaultValue="LCL" scope="context"/>
+    <property name="LOKI_LBL_PATTERN" value="service=${SERVICE_NAME},level=%level,trace=%thread"/>
+    <property name="LOKI_LOG_PATTERN" value="%30.30logger{30}::%-30.30M ${SERVICE_NAME} %-5level %30.30thread | %msg%n%ex{short}"/>
+    <property name="CONSOLE_LOG_PATTERN" value="%d{yy-MM-dd HH:mm:ss} %boldYellow(%30.30logger{30}::%-30.30M) %boldGreen(${SERVICE_NAME}) %highlight(%-5level) %40.40thread | %msg%n%ex{short}"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http class="com.github.loki4j.logback.ApacheHttpSender">
+            <url>http://10.22.5.17:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>${LOKI_LBL_PATTERN}</pattern>
+            </label>
+            <message>
+                <pattern>${LOKI_LOG_PATTERN}</pattern>
+            </message>
+            <sortByTime>true</sortByTime>
+        </format>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="LOKI" />
+    </root>
+</configuration>

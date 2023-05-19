@@ -60,7 +60,10 @@ public class ProducerService implements IProducerService {
         producer.setCreatedAt(LocalDateTime.now());
         producer.setModifiedAt(LocalDateTime.now());
         producerRepository.save(producer);
-        return Response.builder().code(HttpStatus.CREATED.value()).message(RespMessage.CREATED_PRODUCER).build();
+        return Response.builder()
+                .code(HttpStatus.CREATED.value())
+                .message(RespMessage.CREATED_PRODUCER)
+                .result(producer).build();
     }
 
     /**
@@ -100,7 +103,10 @@ public class ProducerService implements IProducerService {
 
         producerRepository.save(producer);
 
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_PRODUCER).build();
+        return Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.UPDATED_PRODUCER)
+                .result(producer).build();
     }
 
     @Override

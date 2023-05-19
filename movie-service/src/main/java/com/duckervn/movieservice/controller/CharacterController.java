@@ -17,13 +17,13 @@ import java.util.List;
 public class CharacterController {
     private final ICharacterService characterService;
 
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping
     public ResponseEntity<?> save(@RequestBody @Valid CharacterInput characterInput) {
         return new ResponseEntity<>(characterService.save(characterInput), HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PatchMapping("/{characterId}")
     public ResponseEntity<?> update(@PathVariable Long characterId, @RequestBody @Valid CharacterInput characterInput) {
         return ResponseEntity.ok(characterService.update(characterId, characterInput));
