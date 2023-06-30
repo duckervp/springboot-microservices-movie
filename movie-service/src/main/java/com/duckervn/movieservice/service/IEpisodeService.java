@@ -13,8 +13,6 @@ public interface IEpisodeService {
 
     Response findEpisode(Long id);
 
-    Response findEpisodeOutputById(Long id);
-
     Object update(Long episodeId, EpisodeInput episodeInput);
 
     Object delete(Long episodeId);

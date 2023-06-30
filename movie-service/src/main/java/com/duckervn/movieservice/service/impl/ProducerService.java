@@ -84,7 +84,7 @@ public class ProducerService implements IProducerService {
     @Override
     public Response findAll() {
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_PRODUCERS)
-                .results(Utils.toObjectList(producerRepository.findAll())).build();
+                .results(producerRepository.findAll()).build();
     }
 
     @Override

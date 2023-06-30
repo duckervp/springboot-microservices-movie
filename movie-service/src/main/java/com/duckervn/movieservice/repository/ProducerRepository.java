@@ -18,10 +18,10 @@ import java.util.Set;
 
 @Repository
 public interface ProducerRepository extends JpaRepository<Producer, Long> {
-    @Query(value = "SELECT id, name, description,  created_at AS createdAt, modified_at AS modifiedAt " +
-            "FROM producer WHERE id = :id", nativeQuery = true)
+    @Query(value = "SELECT p.id, p.name, p.description, p.createdAt AS createdAt, p.modifiedAt AS modifiedAt " +
+            "FROM Producer p WHERE p.id = :id")
     Optional<ProducerDTO> findProducerDTOById(Long id);
 
-    @Query(value = "SELECT * from producer p WHERE p.id IN (:producerIds)", nativeQuery = true)
+    @Query(value = "SELECT p from Producer p WHERE p.id IN (:producerIds)")
     List<Producer> findByIds(List<Long> producerIds);
 }

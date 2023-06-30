@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.ws.rs.Path;
@@ -32,25 +33,25 @@ public class MovieController {
         return ResponseEntity.ok(movieService.findMovie(name, releaseYear, country, genre, pageNo, pageSize));
     }
 
-//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping()
     public ResponseEntity<?> save(@RequestBody @Valid MovieInput movieInput) {
         return new ResponseEntity<>(movieService.save(movieInput), HttpStatus.CREATED);
     }
 
-//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody @Valid MovieInput movieInput) {
         return ResponseEntity.ok(movieService.update(id, movieInput));
     }
 
-//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
         return ResponseEntity.ok(movieService.delete(id));
     }
 
-//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping
     public ResponseEntity<?> deleteMovie(@RequestParam List<Long> movieIds) {
         return ResponseEntity.ok(movieService.delete(movieIds));

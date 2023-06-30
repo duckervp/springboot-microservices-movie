@@ -1,0 +1,12 @@
+package com.duckervn.cronservice.service;
+
+import com.duckervn.cronservice.domain.entity.Task;
+
+import java.util.List;
+
+public interface TaskService {
+    List<Task> findAll();
+    Task add(Task task);
+    void delete(String taskId);
+    Task edit(String taskId, Task task);
+}

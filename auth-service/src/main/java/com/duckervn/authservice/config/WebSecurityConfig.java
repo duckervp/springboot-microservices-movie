@@ -10,6 +10,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
+    private final OAuth2SuccessHandler oauth2SuccessHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
@@ -17,7 +19,11 @@ public class WebSecurityConfig {
                 .antMatchers("/oauth2/**").permitAll()
                 .and()
                 .oauth2ResourceServer()
-                .jwt();
+                .jwt()
+                .and().and().oauth2Login()
+                .successHandler(oauth2SuccessHandler)
+        ;
         return http.build();
     }
+
 }

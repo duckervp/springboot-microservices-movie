@@ -50,4 +50,6 @@ public class  RegisterInput {
 
     @NotBlankIfNotNull(message = "birthdate must not be blank")
     private String birthdate;
+
+    private String avatarUrl;
 }

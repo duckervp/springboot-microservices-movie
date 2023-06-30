@@ -17,25 +17,25 @@ import java.util.List;
 public class GenreController {
     private final IGenreService genreService;
 
-//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping
     public ResponseEntity<?> save(@RequestBody @Valid GenreInput genreInput) {
         return new ResponseEntity<>(genreService.save(genreInput), HttpStatus.CREATED);
     }
 
-//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PatchMapping("/{genreId}")
     public ResponseEntity<?> update(@PathVariable Long genreId, @RequestBody @Valid GenreInput genreInput) {
         return ResponseEntity.ok(genreService.update(genreId, genreInput));
     }
 
-//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/{genreId}")
     public ResponseEntity<?> delete(@PathVariable Long genreId) {
         return ResponseEntity.ok(genreService.delete(genreId));
     }
 
-//    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping
     public ResponseEntity<?> delete(@RequestParam List<Long> genreIds) {
         return ResponseEntity.ok(genreService.delete(genreIds));

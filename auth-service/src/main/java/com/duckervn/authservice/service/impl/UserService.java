@@ -3,15 +3,19 @@ package com.duckervn.authservice.service.impl;
 import com.duckervn.authservice.common.Credential;
 import com.duckervn.authservice.common.RespMessage;
 import com.duckervn.authservice.common.Response;
+import com.duckervn.authservice.domain.entity.Client;
 import com.duckervn.authservice.domain.entity.Gender;
 import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
+import com.duckervn.authservice.domain.model.getToken.TokenOutput;
 import com.duckervn.authservice.domain.model.updateuser.UpdateUserInput;
+import com.duckervn.authservice.repository.ClientRepository;
 import com.duckervn.authservice.service.IUserService;
 import com.duckervn.authservice.common.Scope;
 import com.duckervn.authservice.domain.entity.User;
 import com.duckervn.authservice.domain.model.register.RegisterInput;
 import com.duckervn.authservice.repository.UserRepository;
 import com.duckervn.authservice.service.JpaRegisteredClientRepository;
+import com.duckervn.authservice.service.client.OAuth2AuthorizationClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,19 +35,33 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService implements IUserService {
     private final UserRepository userRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final JpaRegisteredClientRepository jpaRegisteredClientRepository;
+
+    private final ClientRepository clientRepository;
 
     private final TokenSettings tokenSettings;
 
     private final PasswordEncoder passwordEncoder;
 
+    private final OAuth2AuthorizationClient authorizationClient;
+
+    @Override
+    public TokenOutput login(String clientId, String clientSecret) {
+        return authorizationClient.getToken(
+                Credential.GRANT_TYPE,
+                clientId,
+                clientSecret
+        );
+    }
+
     /**
      * @param registerInput register info
      */
     @Override
-    public Map<String, String> register(RegisterInput registerInput) {
+    public TokenOutput register(RegisterInput registerInput) {
         if (userRepository.existsById(registerInput.getUsername())) {
             throw new IllegalArgumentException("Username is already taken: " + registerInput.getUsername());
         }
@@ -69,11 +87,10 @@ public class UserService implements IUserService {
                 .build();
 
         jpaRegisteredClientRepository.save(registeredClient);
+
         userRepository.save(user);
-        Map<String, String> userCredentials = new HashMap<>();
-        userCredentials.put(Credential.CLIENT_ID, registerInput.getUsername());
-        userCredentials.put(Credential.CLIENT_SECRET, registerInput.getPassword());
-        return userCredentials;
+
+        return login(registerInput.getUsername(), registerInput.getPassword());
     }
 
     /**
@@ -131,20 +148,31 @@ public class UserService implements IUserService {
             user.setDob(convertStringToLocalDate(input.getBirthdate()));
         }
 
+        if (Objects.nonNull(input.getAvatarUrl())) {
+            user.setAvatarUrl(input.getAvatarUrl());
+        }
+
         if (Objects.nonNull(input.getStatus()) && Arrays.asList(0, 1).contains(input.getStatus())) {
             user.setStatus(input.getStatus());
         }
 
         user.setModifiedAt(LocalDateTime.now());
         userRepository.save(user);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_USER).build();
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_USER).result(user).build();
     }
 
     @Override
     public Response deleteUser(String userId) {
         User user = findById(userId);
-        jpaRegisteredClientRepository.getClientRepository().deleteByClientId(user.getId());
+        clientRepository.deleteByClientId(user.getId());
         userRepository.delete(user);
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_USER).build();
+    }
+
+    @Override
+    public void updatePassword(Client client, String newPassword, boolean encode) {
+       String password = encode ? passwordEncoder.encode(newPassword) : newPassword;
+       client.setClientSecret(password);
+       clientRepository.save(client);
     }
 }

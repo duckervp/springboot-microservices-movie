@@ -46,6 +46,8 @@ public class User {
     @Column(columnDefinition = "integer default 1")
     private Integer status;
 
+    private String avatarUrl;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime modifiedAt;

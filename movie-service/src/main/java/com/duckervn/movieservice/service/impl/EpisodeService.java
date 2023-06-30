@@ -1,14 +1,11 @@
 package com.duckervn.movieservice.service.impl;
 
-import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.common.RespMessage;
-import com.duckervn.movieservice.domain.dto.EpisodeDTO;
-import com.duckervn.movieservice.domain.entity.Character;
+import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.entity.Episode;
 import com.duckervn.movieservice.domain.entity.Movie;
 import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.movieservice.domain.model.addepisode.EpisodeInput;
-import com.duckervn.movieservice.domain.model.findepisode.EpisodeOutput;
 import com.duckervn.movieservice.repository.EpisodeRepository;
 import com.duckervn.movieservice.service.IEpisodeService;
 import com.duckervn.movieservice.service.IMovieService;
@@ -64,22 +61,6 @@ public class EpisodeService implements IEpisodeService {
         return Response.builder().code(HttpStatus.OK.value())
                 .message(RespMessage.FOUND_EPISODE).result(episode).build();
     }
-
-    /**
-     * @param id id
-     * @return episode output
-     */
-    @Override
-    public Response findEpisodeOutputById(Long id) {
-        EpisodeDTO episode = episodeRepository.findEpisodeDTOById(id)
-                .orElseThrow(ResourceNotFoundException::new);
-        EpisodeOutput episodeOutput = objectMapper.convertValue(episode, EpisodeOutput.class);
-        episodeOutput.setMovie(movieService.findMovieDTOById(episode.getMovieId()));
-        return Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.FOUND_EPISODE).result(episodeOutput).build();
-    }
-
-
 
     @Override
     public Object update(Long episodeId, EpisodeInput episodeInput) {

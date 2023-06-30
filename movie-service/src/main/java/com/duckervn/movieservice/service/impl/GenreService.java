@@ -82,7 +82,7 @@ public class GenreService implements IGenreService {
     public Response findAll() {
         return Response.builder().code(HttpStatus.OK.value())
                 .message(RespMessage.FOUND_ALL_GENRES)
-                .results(Utils.toObjectList(genreRepository.findAll())).build();
+                .results(genreRepository.findAll()).build();
     }
 
     @Override

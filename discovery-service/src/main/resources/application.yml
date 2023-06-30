@@ -1,3 +1,7 @@
+service:
+  loki:
+    url: ${LOKI_URL}
+
 spring:
   application:
     name: discovery-service

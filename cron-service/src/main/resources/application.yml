@@ -1,0 +1,50 @@
+server:
+  port: ${SERVER_PORT}
+
+cron:
+  username: ${CRON_USERNAME}
+  password: ${CRON_PASSWORD}
+
+service:
+  discovery:
+    hostname: ${DISCOVERY_HOSTNAME}
+    port: ${DISCOVERY_PORT}
+  auth:
+    hostname: ${AUTH_SERVICE_HOSTNAME}
+    port: ${AUTH_SERVICE_PORT}
+  mysql:
+    hostname: ${MYSQL_HOSTNAME}
+    port: ${MYSQL_PORT}
+    database: ${MYSQL_DATABASE}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  loki:
+    url: ${LOKI_URL}
+
+spring:
+  application:
+    name: cron-service
+  jpa:
+#    showSql: true
+    openInView: false
+    databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddlAuto: update
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${service.mysql.hostname}:${service.mysql.port}/${service.mysql.database}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: ${service.mysql.username}
+    password: ${service.mysql.password}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://${service.auth.hostname}:${service.auth.port}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${service.discovery.hostname}:${service.discovery.port}/eureka/

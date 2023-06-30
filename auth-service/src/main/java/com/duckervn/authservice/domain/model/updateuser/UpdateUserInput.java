@@ -36,4 +36,6 @@ public class UpdateUserInput {
     private String birthdate;
 
     private Integer status;
+
+    private String avatarUrl;
 }

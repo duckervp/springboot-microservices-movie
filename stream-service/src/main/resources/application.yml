@@ -1,10 +1,35 @@
-s3:
-  accessKey: ${S3_ACCESS_KEY}
-  secretKey: ${S3_SECRET_KEY}
-  bucketName: ${S3_BUCKET_NAME}
+root:
+  location: ${LOCAL_STORAGE}
 
-storage:
-  local: ${LOCAL_STORAGE}
+gateway:
+  url: ${GATEWAY_URL}
 
 server:
   port: ${SERVER_PORT}
+
+service:
+  discovery:
+    hostname: ${DISCOVERY_HOSTNAME}
+    port: ${DISCOVERY_PORT}
+  auth:
+    hostname: ${AUTH_SERVICE_HOSTNAME}
+    port: ${AUTH_SERVICE_PORT}
+  movie:
+    hostname: ${MOVIE_SERVICE_HOSTNAME}
+    port: ${MOVIE_SERVICE_PORT}
+  loki:
+    url: ${LOKI_URL}
+
+spring:
+  application:
+    name: stream-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://${service.auth.hostname}:${service.auth.port}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${service.discovery.hostname}:${service.discovery.port}/eureka/

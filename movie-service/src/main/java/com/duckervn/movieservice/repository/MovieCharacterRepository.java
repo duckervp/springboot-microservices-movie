@@ -13,6 +13,5 @@ public interface MovieCharacterRepository extends JpaRepository<MovieCharacter, 
 
     void deleteByCharacterIdIn(List<Long> characterIds);
 
-
-    List<MovieCharacter> findByCharacterIdIn(List<Long> characterIds);
+    void deleteByMovieIdAndCharacterIdIn(Long movieId, List<Long> characterIds);
 }

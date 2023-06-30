@@ -4,9 +4,7 @@ import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.common.RespMessage;
 import com.duckervn.movieservice.common.Utils;
 import com.duckervn.movieservice.domain.entity.Character;
-import com.duckervn.movieservice.domain.entity.Character;
 import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
-import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
 import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
 import com.duckervn.movieservice.repository.CharacterRepository;
 import com.duckervn.movieservice.repository.MovieCharacterRepository;
@@ -23,7 +21,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(rollbackOn = Exception.class)
 public class CharacterService implements ICharacterService {
     private final CharacterRepository characterRepository;
 
@@ -66,9 +64,12 @@ public class CharacterService implements ICharacterService {
      * @return list character
      */
     @Override
-    public Response findAll() {
+    public Response findAll(String name) {
+        if (Objects.nonNull(name)) {
+            name = "%" + name + "%";
+        }
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_CHARACTERS)
-                .results(Utils.toObjectList(characterRepository.findAll())).build();
+                .results(characterRepository.findAll(name)).build();
     }
 
     @Override
@@ -108,8 +109,6 @@ public class CharacterService implements ICharacterService {
     @Override
     public Response delete(List<Long> characterIds) {
         List<Character> characters = characterRepository.findAllById(characterIds);
-
-        movieCharacterRepository.findByCharacterIdIn(characterIds);
 
         movieCharacterRepository.deleteByCharacterIdIn(characterIds);
 

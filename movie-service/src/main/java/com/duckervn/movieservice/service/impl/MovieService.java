@@ -9,10 +9,7 @@ import com.duckervn.movieservice.domain.entity.Character;
 import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.movieservice.domain.model.addmovie.MovieInput;
 import com.duckervn.movieservice.domain.model.page.PageOutput;
-import com.duckervn.movieservice.repository.EpisodeRepository;
-import com.duckervn.movieservice.repository.ICustomMovieRepository;
-import com.duckervn.movieservice.repository.MovieRepository;
-import com.duckervn.movieservice.repository.ProducerRepository;
+import com.duckervn.movieservice.repository.*;
 import com.duckervn.movieservice.service.ICharacterService;
 import com.duckervn.movieservice.service.IGenreService;
 import com.duckervn.movieservice.service.IMovieService;
@@ -24,15 +21,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(rollbackOn = Exception.class)
 public class MovieService implements IMovieService {
     private final MovieRepository movieRepository;
 
@@ -48,7 +45,42 @@ public class MovieService implements IMovieService {
 
     private final ICharacterService characterService;
 
+    private final CharacterRepository characterRepository;
+
     private final EpisodeRepository episodeRepository;
+
+    private Producer processInputProducer(Producer producer) {
+        if (Objects.isNull(producer.getId())) {
+            producerService.save(producer);
+        } else {
+            producer = producerRepository.findById(producer.getId())
+                    .orElseThrow(ResourceNotFoundException::new);
+
+        }
+        return producer;
+    }
+
+    private Set<Genre> processInputGenres(Set<Genre> genres) {
+        return genres.stream().map(genre -> {
+            if (Objects.isNull(genre.getId())) {
+                genreService.save(genre);
+                return genre;
+            } else {
+                return genreService.findById(genre.getId());
+            }
+        }).collect(Collectors.toSet());
+    }
+
+    private Set<Character> processInputCharacters(Set<Character> characters) {
+        return characters.stream().map(character -> {
+            if (Objects.isNull(character.getId())) {
+                characterService.save(character);
+                return character;
+            } else {
+                return characterService.findById(character.getId());
+            }
+        }).collect(Collectors.toSet());
+    }
 
     /**
      * @param movieInput m
@@ -60,37 +92,23 @@ public class MovieService implements IMovieService {
             update(movieInput.getId(), movieInput);
         }
         Movie movie = objectMapper.convertValue(movieInput, Movie.class);
-        Set<Genre> genres = movie.getGenres();
-        for (Genre genre : genres) {
-            if (Objects.isNull(genre.getId())) {
-                genreService.save(genre);
-            }
-        }
 
-        Set<Character> characters = movie.getCharacters();
-        for (Character character : characters) {
-            if (Objects.isNull(character.getId())) {
-                characterService.save(character);
-            }
-        }
+        movie.setGenres(processInputGenres(movie.getGenres()));
 
-        Producer producer = movieInput.getProducer();
-        if (Objects.isNull(producer.getId())) {
-            producerService.save(producer);
-            movie.setProducer(producer);
-        } else {
-            producer = producerRepository.findById(producer.getId())
-                    .orElseThrow(ResourceNotFoundException::new);
-            movie.setProducer(producer);
-        }
+        movie.setCharacters(processInputCharacters(movie.getCharacters()));
+
+        movie.setProducer(processInputProducer(movieInput.getProducer()));
 
         if (Objects.isNull(movieInput.getSlug())) {
             movie.setSlug(Utils.genSlug(movie.getName()));
         }
 
         movie.setCreatedAt(LocalDateTime.now());
+
         movie.setModifiedAt(LocalDateTime.now());
+
         movieRepository.save(movie);
+
         return Response.builder()
                 .code(HttpStatus.CREATED.value())
                 .message(RespMessage.CREATED_MOVIE)
@@ -123,7 +141,7 @@ public class MovieService implements IMovieService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         PageOutput<?> pageOutput = (PageOutput<?>) customMovieRepository.findMovieOutput(name, releaseYear, country, genre, pageable).get(0);
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_MOVIES)
-                .results(Utils.toObjectList(pageOutput.getContent()))
+                .results(pageOutput.getContent())
                 .pageSize(pageOutput.getPageSize())
                 .totalElements(pageOutput.getTotalElements())
                 .pageNo(pageOutput.getPageNo()).build();
@@ -138,7 +156,7 @@ public class MovieService implements IMovieService {
     public Response update(Long id, MovieInput movieInput) {
         Movie targetMovie = findById(id);
 
-        if (Objects.nonNull(movieInput.getName()) && StringUtils.isNotBlank(movieInput.getName())) {
+        if (StringUtils.isNotBlank(movieInput.getName())) {
             targetMovie.setName(movieInput.getName());
             if (Objects.isNull(movieInput.getSlug())) {
                 targetMovie.setSlug(Utils.genSlug(targetMovie.getName()));
@@ -157,36 +175,59 @@ public class MovieService implements IMovieService {
             targetMovie.setTotalEpisode(movieInput.getTotalEpisode());
         }
 
-        if (Objects.nonNull(movieInput.getCountry()) && StringUtils.isNotBlank(movieInput.getCountry())) {
+        if (StringUtils.isNotBlank(movieInput.getCountry())) {
             targetMovie.setCountry(movieInput.getCountry());
         }
 
-        if (Objects.nonNull(movieInput.getBannerUrl()) && StringUtils.isNotBlank(movieInput.getBannerUrl())) {
+        if (StringUtils.isNotBlank(movieInput.getBannerUrl())) {
             targetMovie.setBannerUrl(movieInput.getBannerUrl());
         }
 
-        if (Objects.nonNull(movieInput.getPosterUrl()) && StringUtils.isNotBlank(movieInput.getPosterUrl())) {
+        if (StringUtils.isNotBlank(movieInput.getPosterUrl())) {
             targetMovie.setPosterUrl(movieInput.getPosterUrl());
         }
 
-        if (Objects.nonNull(movieInput.getDescription()) && StringUtils.isNotBlank(movieInput.getDescription())) {
+        if (StringUtils.isNotBlank(movieInput.getDescription())) {
             targetMovie.setDescription(movieInput.getDescription());
         }
 
-        if (!CollectionUtils.isEmpty(movieInput.getEpisodes())) {
-            movieInput.getEpisodes().forEach(targetMovie::addEpisode);
+        for (Episode episode : movieInput.getEpisodes()) {
+            if (Objects.isNull(episode.getId())) {
+                episode.setCreatedAt(LocalDateTime.now());
+            }
+            episode.setModifiedAt(LocalDateTime.now());
         }
+        targetMovie.setEpisodes(movieInput.getEpisodes());
 
-        if (!CollectionUtils.isEmpty(movieInput.getCharacters())) {
-            movieInput.getCharacters().forEach(targetMovie::addCharacter);
-        }
+        targetMovie.setGenres(processInputGenres(movieInput.getGenres()));
 
-        if (!CollectionUtils.isEmpty(movieInput.getGenres())) {
-            movieInput.getGenres().forEach(targetMovie::addGenre);
-        }
+        Set<Character> movieCharacters = movieInput.getCharacters().stream().map(character -> {
+            if (Objects.isNull(character.getId())) {
+                characterService.save(character);
+                return character;
+            } else {
+                Character character1 = characterService.findById(character.getId());
+                if (!character1.getName().equals(character.getName())
+                        || !character1.getDescription().equals(character.getDescription())
+                        || !character1.getAvatarUrl().equals(character.getAvatarUrl())) {
+                    character1.setName(character.getName());
+                    character1.setDescription(character.getDescription());
+                    character1.setAvatarUrl(character.getAvatarUrl());
+                    character1.setModifiedAt(LocalDateTime.now());
+                    characterRepository.save(character1);
+                }
+                return character1;
+            }
+        }).collect(Collectors.toSet());
+
+        targetMovie.setCharacters(movieCharacters);
+
+        targetMovie.setProducer(processInputProducer(movieInput.getProducer()));
 
         targetMovie.setModifiedAt(LocalDateTime.now());
+
         movieRepository.save(targetMovie);
+
         return Response.builder()
                 .code(HttpStatus.OK.value())
                 .message(RespMessage.UPDATED_MOVIE)

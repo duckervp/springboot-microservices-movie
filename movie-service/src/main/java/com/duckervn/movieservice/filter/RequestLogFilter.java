@@ -1,17 +1,10 @@
 package com.duckervn.movieservice.filter;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.duckervn.movieservice.common.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -23,9 +16,15 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 @Component
-@Log4j2
+@Slf4j
 @RequiredArgsConstructor
 public class RequestLogFilter extends GenericFilterBean {
 
@@ -40,48 +39,36 @@ public class RequestLogFilter extends GenericFilterBean {
 
     @SneakyThrows
     private void logRequest(ContentCachingRequestWrapper request) {
-        String parameters = parametersToString(request.getParameterMap());
-        String headers = headersToString(Collections.list(request.getHeaderNames()), request::getHeader);
+        Map<String, String[]> parameters = request.getParameterMap();
+        Map<String, Object> headers = headersToMap(Collections.list(request.getHeaderNames()), request::getHeader);
         String body = new String(request.getContentAsByteArray());
-        Map<String, String> logMap = new LinkedHashMap<>() {{
-            put("\nParameters:", parameters);
-            put("\nHeaders:", headers);
-            put("\nBody:", body);
-        }};
-        String logString = joinMapIntoString(logMap);
-        log.info("\nREQUEST:\nAPI: {}", request.getMethod() + request.getRequestURI() + logString);
+
+        log.info(Constants.REQUEST);
+        log.info("ENDPOINT: {}", request.getMethod() + request.getRequestURI());
+        log.info("PARAMETERS: {}", mapToString(parameters));
+        log.info("HEADERS: {}", mapToString(headers));
+        log.info("BODY: {}", body);
+
     }
 
     private void logResponse(ContentCachingResponseWrapper response) throws IOException {
-        String headers = headersToString(response.getHeaderNames(), response::getHeader);
+        Map<String, Object> headers = headersToMap(response.getHeaderNames(), response::getHeader);
         String body = new String(response.getContentAsByteArray());
-        Map<String, String> logMap = new LinkedHashMap<>() {{
-            put("\nStatus", String.valueOf(response.getStatus()));
-            put("\nHeaders:", headers);
-            put("\nBody:", body);
-        }};
-        String logString = joinMapIntoString(logMap);
-        log.info("\nRESPONSE: {}", logString);
+        log.info(Constants.RESPONSE);
+        log.info("HEADERS: {}", mapToString(headers));
+        log.info("BODY: {}", body);
         response.copyBodyToResponse();
     }
 
-    private static String joinMapIntoString(Map<String, String> logMap) {
-        return logMap.entrySet().stream()
-                .filter(e -> StringUtils.isNotBlank(e.getValue()))
-                .map(e -> String.join(" ", e.getKey(), e.getValue()))
-                .collect(Collectors.joining(""));
+    private static String mapToString(Map<String, ?> map) {
+        return  (new JSONObject(map)).toString();
     }
 
     @SneakyThrows
-    private String headersToString(Collection<String> headerNames, Function<String, String> headerValueResolver) {
-        return headerNames.stream()
-                .map(header -> String.join("=", header, headerValueResolver.apply(header)))
-                .collect(Collectors.joining("\n"));
-    }
+    private Map<String, Object> headersToMap(Collection<String> headerNames, Function<String, String> headerValueResolver) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        headerNames.forEach(header -> result.put(header, headerValueResolver.apply(header)));
+        return result;
 
-    private String parametersToString(Map<String, String[]> parameterMap) {
-        return parameterMap.entrySet().stream()
-                .map(param -> String.join("=", param.getKey(), Arrays.toString(param.getValue())))
-                .collect(Collectors.joining("\n"));
     }
 }

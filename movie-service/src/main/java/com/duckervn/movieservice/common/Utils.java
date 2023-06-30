@@ -1,5 +1,9 @@
 package com.duckervn.movieservice.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 import java.text.Normalizer;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -18,5 +22,10 @@ public class Utils {
 
     public static String genSlug(String text) {
         return String.join("-", Utils.deAccent(text).toLowerCase().split("\\s+"));
+    }
+
+    public static String objectToString(Object o) throws JsonProcessingException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        return ow.writeValueAsString(o);
     }
 }

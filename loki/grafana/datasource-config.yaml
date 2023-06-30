@@ -1,10 +1,10 @@
 apiVersion: 1
 datasources:
-  - name: Loki-Spring-Logs
+  - name: Loki
     type: loki
     access: proxy
     orgId: 1
-    url: http://loki:3100
+    url: http://10.22.5.17:3100
     basicAuth: false
     isDefault: true
     version: 1

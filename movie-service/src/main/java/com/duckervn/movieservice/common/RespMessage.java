@@ -19,6 +19,11 @@ public class RespMessage {
 
     public static final String DELETED_CHARACTERS = "Deleted Characters successfully!";
 
+    // Movie Character
+    public static final String DELETED_MOVIE_CHARACTERS = "Deleted Movie Characters successfully!";
+
+    public static final String ADDED_MOVIE_CHARACTERS = "Added Movie Characters successfully!";
+
     // Genre
 
     public static final String FOUND_GENRE = "Found Genre successfully!";
@@ -32,6 +37,11 @@ public class RespMessage {
     public static final String DELETED_GENRE = "Deleted Genre successfully!";
 
     public static final String DELETED_GENRES = "Deleted Genres successfully!";
+
+    // Movie Genre
+    public static final String DELETED_MOVIE_GENRES = "Deleted Movie Genres successfully!";
+
+    public static final String ADDED_MOVIE_GENRES = "Added Movie Genres successfully!";
 
     // Episode
 
@@ -73,4 +83,8 @@ public class RespMessage {
     public static final String DELETED_PRODUCER = "Deleted Producer successfully!";
 
     public static final String DELETED_PRODUCERS = "Deleted Producers successfully!";
+
+    // Calculated Attributes
+
+    public static final String FOUND_CALCULATED_ATTRIBUTES = "Found calculated attributes successfully!";
 }

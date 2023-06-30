@@ -15,7 +15,7 @@ public class Response {
 
     private Object result;
 
-    private List<Object> results;
+    private List<?> results;
 
     private Integer pageSize;
 

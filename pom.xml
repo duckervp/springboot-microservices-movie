@@ -24,6 +24,7 @@
         <module>movie-service</module>
         <module>gateway-service</module>
         <module>stream-service</module>
+        <module>cron-service</module>
     </modules>
 
     <build>

@@ -1,3 +1,5 @@
+docker-compose.yml
+
 *.env
 .mvn
 mvnw
@@ -36,3 +38,4 @@ build/
 
 ### VS Code ###
 .vscode/
+

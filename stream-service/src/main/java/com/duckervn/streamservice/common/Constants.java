@@ -1,6 +1,8 @@
 package com.duckervn.streamservice.common;
 
 public class Constants {
+    public static final String BEARER_TOKEN = "Bearer";
+
     public static final String VIDEO = "/video";
 
     public static final String CONTENT_TYPE = "Content-Type";

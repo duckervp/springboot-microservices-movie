@@ -8,7 +8,14 @@ service:
   movie:
     hostname: ${MOVIE_SERVICE_HOSTNAME}
     port: ${MOVIE_SERVICE_PORT}
-
+  stream:
+    hostname: ${STREAM_SERVICE_HOSTNAME}
+    port: ${STREAM_SERVICE_PORT}
+  cron:
+    hostname: ${CRON_SERVICE_HOSTNAME}
+    port: ${CRON_SERVICE_PORT}
+  loki:
+    url: ${LOKI_URL}
 
 spring:
   application:
@@ -25,20 +32,21 @@ spring:
             allowedMethods: "*"
       routes:
         - id: auth-service
-          uri:
-            http://${service.auth.hostname}:${service.auth.port}/
+          uri: http://${service.auth.hostname}:${service.auth.port}/
           predicates:
-            - Path=/oauth2/**, /users/**
+            - Path=/oauth2/**, /users/**, /login/**
         - id: movie-service
-          uri:
-            http://${service.movie.hostname}:${service.movie.port}/
+          uri: http://${service.movie.hostname}:${service.movie.port}/
           predicates:
             - Path=/movies/**, /genres/**, /characters/**, /episodes/**, /producers/**
         - id: stream-service
-          uri:
-            http://${service.stream.hostname}:${service.stream.port}/
+          uri: http://${service.stream.hostname}:${service.stream.port}/
           predicates:
-            - Path=/stream/**
+            - Path=/files/**
+        - id: cron-service
+          uri: http://${service.cron.hostname}:${service.cron.port}/
+          predicates:
+            - Path=/schedules/**
 
 server:
   port: ${GATEWAY_PORT}

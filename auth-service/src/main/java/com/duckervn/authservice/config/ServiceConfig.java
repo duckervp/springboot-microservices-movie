@@ -13,4 +13,7 @@ public class ServiceConfig {
     @Value("${server.port}")
     private int serverPort;
 
+    @Value("${FRONTEND.GATEWAY}")
+    private String frontendGateway;
+
 }

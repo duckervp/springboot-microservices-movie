@@ -15,6 +15,7 @@ services:
     environment:
       DISCOVERY_HOSTNAME: dicoverty-service
       DISCOVERY_PORT: 8761
+      LOKI_URL: LOKI_URL
     ports:
       - "8761:8761"
     build:
@@ -33,6 +34,14 @@ services:
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: root
       SERVER_PORT: 8909
+      LOKI_URL: LOKI_URL
+      GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET
+      FACEBOOK_CLIENT_ID: FACEBOOK_CLIENT_ID
+      FACEBOOK_CLIENT_SECRET: FACEBOOK_CLIENT_SECRET
+      GITHUB_CLIENT_ID: GITHUB_CLIENT_ID
+      GITHUB_CLIENT_SECRET: GITHUB_CLIENT_SECRET
+      FRONTEND_GATEWAY: http://localhost:3000
     ports:
       - "8909:8909"
     build:
@@ -55,10 +64,60 @@ services:
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: root
       SERVER_PORT: 8910
+      LOKI_URL: LOKI_URL
     ports:
       - "8910:8910"
     build:
       context: "./movie-service"
+      dockerfile: "Dockerfile"
+    depends_on:
+      - mysql-db
+      - discovery-service
+
+  stream-service:
+    image: duckervn/msult-stream-service
+    environment:
+      DISCOVERY_HOSTNAME: discovery-service
+      DISCOVERY_PORT: 8761
+      AUTH_SERVICE_HOSTNAME: auth-service
+      AUTH_SERVICE_PORT: 8909
+      MOVIE_SERVICE_HOSTNAME: movie-service
+      MOVIE_SERVICE_PORT: 8910
+      LOCAL_STORAGE: /mnt/files
+      GATEWAY_URL: http://localhost:8762
+      SERVER_PORT: 8911
+      LOKI_URL: LOKI_URL
+    ports:
+      - "8911:8911"
+    build:
+      context: "./stream-service"
+      dockerfile: "Dockerfile"
+    depends_on:
+      - mysql-db
+      - discovery-service
+    volumes:
+      - store:/mnt/files
+
+  cron-service:
+    image: duckervn/msult-cron-service
+    environment:
+      DISCOVERY_HOSTNAME: discovery-service
+      DISCOVERY_PORT: 8761
+      AUTH_SERVICE_HOSTNAME: auth-service
+      AUTH_SERVICE_PORT: 8909
+      MYSQL_HOSTNAME: mysql-db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ult_schedule
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+      SERVER_PORT: 8912
+      LOKI_URL: LOKI_URL
+      CRON_USERNAME: cronuser
+      CRON_PASSWORD: cronuser
+    ports:
+      - "8912:8912"
+    build:
+      context: "./cron-service"
       dockerfile: "Dockerfile"
     depends_on:
       - mysql-db
@@ -73,7 +132,12 @@ services:
       AUTH_SERVICE_PORT: 8909
       MOVIE_SERVICE_HOSTNAME: movie-service
       MOVIE_SERVICE_PORT: 8910
+      STREAM_SERVICE_HOSTNAME: stream-service
+      STREAM_SERVICE_PORT: 8911
+      CRON_SERVICE_HOSTNAME: cron-service
+      CRON_SERVICE_PORT: 8912
       GATEWAY_PORT: 8762
+      LOKI_URL: LOKI_URL
     ports:
       - "8762:8762"
     build:
@@ -81,8 +145,7 @@ services:
       dockerfile: "Dockerfile"
     depends_on:
       - discovery-service
-      - auth-service
-      - movie-service
 
 volumes:
   db:
+  store:

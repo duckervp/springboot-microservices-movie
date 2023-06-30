@@ -13,4 +13,6 @@ public interface MovieGenreRepository extends JpaRepository<MovieGenre, MovieGen
     void deleteByGenreId(Long genreId);
 
     void deleteByGenreIdIn(List<Long> genreIds);
+
+    void deleteByMovieIdAndGenreIdIn(Long movieId, List<Long> genreIds);
 }
