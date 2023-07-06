@@ -13,7 +13,22 @@ public class ServiceConfig {
     @Value("${server.port}")
     private int serverPort;
 
-    @Value("${FRONTEND.GATEWAY}")
+    @Value("${frontend.gateway}")
     private String frontendGateway;
+
+    @Value("${service.loki.url}")
+    private String lokiUrl;
+
+    @Value("${service.campaign.resetTokenCampaignId}")
+    private Long resetTokenCampaignId;
+
+    @Value("${service.cron.username}")
+    private String cronUsername;
+
+    @Value("${service.cron.password}")
+    private String cronPassword;
+
+    @Value("${rptValidityInMinute}")
+    private Long rptValidityInMinute;
 
 }

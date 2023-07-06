@@ -1,4 +1,4 @@
-package com.duckervn.authservice.domain.model.getToken;
+package com.duckervn.authservice.domain.model.gettoken;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

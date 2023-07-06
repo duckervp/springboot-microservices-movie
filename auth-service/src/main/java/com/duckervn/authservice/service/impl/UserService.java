@@ -1,23 +1,28 @@
 package com.duckervn.authservice.service.impl;
 
-import com.duckervn.authservice.common.Credential;
-import com.duckervn.authservice.common.RespMessage;
-import com.duckervn.authservice.common.Response;
+import com.duckervn.authservice.common.*;
+import com.duckervn.authservice.domain.entity.ResetPasswordToken;
+import com.duckervn.authservice.service.IResetPasswordTokenService;
+import com.duckervn.authservice.config.ServiceConfig;
 import com.duckervn.authservice.domain.entity.Client;
 import com.duckervn.authservice.domain.entity.Gender;
 import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
-import com.duckervn.authservice.domain.model.getToken.TokenOutput;
+import com.duckervn.authservice.domain.model.addcampaignrecipient.CampaignRecipientInput;
+import com.duckervn.authservice.domain.model.changepassword.ChangePasswordInput;
+import com.duckervn.authservice.domain.model.gettoken.TokenOutput;
+import com.duckervn.authservice.domain.model.resetpassword.ResetPasswordInput;
 import com.duckervn.authservice.domain.model.updateuser.UpdateUserInput;
 import com.duckervn.authservice.repository.ClientRepository;
 import com.duckervn.authservice.service.IUserService;
-import com.duckervn.authservice.common.Scope;
 import com.duckervn.authservice.domain.entity.User;
 import com.duckervn.authservice.domain.model.register.RegisterInput;
 import com.duckervn.authservice.repository.UserRepository;
 import com.duckervn.authservice.service.JpaRegisteredClientRepository;
+import com.duckervn.authservice.service.client.CampaignClient;
 import com.duckervn.authservice.service.client.OAuth2AuthorizationClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -26,6 +31,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.TokenSettings;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -47,6 +53,12 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
 
     private final OAuth2AuthorizationClient authorizationClient;
+
+    private final CampaignClient campaignClient;
+
+    private final ServiceConfig serviceConfig;
+
+    private final IResetPasswordTokenService resetPasswordTokenService;
 
     @Override
     public TokenOutput login(String clientId, String clientSecret) {
@@ -95,6 +107,7 @@ public class UserService implements IUserService {
 
     /**
      * Convert String LocalDate to Object
+     *
      * @param localDateString string of date
      * @return LocalDate object
      */
@@ -106,6 +119,7 @@ public class UserService implements IUserService {
 
     /**
      * Find user
+     *
      * @param id client id | username
      * @return User
      */
@@ -116,8 +130,9 @@ public class UserService implements IUserService {
 
     /**
      * Update user
+     *
      * @param userId user id
-     * @param input update info
+     * @param input  update info
      * @return Response
      */
     @Override
@@ -171,8 +186,95 @@ public class UserService implements IUserService {
 
     @Override
     public void updatePassword(Client client, String newPassword, boolean encode) {
-       String password = encode ? passwordEncoder.encode(newPassword) : newPassword;
-       client.setClientSecret(password);
-       clientRepository.save(client);
+        String password = encode ? passwordEncoder.encode(newPassword) : newPassword;
+        client.setClientSecret(password);
+        clientRepository.save(client);
+    }
+
+    @Override
+    public Response changePassword(ChangePasswordInput changePasswordInput) {
+        Client client = findClientByEmail(changePasswordInput.getEmail());
+        String message;
+        if (passwordEncoder.matches(changePasswordInput.getOldPassword(), client.getClientSecret())) {
+            updatePassword(client, changePasswordInput.getNewPassword(), true);
+            message = RespMessage.PASSWORD_CHANGED;
+        } else {
+            message = RespMessage.CANNOT_CHANGE_PASSWORD;
+        }
+        return Response.builder().code(HttpStatus.OK.value()).message(message).build();
+    }
+
+    @SneakyThrows
+    @Override
+    public Response requestResetPassword(String email) {
+        Client client = findClientByEmail(email);
+
+        ResetPasswordToken resetPasswordToken = resetPasswordTokenService.generateRPT(client.getClientId());
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(Constants.RESET_PASSWORD_LINK, serviceConfig.getFrontendGateway().concat("/reset-password")
+                .concat("?token=").concat(resetPasswordToken.getToken()));
+
+        CampaignRecipientInput campaignRecipientInput = CampaignRecipientInput.builder()
+                .campaignId(serviceConfig.getResetTokenCampaignId())
+                .recipientId(client.getClientId())
+                .status(Constants.WAITING)
+                .retry(0)
+                .fixedParams(objectMapper.writeValueAsString(params))
+                .build();
+
+        campaignClient.addCampaignRecipient(campaignRecipientInput);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.REQUEST_PASSWORD_RESET).build();
+    }
+
+    @Override
+    public Response resetPassword(String token, ResetPasswordInput resetPasswordInput) {
+        String id = Utils.extractBase64Token(token);
+
+        ResetPasswordToken resetPasswordToken = resetPasswordTokenService.getById(id);
+
+        String message;
+        if (Objects.nonNull(resetPasswordToken)) {
+            String clientId = resetPasswordToken.getClientId();
+            Long expiredAt = resetPasswordToken.getExpiredAt();
+            String token1 = resetPasswordToken.getToken();
+            if (Objects.nonNull(clientId) && Objects.nonNull(expiredAt) && Objects.nonNull(token1) && token.equals(token1)) {
+                Timestamp expiryTime = new Timestamp(expiredAt);
+                if (expiryTime.toLocalDateTime().isAfter(LocalDateTime.now())) {
+                    Optional<Client> clientOptional = clientRepository.findByClientId(clientId);
+                    if (clientOptional.isPresent()) {
+                        updatePassword(clientOptional.get(), resetPasswordInput.getNewPassword(), true);
+                        message = RespMessage.PASSWORD_RESET;
+
+                    } else {
+                        message = RespMessage.INVALID_TOKEN;
+                    }
+                } else {
+                    message = RespMessage.TOKEN_EXPIRED;
+                }
+            } else {
+                message = RespMessage.INVALID_TOKEN;
+            }
+        } else {
+            message = RespMessage.INVALID_TOKEN;
+        }
+
+        resetPasswordTokenService.remove(resetPasswordToken);
+
+        return Response.builder().code(HttpStatus.OK.value()).message(message).build();
+    }
+
+    private Client findClientByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(ResourceNotFoundException::new);
+        return clientRepository.findByClientId(user.getId()).orElseThrow(ResourceNotFoundException::new);
+    }
+
+    @Override
+    public Response findAll() {
+        return Response.builder().code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_USERS)
+                .results(userRepository.findAll()).build();
     }
 }

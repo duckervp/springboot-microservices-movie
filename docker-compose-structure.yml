@@ -31,17 +31,25 @@ services:
       MYSQL_HOSTNAME: mysql-db
       MYSQL_PORT: 3306
       MYSQL_DATABASE: ult_user
-      MYSQL_USERNAME: root
-      MYSQL_PASSWORD: root
+      MYSQL_USERNAME: MYSQL_USERNAME
+      MYSQL_PASSWORD: MYSQL_PASSWORD
       SERVER_PORT: 8909
       LOKI_URL: LOKI_URL
       GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
       GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET
+      GOOGLE_REDIRECT_URI: http://localhost:8909/login/oauth2/code/google
       FACEBOOK_CLIENT_ID: FACEBOOK_CLIENT_ID
       FACEBOOK_CLIENT_SECRET: FACEBOOK_CLIENT_SECRET
+      FACEBOOK_REDIRECT_URI: http://localhost:8909/login/oauth2/code/facebook
       GITHUB_CLIENT_ID: GITHUB_CLIENT_ID
       GITHUB_CLIENT_SECRET: GITHUB_CLIENT_SECRET
-      FRONTEND_GATEWAY: http://localhost:3000
+      GITHUB_REDIRECT_URI: http://localhost:8909/login/oauth2/code/github
+      FRONTEND_GATEWAY: FRONTEND_GATEWAY
+      CAMPAIGN_SERVICE_HOSTNAME: campaign-service
+      CAMPAIGN_SERVICE_PORT: 8913
+      CRON_USERNAME: CRON_USERNAME
+      CRON_PASSWORD: CRON_PASSWORD
+      RPT_VALIDITY_IN_MINUTE: 60
     ports:
       - "8909:8909"
     build:
@@ -61,8 +69,8 @@ services:
       MYSQL_HOSTNAME: mysql-db
       MYSQL_PORT: 3306
       MYSQL_DATABASE: ult_movie
-      MYSQL_USERNAME: root
-      MYSQL_PASSWORD: root
+      MYSQL_USERNAME: MYSQL_USERNAME
+      MYSQL_PASSWORD: MYSQL_PASSWORD
       SERVER_PORT: 8910
       LOKI_URL: LOKI_URL
     ports:
@@ -84,7 +92,7 @@ services:
       MOVIE_SERVICE_HOSTNAME: movie-service
       MOVIE_SERVICE_PORT: 8910
       LOCAL_STORAGE: /mnt/files
-      GATEWAY_URL: http://localhost:8762
+      GATEWAY_URL: GATEWAY_SERVICE_URL
       SERVER_PORT: 8911
       LOKI_URL: LOKI_URL
     ports:
@@ -108,16 +116,40 @@ services:
       MYSQL_HOSTNAME: mysql-db
       MYSQL_PORT: 3306
       MYSQL_DATABASE: ult_schedule
-      MYSQL_USERNAME: root
-      MYSQL_PASSWORD: root
+      MYSQL_USERNAME: MYSQL_USERNAME
+      MYSQL_PASSWORD: MYSQL_PASSWORD
       SERVER_PORT: 8912
       LOKI_URL: LOKI_URL
-      CRON_USERNAME: cronuser
-      CRON_PASSWORD: cronuser
+      CRON_USERNAME: CRON_USERNAME
+      CRON_PASSWORD: CRON_PASSWORD
     ports:
       - "8912:8912"
     build:
       context: "./cron-service"
+      dockerfile: "Dockerfile"
+    depends_on:
+      - mysql-db
+      - discovery-service
+  
+  campaign-service:
+    image: duckervn/msult-campaign-service
+    environment:
+      DISCOVERY_HOSTNAME: discovery-service
+      DISCOVERY_PORT: 8761
+      AUTH_SERVICE_HOSTNAME: auth-service
+      AUTH_SERVICE_PORT: 8909
+      MYSQL_HOSTNAME: mysql-db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ult_campaign
+      MYSQL_USERNAME: MYSQL_USERNAME
+      MYSQL_PASSWORD: MYSQL_PASSWORD
+      SERVER_PORT: 8913
+      LOKI_URL: LOKI_URL
+      FRONTEND_GATEWAY: FRONTEND_GATEWAY
+    ports:
+      - "8913:8913"
+    build:
+      context: "./campaign-service"
       dockerfile: "Dockerfile"
     depends_on:
       - mysql-db
@@ -136,6 +168,8 @@ services:
       STREAM_SERVICE_PORT: 8911
       CRON_SERVICE_HOSTNAME: cron-service
       CRON_SERVICE_PORT: 8912
+      CAMPAIGN_SERVICE_HOSTNAME: campaign-service
+      CAMPAIGN_SERVICE_PORT: 8913
       GATEWAY_PORT: 8762
       LOKI_URL: LOKI_URL
     ports:

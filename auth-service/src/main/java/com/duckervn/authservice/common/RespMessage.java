@@ -9,7 +9,21 @@ public class RespMessage {
 
     public static final String FOUND_USER = "Found User successfully!";
 
+    public static final String FOUND_USERS = "Found Users successfully!";
+
     public static final String UPDATED_USER = "Updated User successfully!";
 
     public static final String DELETED_USER = "Deleted User successfully!";
+
+    public static final String PASSWORD_CHANGED = "Password changed successfully!";
+
+    public static final String CANNOT_CHANGE_PASSWORD = "Password change failed!";
+
+    public static final String PASSWORD_RESET = "Password reset successfully!";
+
+    public static final String REQUEST_PASSWORD_RESET = "Request password reset successfully!";
+
+    public static final String INVALID_TOKEN = "Invalid reset password token!";
+
+    public static final String TOKEN_EXPIRED = "Reset password token expired!";
 }

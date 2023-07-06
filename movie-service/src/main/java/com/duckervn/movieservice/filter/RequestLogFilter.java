@@ -1,10 +1,10 @@
 package com.duckervn.movieservice.filter;
 
 import com.duckervn.movieservice.common.Constants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -27,6 +27,8 @@ import java.util.function.Function;
 @Slf4j
 @RequiredArgsConstructor
 public class RequestLogFilter extends GenericFilterBean {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -60,8 +62,9 @@ public class RequestLogFilter extends GenericFilterBean {
         response.copyBodyToResponse();
     }
 
-    private static String mapToString(Map<String, ?> map) {
-        return  (new JSONObject(map)).toString();
+    @SneakyThrows
+    private String mapToString(Map<String, ?> map) {
+        return objectMapper.writeValueAsString(map);
     }
 
     @SneakyThrows

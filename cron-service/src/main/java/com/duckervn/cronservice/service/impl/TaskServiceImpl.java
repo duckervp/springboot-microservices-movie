@@ -77,7 +77,7 @@ public class TaskServiceImpl implements TaskService {
         if (Objects.nonNull(task.getCronExpression())) {
             if (!CronExpression.isValidExpression(task.getCronExpression())) {
                 throw new InvalidCronExpression("Invalid cron expression!");
-            };
+            }
             task1.setCronExpression(task.getCronExpression());
         }
 

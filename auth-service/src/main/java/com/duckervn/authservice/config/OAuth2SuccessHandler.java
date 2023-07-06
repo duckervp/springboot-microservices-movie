@@ -1,15 +1,15 @@
 package com.duckervn.authservice.config;
 
+import com.duckervn.authservice.common.Utils;
 import com.duckervn.authservice.domain.entity.Client;
 import com.duckervn.authservice.domain.entity.User;
-import com.duckervn.authservice.domain.model.getToken.TokenOutput;
+import com.duckervn.authservice.domain.model.gettoken.TokenOutput;
 import com.duckervn.authservice.domain.model.register.RegisterInput;
 import com.duckervn.authservice.repository.ClientRepository;
 import com.duckervn.authservice.repository.UserRepository;
 import com.duckervn.authservice.service.IUserService;
 import com.duckervn.authservice.validation.validator.EmailValidator;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -55,8 +55,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         EmailValidator emailValidator = new EmailValidator();
         if (StringUtils.isNotBlank(email) && emailValidator.isValid(email, null)) {
-            String salt = DigestUtils.md5Hex("tH!s1sS@1t").toUpperCase();
-            String password = DigestUtils.md5Hex(email + salt).toUpperCase();
+            String password = Utils.genSecret(email);
             TokenOutput tokenOutput;
             Optional<User> userOptional = userRepository.findByEmail(email);
             if (userOptional.isPresent()) {

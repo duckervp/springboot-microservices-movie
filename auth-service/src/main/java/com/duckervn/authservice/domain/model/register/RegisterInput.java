@@ -30,7 +30,6 @@ public class  RegisterInput {
     @Size(min = 8, max = 25, message = "password must be 8 - 25 character length")
     private String password;
 
-    @Column(unique = true)
     @ValidEmail(message = "email must be a valid email")
     private String email;
 

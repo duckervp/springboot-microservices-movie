@@ -14,7 +14,6 @@ public class TaskExecutionService implements Runnable {
     public TaskExecutionService(Task task, ClientService clientService) {
         this.task = task;
         this.clientService = clientService;
-        AuthorizationManager
     }
 
     @Override

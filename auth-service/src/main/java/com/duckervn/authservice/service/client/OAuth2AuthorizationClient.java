@@ -1,6 +1,6 @@
 package com.duckervn.authservice.service.client;
 
-import com.duckervn.authservice.domain.model.getToken.TokenOutput;
+import com.duckervn.authservice.domain.model.gettoken.TokenOutput;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;

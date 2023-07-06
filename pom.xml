@@ -25,6 +25,7 @@
         <module>gateway-service</module>
         <module>stream-service</module>
         <module>cron-service</module>
+        <module>campaign-service</module>
     </modules>
 
     <build>

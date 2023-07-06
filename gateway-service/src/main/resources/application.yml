@@ -14,6 +14,9 @@ service:
   cron:
     hostname: ${CRON_SERVICE_HOSTNAME}
     port: ${CRON_SERVICE_PORT}
+  campaign:
+    hostname: ${CAMPAIGN_SERVICE_HOSTNAME}
+    port: ${CAMPAIGN_SERVICE_PORT}
   loki:
     url: ${LOKI_URL}
 
@@ -47,6 +50,10 @@ spring:
           uri: http://${service.cron.hostname}:${service.cron.port}/
           predicates:
             - Path=/schedules/**
+        - id: campaign-service
+          uri: http://${service.campaign.hostname}:${service.campaign.port}/
+          predicates:
+            - Path=/campaigns/**, /providers/**
 
 server:
   port: ${GATEWAY_PORT}
