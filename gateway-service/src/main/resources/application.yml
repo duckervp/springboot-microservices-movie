@@ -1,24 +1,5 @@
-service:
-  discovery:
-    hostname: ${DISCOVERY_HOSTNAME}
-    port: ${DISCOVERY_PORT}
-  auth:
-    hostname: ${AUTH_SERVICE_HOSTNAME}
-    port: ${AUTH_SERVICE_PORT}
-  movie:
-    hostname: ${MOVIE_SERVICE_HOSTNAME}
-    port: ${MOVIE_SERVICE_PORT}
-  stream:
-    hostname: ${STREAM_SERVICE_HOSTNAME}
-    port: ${STREAM_SERVICE_PORT}
-  cron:
-    hostname: ${CRON_SERVICE_HOSTNAME}
-    port: ${CRON_SERVICE_PORT}
-  campaign:
-    hostname: ${CAMPAIGN_SERVICE_HOSTNAME}
-    port: ${CAMPAIGN_SERVICE_PORT}
-  loki:
-    url: ${LOKI_URL}
+loki:
+  url: ${LOKI_URL}
 
 spring:
   application:
@@ -35,30 +16,30 @@ spring:
             allowedMethods: "*"
       routes:
         - id: auth-service
-          uri: http://${service.auth.hostname}:${service.auth.port}/
+          uri: ${AUTH_SERVICE_URL}
           predicates:
             - Path=/oauth2/**, /users/**, /login/**
         - id: movie-service
-          uri: http://${service.movie.hostname}:${service.movie.port}/
+          uri: ${MOVIE_SERVICE_URL}
           predicates:
             - Path=/movies/**, /genres/**, /characters/**, /episodes/**, /producers/**
         - id: stream-service
-          uri: http://${service.stream.hostname}:${service.stream.port}/
+          uri: ${STREAM_SERVICE_URL}
           predicates:
             - Path=/files/**
         - id: cron-service
-          uri: http://${service.cron.hostname}:${service.cron.port}/
+          uri: ${CRON_SERVICE_URL}
           predicates:
             - Path=/schedules/**
         - id: campaign-service
-          uri: http://${service.campaign.hostname}:${service.campaign.port}/
+          uri: ${CAMPAIGN_SERVICE_URL}
           predicates:
             - Path=/campaigns/**, /providers/**
 
 server:
-  port: ${GATEWAY_PORT}
+  port: ${SERVER_PORT}
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${service.discovery.hostname}:${service.discovery.port}/eureka/
+      defaultZone: ${DISCOVERY_SERVICE_URL}

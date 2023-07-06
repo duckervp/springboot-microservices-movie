@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "auth-service", url = "${service.auth.hostname}:${server.port}")
+@FeignClient(name = "auth-service", url = "${AUTH_SERVICE_URL}")
 public interface OAuth2AuthorizationClient {
     @PostMapping("/oauth2/token")
     TokenOutput getToken(@RequestParam String grant_type,

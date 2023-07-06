@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "campaign-service", url = "${service.campaign.hostname}:${service.campaign.port}", configuration = CampaignFeignConfig.class)
+@FeignClient(name = "campaign-service", url = "${CAMPAIGN_SERVICE_URL}", configuration = CampaignFeignConfig.class)
 public interface CampaignClient {
     @PostMapping("/campaigns/recipients")
     Response addCampaignRecipient(@RequestBody CampaignRecipientInput input);

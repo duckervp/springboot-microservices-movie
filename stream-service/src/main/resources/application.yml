@@ -7,18 +7,8 @@ gateway:
 server:
   port: ${SERVER_PORT}
 
-service:
-  discovery:
-    hostname: ${DISCOVERY_HOSTNAME}
-    port: ${DISCOVERY_PORT}
-  auth:
-    hostname: ${AUTH_SERVICE_HOSTNAME}
-    port: ${AUTH_SERVICE_PORT}
-  movie:
-    hostname: ${MOVIE_SERVICE_HOSTNAME}
-    port: ${MOVIE_SERVICE_PORT}
-  loki:
-    url: ${LOKI_URL}
+loki:
+  url: ${LOKI_URL}
 
 spring:
   application:
@@ -27,9 +17,9 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://${service.auth.hostname}:${service.auth.port}
+          issuer-uri: ${AUTH_SERVICE_URL}
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${service.discovery.hostname}:${service.discovery.port}/eureka/
+      defaultZone: ${DISCOVERY_SERVICE_URL}

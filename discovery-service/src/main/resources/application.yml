@@ -1,5 +1,4 @@
-service:
-  loki:
+loki:
     url: ${LOKI_URL}
 
 spring:
@@ -7,13 +6,13 @@ spring:
     name: discovery-service
 
 server:
-  port: ${DISCOVERY_PORT}
+  port: ${SERVER_PORT}
 
 eureka:
   instance:
-    hostname: ${DISCOVERY_HOSTNAME}
+    hostname: ${SERVER_HOSTNAME}
   client:
     registerWithEureka: false
     fetchRegistry: false
     serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+      defaultZone: ${DISCOVERY_SERVICE_URL}

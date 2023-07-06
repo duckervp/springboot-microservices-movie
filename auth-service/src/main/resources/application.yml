@@ -1,24 +1,15 @@
-service:
-  discovery:
-    hostname: ${DISCOVERY_HOSTNAME}
-    port: ${DISCOVERY_PORT}
-  auth:
-    hostname: ${AUTH_SERVICE_HOSTNAME}
-  mysql:
-    hostname: ${MYSQL_HOSTNAME}
-    port: ${MYSQL_PORT}
-    database: ${MYSQL_DATABASE}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
-  campaign:
-    hostname: ${CAMPAIGN_SERVICE_HOSTNAME}
-    port: ${CAMPAIGN_SERVICE_PORT}
-    resetTokenCampaignId: 1
-  loki:
-    url: ${LOKI_URL}
-  cron:
-    username: ${CRON_USERNAME}
-    password: ${CRON_PASSWORD}
+
+provider:
+  issuerUri: ${AUTH_SERVICE_URL}
+
+campaign:
+  rptCampaignId: ${RPT_CAMPAIGN_ID}
+
+loki:
+  url: ${LOKI_URL}
+cron:
+  username: ${CRON_USERNAME}
+  password: ${CRON_PASSWORD}
 
 rptValidityInMinute: ${RPT_VALIDITY_IN_MINUTE}
 
@@ -26,7 +17,7 @@ frontend:
   gateway: ${FRONTEND_GATEWAY}
 
 server:
-  port: ${AUTH_SERVICE_PORT}
+  port: ${SERVER_PORT}
 
 spring:
   jpa:
@@ -36,9 +27,9 @@ spring:
       ddlAuto: update
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${service.mysql.hostname}:${service.mysql.port}/${service.mysql.database}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
-    username: ${service.mysql.username}
-    password: ${service.mysql.password}
+    url: jdbc:mysql://${MYSQL_URL}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
   application:
     name: auth-service
   security:
@@ -61,4 +52,4 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${service.discovery.hostname}:${service.discovery.port}/eureka/
+      defaultZone: ${DISCOVERY_SERVICE_URL}

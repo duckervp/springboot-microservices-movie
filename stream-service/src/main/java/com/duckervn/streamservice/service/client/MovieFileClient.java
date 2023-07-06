@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "movie-service", url = "${service.movie.hostname}:${service.movie.port}")
+@FeignClient(name = "movie-service", url = "${MOVIE_SERVICE_URL}")
 public interface MovieFileClient {
     @GetMapping("/movies/stored-files")
     List<String> getAllStoredFiles();

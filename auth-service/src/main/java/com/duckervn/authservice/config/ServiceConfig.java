@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Getter
 public class ServiceConfig {
-    @Value("${service.auth.hostname}")
-    private String serverHostname;
+    @Value("${provider.issuerUri}")
+    private String providerIssuerUri;
 
     @Value("${server.port}")
     private int serverPort;
@@ -16,17 +16,17 @@ public class ServiceConfig {
     @Value("${frontend.gateway}")
     private String frontendGateway;
 
-    @Value("${service.loki.url}")
+    @Value("${loki.url}")
     private String lokiUrl;
 
-    @Value("${service.campaign.resetTokenCampaignId}")
-    private Long resetTokenCampaignId;
-
-    @Value("${service.cron.username}")
+    @Value("${cron.username}")
     private String cronUsername;
 
-    @Value("${service.cron.password}")
+    @Value("${cron.password}")
     private String cronPassword;
+
+    @Value("${campaign.rptCampaignId}")
+    private Long rptCampaignId;
 
     @Value("${rptValidityInMinute}")
     private Long rptValidityInMinute;

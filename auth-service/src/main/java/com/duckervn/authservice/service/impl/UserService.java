@@ -216,7 +216,7 @@ public class UserService implements IUserService {
                 .concat("?token=").concat(resetPasswordToken.getToken()));
 
         CampaignRecipientInput campaignRecipientInput = CampaignRecipientInput.builder()
-                .campaignId(serviceConfig.getResetTokenCampaignId())
+                .campaignId(serviceConfig.getRptCampaignId())
                 .recipientId(client.getClientId())
                 .status(Constants.WAITING)
                 .retry(0)

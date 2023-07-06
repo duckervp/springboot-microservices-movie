@@ -76,13 +76,8 @@ public class AuthorizationServerConfig {
 
     @Bean
     public ProviderSettings providerSettings() {
-        String http = "http";
         return ProviderSettings.builder()
-                .issuer(String.format(
-                        "%s://%s:%d",
-                        http,
-                        serviceConfig.getServerHostname(),
-                        serviceConfig.getServerPort()))
+                .issuer(serviceConfig.getProviderIssuerUri())
                 .build();
     }
 

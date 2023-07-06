@@ -1,21 +1,5 @@
-service:
-  discovery:
-    hostname: ${DISCOVERY_HOSTNAME}
-    port: ${DISCOVERY_PORT}
-  auth:
-    hostname: ${AUTH_SERVICE_HOSTNAME}
-    port: ${AUTH_SERVICE_PORT}
-  mysql:
-    hostname: ${MYSQL_HOSTNAME}
-    port: ${MYSQL_PORT}
-    database: ${MYSQL_DATABASE}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
-  loki:
+loki:
     url: ${LOKI_URL}
-
-frontend:
-  gateway: ${FRONTEND_GATEWAY}
 
 server:
   port: ${SERVER_PORT}
@@ -28,18 +12,18 @@ spring:
       ddlAuto: update
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${service.mysql.hostname}:${service.mysql.port}/${service.mysql.database}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
-    username: ${service.mysql.username}
-    password: ${service.mysql.password}
+    url: jdbc:mysql://${MYSQL_URL}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
   application:
     name: campaign-service
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://${service.auth.hostname}:${service.auth.port}
+          issuer-uri: ${AUTH_SERVICE_URL}
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${service.discovery.hostname}:${service.discovery.port}/eureka/
+      defaultZone: ${DISCOVERY_SERVICE_URL}
