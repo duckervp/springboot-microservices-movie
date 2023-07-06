@@ -13,9 +13,10 @@ services:
   discovery-service:
     image: duckervn/msult-discovery-service
     environment:
-      DISCOVERY_HOSTNAME: dicoverty-service
-      DISCOVERY_PORT: 8761
-      LOKI_URL: LOKI_URL
+      SERVER_HOSTNAME: discovery-service
+      SERVER_PORT: 8761
+      LOKI_URL: http://host.docker.internal:3100
+      DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
     ports:
       - "8761:8761"
     build:
@@ -25,14 +26,12 @@ services:
   auth-service:
     image: duckervn/msult-auth-service
     environment:
-      DISCOVERY_HOSTNAME: discovery-service
-      DISCOVERY_PORT: 8761
-      AUTH_SERVICE_HOSTNAME: auth-service
-      MYSQL_HOSTNAME: mysql-db
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: ult_user
-      MYSQL_USERNAME: MYSQL_USERNAME
-      MYSQL_PASSWORD: MYSQL_PASSWORD
+      DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
+      AUTH_SERVICE_URL: http://auth-service:8909
+      MOVIE_SERVICE_URL: http://movie-service:8910
+      MYSQL_URL: host.docker.internal:3306/ult_user
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
       SERVER_PORT: 8909
       LOKI_URL: LOKI_URL
       GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
@@ -44,11 +43,11 @@ services:
       GITHUB_CLIENT_ID: GITHUB_CLIENT_ID
       GITHUB_CLIENT_SECRET: GITHUB_CLIENT_SECRET
       GITHUB_REDIRECT_URI: http://localhost:8909/login/oauth2/code/github
-      FRONTEND_GATEWAY: FRONTEND_GATEWAY
-      CAMPAIGN_SERVICE_HOSTNAME: campaign-service
-      CAMPAIGN_SERVICE_PORT: 8913
+      FRONTEND_GATEWAY: http://localhost:3000
+      CAMPAIGN_SERVICE_URL: http://campaign-service:8913
       CRON_USERNAME: CRON_USERNAME
       CRON_PASSWORD: CRON_PASSWORD
+      RPT_CAMPAIGN_ID: 1
       RPT_VALIDITY_IN_MINUTE: 60
     ports:
       - "8909:8909"
@@ -62,17 +61,14 @@ services:
   movie-service:
     image: duckervn/msult-movie-service
     environment:
-      DISCOVERY_HOSTNAME: discovery-service
-      DISCOVERY_PORT: 8761
-      AUTH_SERVICE_HOSTNAME: auth-service
-      AUTH_SERVICE_PORT: 8909
-      MYSQL_HOSTNAME: mysql-db
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: ult_movie
-      MYSQL_USERNAME: MYSQL_USERNAME
-      MYSQL_PASSWORD: MYSQL_PASSWORD
+      DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
+      AUTH_SERVICE_URL: http://auth-service:8909
+      CAMPAIGN_SERVICE_URL: http://campaign-service:8913
+      MYSQL_URL: host.docker.internal:3306/ult_movie
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
       SERVER_PORT: 8910
-      LOKI_URL: LOKI_URL
+      LOKI_URL: http://host.docker.internal:3100
     ports:
       - "8910:8910"
     build:
@@ -85,16 +81,13 @@ services:
   stream-service:
     image: duckervn/msult-stream-service
     environment:
-      DISCOVERY_HOSTNAME: discovery-service
-      DISCOVERY_PORT: 8761
-      AUTH_SERVICE_HOSTNAME: auth-service
-      AUTH_SERVICE_PORT: 8909
-      MOVIE_SERVICE_HOSTNAME: movie-service
-      MOVIE_SERVICE_PORT: 8910
-      LOCAL_STORAGE: /mnt/files
-      GATEWAY_URL: GATEWAY_SERVICE_URL
+      LOCAL_STORAGE: /mnt/files/
+      DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
+      AUTH_SERVICE_URL: http://auth-service:8909
+      MOVIE_SERVICE_URL: http://movie-service:8910
       SERVER_PORT: 8911
-      LOKI_URL: LOKI_URL
+      LOKI_URL: http://host.docker.internal:3100
+      GATEWAY_URL: http://localhost:8762
     ports:
       - "8911:8911"
     build:
@@ -109,17 +102,14 @@ services:
   cron-service:
     image: duckervn/msult-cron-service
     environment:
-      DISCOVERY_HOSTNAME: discovery-service
-      DISCOVERY_PORT: 8761
-      AUTH_SERVICE_HOSTNAME: auth-service
-      AUTH_SERVICE_PORT: 8909
-      MYSQL_HOSTNAME: mysql-db
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: ult_schedule
-      MYSQL_USERNAME: MYSQL_USERNAME
-      MYSQL_PASSWORD: MYSQL_PASSWORD
+      DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
+      AUTH_SERVICE_URL: http://auth-service:8909
+      MOVIE_SERVICE_URL: http://movie-service:8910
+      MYSQL_URL: host.docker.internal:3306/ult_schedule
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
       SERVER_PORT: 8912
-      LOKI_URL: LOKI_URL
+      LOKI_URL: http://host.docker.internal:3100
       CRON_USERNAME: CRON_USERNAME
       CRON_PASSWORD: CRON_PASSWORD
     ports:
@@ -130,22 +120,19 @@ services:
     depends_on:
       - mysql-db
       - discovery-service
-  
+
   campaign-service:
     image: duckervn/msult-campaign-service
     environment:
-      DISCOVERY_HOSTNAME: discovery-service
-      DISCOVERY_PORT: 8761
-      AUTH_SERVICE_HOSTNAME: auth-service
-      AUTH_SERVICE_PORT: 8909
-      MYSQL_HOSTNAME: mysql-db
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: ult_campaign
-      MYSQL_USERNAME: MYSQL_USERNAME
-      MYSQL_PASSWORD: MYSQL_PASSWORD
+      DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
+      AUTH_SERVICE_URL: http://auth-service:8909
+      MOVIE_SERVICE_URL: http://movie-service:8910
+      MYSQL_URL: host.docker.internal:3306/ult_campaign
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
       SERVER_PORT: 8913
-      LOKI_URL: LOKI_URL
-      FRONTEND_GATEWAY: FRONTEND_GATEWAY
+      LOKI_URL: http://host.docker.internal:3100
+      FRONTEND_GATEWAY: http://localhost:3000
     ports:
       - "8913:8913"
     build:
@@ -158,20 +145,14 @@ services:
   gate-service:
     image: duckervn/msult-gateway-service
     environment:
-      DISCOVERY_HOSTNAME: discovery-service
-      DISCOVERY_PORT: 8761
-      AUTH_SERVICE_HOSTNAME: auth-service
-      AUTH_SERVICE_PORT: 8909
-      MOVIE_SERVICE_HOSTNAME: movie-service
-      MOVIE_SERVICE_PORT: 8910
-      STREAM_SERVICE_HOSTNAME: stream-service
-      STREAM_SERVICE_PORT: 8911
-      CRON_SERVICE_HOSTNAME: cron-service
-      CRON_SERVICE_PORT: 8912
-      CAMPAIGN_SERVICE_HOSTNAME: campaign-service
-      CAMPAIGN_SERVICE_PORT: 8913
-      GATEWAY_PORT: 8762
-      LOKI_URL: LOKI_URL
+      DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
+      AUTH_SERVICE_URL: http://auth-service:8909
+      MOVIE_SERVICE_URL: http://movie-service:8910
+      STREAM_SERVICE_URL: http://stream-service:8911
+      CRON_SERVICE_URL: http://cron-service:8912
+      CAMPAIGN_SERVICE_URL: http://campaign-service:8913
+      SERVER_PORT: 8762
+      LOKI_URL: http://host.docker.internal:3100
     ports:
       - "8762:8762"
     build:
