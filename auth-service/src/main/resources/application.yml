@@ -1,17 +1,24 @@
+topic:
+  campaign: dev-campaign
+  user: dev-user
+  reply:
+    userToCampaign: dev-user-campaign-reply
+    userToStream: dev-user-stream-reply
 
 provider:
   issuerUri: ${AUTH_SERVICE_URL}
 
-campaign:
-  rptCampaignId: ${RPT_CAMPAIGN_ID}
+rpt:
+  campaignId: ${RPT_CAMPAIGN_ID}
+  validityInMinute: ${RPT_VALIDITY_IN_MINUTE}
 
 loki:
   url: ${LOKI_URL}
+
 cron:
   username: ${CRON_USERNAME}
   password: ${CRON_PASSWORD}
 
-rptValidityInMinute: ${RPT_VALIDITY_IN_MINUTE}
 
 frontend:
   gateway: ${FRONTEND_GATEWAY}
@@ -48,6 +55,15 @@ spring:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
             redirectUri: ${GITHUB_REDIRECT_URI}
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: consumer-group
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 eureka:
   client:

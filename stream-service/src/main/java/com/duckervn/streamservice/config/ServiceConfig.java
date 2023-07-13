@@ -12,4 +12,20 @@ public class ServiceConfig {
 
     @Value("${gateway.url}")
     private String gatewayUrl;
+
+    @Value("${loki.url}")
+    private String lokiUrl;
+
+    @Value("${topic.movie}")
+    private String movieTopic;
+
+    @Value("${topic.user}")
+    private String userTopic;
+
+    @Value("${topic.reply.userToStream}")
+    private String userToStreamReplyTopic;
+
+    @Value("${topic.reply.movieToStream}")
+    private String movieToStreamReplyTopic;
+
 }

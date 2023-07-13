@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 
 @Configuration
 @Order(-2)
-public class CustomExceptionHandler extends WebFluxResponseStatusExceptionHandler {
+public class CustomExceptionHandler extends org.springframework.web.reactive.handler.WebFluxResponseStatusExceptionHandler {
 
     private static final Log logger = LogFactory.getLog(CustomExceptionHandler.class);
     final SimpleDateFormat simpleDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");

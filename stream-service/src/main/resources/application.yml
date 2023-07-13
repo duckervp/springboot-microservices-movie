@@ -1,3 +1,9 @@
+topic:
+  movie: dev-movie
+  user: dev-user
+  reply:
+    userToStream: dev-user-stream-reply
+    movieToStream: dev-movie-stream-reply
 root:
   location: ${LOCAL_STORAGE}
 
@@ -13,12 +19,23 @@ loki:
 spring:
   application:
     name: stream-service
+  rabbitmq:
+    host: host.docker.internal
+    port: 5672
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: ${AUTH_SERVICE_URL}
-
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: consumer-group
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 eureka:
   client:
     serviceUrl:

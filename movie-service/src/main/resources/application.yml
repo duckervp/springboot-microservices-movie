@@ -1,3 +1,9 @@
+topic:
+  movie:
+    request: dev-movie-request
+    response: dev-movie-response
+
+
 loki:
   url: ${LOKI_URL}
 
@@ -7,6 +13,9 @@ server:
 spring:
   application:
     name: movie-service
+  rabbitmq:
+    host: host.docker.internal
+    port: 5672
   jpa:
     openInView: false
     databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect
@@ -22,7 +31,15 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${AUTH_SERVICE_URL}
-
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: consumer-group
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 eureka:
   client:
     serviceUrl:
