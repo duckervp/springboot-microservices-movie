@@ -1,25 +1,25 @@
 package com.duckervn.campaignservice.service.impl;
 
 import com.duckervn.campaignservice.common.Constants;
-import com.duckervn.campaignservice.common.Response;
+import com.duckervn.campaignservice.config.ServiceConfig;
 import com.duckervn.campaignservice.domain.entity.Campaign;
 import com.duckervn.campaignservice.domain.entity.CampaignRecipient;
 import com.duckervn.campaignservice.domain.entity.Provider;
 import com.duckervn.campaignservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.campaignservice.domain.model.startcampaign.SendCampaignOutput;
+import com.duckervn.campaignservice.queue.EventProducer;
 import com.duckervn.campaignservice.repository.CampaignRecipientRepository;
 import com.duckervn.campaignservice.repository.CampaignRepository;
 import com.duckervn.campaignservice.repository.ProviderRepository;
 import com.duckervn.campaignservice.service.IMessageService;
 import com.duckervn.campaignservice.service.VendorSelectorService;
-import com.duckervn.campaignservice.service.client.UserClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mailgun.model.message.MessageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFuture;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -29,19 +29,22 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MessageService implements IMessageService {
 
     private final CampaignRepository campaignRepository;
 
     private final CampaignRecipientRepository campaignRecipientRepository;
 
-    private final UserClient userClient;
-
     private final ProviderRepository providerRepository;
 
     private final VendorSelectorService vendorSelectorService;
 
     private final ObjectMapper objectMapper;
+
+    private final EventProducer eventProducer;
+
+    private final ServiceConfig serviceConfig;
 
     @Override
     public Campaign getCampaignDetail(Long campaignId) {
@@ -58,8 +61,13 @@ public class MessageService implements IMessageService {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> getDataMapping(CampaignRecipient campaignRecipient) {
-        Response response = userClient.findUserById(campaignRecipient.getRecipientId());
-        Map<String, Object> user = (Map<String, Object>) response.getResult();
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("userId", campaignRecipient.getRecipientId());
+        ListenableFuture<Map<String, Object>> listenableFuture = eventProducer.publish(serviceConfig.getFindUserRK(), requestMap, true);
+        Map<String, Object> user = listenableFuture.get();
+
+        log.info("Result back: {}", objectMapper.writeValueAsString(user));
+
         Map<String, Object> mapping = new HashMap<>(user);
         if (Objects.nonNull(campaignRecipient.getFixedParams())) {
             Map<String, Object> fixedParams = objectMapper.readValue(campaignRecipient.getFixedParams(), Map.class);

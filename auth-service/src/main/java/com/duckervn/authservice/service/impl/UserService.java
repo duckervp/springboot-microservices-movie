@@ -1,24 +1,24 @@
 package com.duckervn.authservice.service.impl;
 
 import com.duckervn.authservice.common.*;
-import com.duckervn.authservice.domain.entity.ResetPasswordToken;
-import com.duckervn.authservice.service.IResetPasswordTokenService;
 import com.duckervn.authservice.config.ServiceConfig;
 import com.duckervn.authservice.domain.entity.Client;
 import com.duckervn.authservice.domain.entity.Gender;
+import com.duckervn.authservice.domain.entity.ResetPasswordToken;
+import com.duckervn.authservice.domain.entity.User;
 import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.authservice.domain.model.addcampaignrecipient.CampaignRecipientInput;
 import com.duckervn.authservice.domain.model.changepassword.ChangePasswordInput;
 import com.duckervn.authservice.domain.model.gettoken.TokenOutput;
+import com.duckervn.authservice.domain.model.register.RegisterInput;
 import com.duckervn.authservice.domain.model.resetpassword.ResetPasswordInput;
 import com.duckervn.authservice.domain.model.updateuser.UpdateUserInput;
+import com.duckervn.authservice.queue.EventProducer;
 import com.duckervn.authservice.repository.ClientRepository;
-import com.duckervn.authservice.service.IUserService;
-import com.duckervn.authservice.domain.entity.User;
-import com.duckervn.authservice.domain.model.register.RegisterInput;
 import com.duckervn.authservice.repository.UserRepository;
+import com.duckervn.authservice.service.IResetPasswordTokenService;
+import com.duckervn.authservice.service.IUserService;
 import com.duckervn.authservice.service.JpaRegisteredClientRepository;
-import com.duckervn.authservice.service.client.CampaignClient;
 import com.duckervn.authservice.service.client.OAuth2AuthorizationClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -54,11 +54,11 @@ public class UserService implements IUserService {
 
     private final OAuth2AuthorizationClient authorizationClient;
 
-    private final CampaignClient campaignClient;
-
     private final ServiceConfig serviceConfig;
 
     private final IResetPasswordTokenService resetPasswordTokenService;
+
+    private final EventProducer eventProducer;
 
     @Override
     public TokenOutput login(String clientId, String clientSecret) {
@@ -223,7 +223,8 @@ public class UserService implements IUserService {
                 .fixedParams(objectMapper.writeValueAsString(params))
                 .build();
 
-        campaignClient.addCampaignRecipient(campaignRecipientInput);
+//        campaignClient.addCampaignRecipient(campaignRecipientInput);
+        eventProducer.publish(serviceConfig.getAddRecipientRK(), campaignRecipientInput);
 
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.REQUEST_PASSWORD_RESET).build();
     }
@@ -246,7 +247,6 @@ public class UserService implements IUserService {
                     if (clientOptional.isPresent()) {
                         updatePassword(clientOptional.get(), resetPasswordInput.getNewPassword(), true);
                         message = RespMessage.PASSWORD_RESET;
-
                     } else {
                         message = RespMessage.INVALID_TOKEN;
                     }

@@ -1,17 +1,32 @@
+queue:
+  exchange: dev:amqp-exchange
+  campaignQueue:
+    name: dev:campaign-queue
+    routingKey:
+      all: dev:campaign.*
+      addRecipient: dev:campaign.add-recipient
+  userQueue:
+    name: dev:user-queue
+    routingKey:
+      all: dev:user.*
+      checkUserExist: dev:user.exist
+      findUser: dev:user.find
+      storedFile: dev:user.find-stored-file
 
 provider:
   issuerUri: ${AUTH_SERVICE_URL}
 
-campaign:
-  rptCampaignId: ${RPT_CAMPAIGN_ID}
+rpt:
+  campaignId: ${RPT_CAMPAIGN_ID}
+  validityInMinute: ${RPT_VALIDITY_IN_MINUTE}
 
 loki:
   url: ${LOKI_URL}
+
 cron:
   username: ${CRON_USERNAME}
   password: ${CRON_PASSWORD}
 
-rptValidityInMinute: ${RPT_VALIDITY_IN_MINUTE}
 
 frontend:
   gateway: ${FRONTEND_GATEWAY}
@@ -48,6 +63,9 @@ spring:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
             redirectUri: ${GITHUB_REDIRECT_URI}
+  rabbitmq:
+    host: host.docker.internal
+    port: 5672
 
 eureka:
   client:

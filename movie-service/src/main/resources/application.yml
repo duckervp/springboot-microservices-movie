@@ -1,3 +1,11 @@
+queue:
+  exchange: dev:amqp-exchange
+  movieQueue:
+    name: dev:movie-queue
+    routingKey:
+      all: dev:movie.*
+      storedFile: dev:movie.find-stored-file
+
 loki:
   url: ${LOKI_URL}
 
@@ -7,6 +15,9 @@ server:
 spring:
   application:
     name: movie-service
+  rabbitmq:
+    host: host.docker.internal
+    port: 5672
   jpa:
     openInView: false
     databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect

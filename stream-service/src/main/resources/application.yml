@@ -1,3 +1,16 @@
+queue:
+  exchange: dev:amqp-exchange
+  movieQueue:
+    name: dev:movie-queue
+    routingKey:
+      all: dev:movie.*
+      storedFile: dev:movie.find-stored-file
+  userQueue:
+    name: dev:user-queue
+    routingKey:
+      all: dev:user.*
+      storedFile: dev:user.find-stored-file
+
 root:
   location: ${LOCAL_STORAGE}
 
@@ -13,6 +26,9 @@ loki:
 spring:
   application:
     name: stream-service
+  rabbitmq:
+    host: host.docker.internal
+    port: 5672
   security:
     oauth2:
       resourceserver:

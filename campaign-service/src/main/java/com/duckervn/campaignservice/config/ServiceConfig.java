@@ -1,4 +1,4 @@
-package com.duckervn.authservice.config;
+package com.duckervn.campaignservice.config;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,29 +7,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Getter
 public class ServiceConfig {
-    @Value("${provider.issuerUri}")
-    private String providerIssuerUri;
-
-    @Value("${server.port}")
-    private int serverPort;
-
-    @Value("${frontend.gateway}")
-    private String frontendGateway;
-
     @Value("${loki.url}")
     private String lokiUrl;
-
-    @Value("${cron.username}")
-    private String cronUsername;
-
-    @Value("${cron.password}")
-    private String cronPassword;
-
-    @Value("${rpt.campaignId}")
-    private Long rptCampaignId;
-
-    @Value("${rpt.validityInMinute}")
-    private Long rptValidityInMinute;
 
     @Value("${queue.exchange}")
     private String exchange;
@@ -54,8 +33,5 @@ public class ServiceConfig {
 
     @Value("${queue.userQueue.routingKey.findUser}")
     private String findUserRK;
-
-    @Value("${queue.userQueue.routingKey.storedFile}")
-    private String findUserStoredFileRK;
 
 }

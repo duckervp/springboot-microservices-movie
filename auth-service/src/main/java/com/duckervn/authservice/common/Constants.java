@@ -12,4 +12,5 @@ public class Constants {
     public static final String EMPTY_STRING = "";
 
     public static final String RESET_PASSWORD_LINK = "resetPasswordLink";
+
 }

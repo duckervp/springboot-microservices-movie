@@ -1,3 +1,17 @@
+queue:
+  exchange: dev:amqp-exchange
+  campaignQueue:
+    name: dev:campaign-queue
+    routingKey:
+      all: dev:campaign.*
+      addRecipient: dev:campaign.add-recipient
+  userQueue:
+    name: dev:user-queue
+    routingKey:
+      all: dev:user.*
+      checkUserExist: dev:user.exist
+      findUser: dev:user.find
+
 loki:
     url: ${LOKI_URL}
 
@@ -22,6 +36,9 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${AUTH_SERVICE_URL}
+  rabbitmq:
+    host: host.docker.internal
+    port: 5672
 
 eureka:
   client:

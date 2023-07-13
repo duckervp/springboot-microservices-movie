@@ -4,31 +4,39 @@ import com.duckervn.streamservice.common.Response;
 import com.duckervn.streamservice.common.Utils;
 import com.duckervn.streamservice.config.ServiceConfig;
 import com.duckervn.streamservice.domain.model.output.FileInfo;
+import com.duckervn.streamservice.queue.EventProducer;
 import com.duckervn.streamservice.service.CleanerService;
 import com.duckervn.streamservice.service.FileStorageService;
-import com.duckervn.streamservice.service.client.MovieFileClient;
-import com.duckervn.streamservice.service.client.UserFileClient;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CleanerServiceImpl implements CleanerService {
-    private final MovieFileClient movieFileClient;
-
-    private final UserFileClient userFileClient;
 
     private final FileStorageService fileStorageService;
 
     private final ServiceConfig serviceConfig;
 
+    private final EventProducer eventProducer;
+
+    private final ObjectMapper objectMapper;
+
+    @SneakyThrows
     @Override
     public Response clean() {
         List<FileInfo> fileInfos = new ArrayList<>();
@@ -45,14 +53,8 @@ public class CleanerServiceImpl implements CleanerService {
         boolean isError = false;
 
         try {
-            storedFileUrls.addAll(movieFileClient.getAllStoredFiles());
-        } catch (Exception e) {
-            log.info("Error: ", e);
-            isError = true;
-        }
-
-        try {
-            storedFileUrls.addAll(userFileClient.getAllStoredFiles());
+            storedFileUrls.addAll(processGetUrls(serviceConfig.getFindMovieStoredFileRK()));
+            storedFileUrls.addAll(processGetUrls(serviceConfig.getFindUserStoredFileRK()));
         } catch (Exception e) {
             log.info("Error: ", e);
             isError = true;
@@ -81,13 +83,8 @@ public class CleanerServiceImpl implements CleanerService {
         List<String> storedFileUrls = new ArrayList<>();
 
         try {
-            storedFileUrls.addAll(movieFileClient.getAllStoredFiles());
-        } catch (Exception e) {
-            log.info("Error: ", e);
-        }
-
-        try {
-            storedFileUrls.addAll(userFileClient.getAllStoredFiles());
+            storedFileUrls.addAll(processGetUrls(serviceConfig.getFindMovieStoredFileRK()));
+            storedFileUrls.addAll(processGetUrls(serviceConfig.getFindUserStoredFileRK()));
         } catch (Exception e) {
             log.info("Error: ", e);
         }
@@ -96,5 +93,17 @@ public class CleanerServiceImpl implements CleanerService {
             Utils.saveFileFromUrl(url);
             Thread.sleep(1000);
         }
+    }
+
+
+    private List<String> processGetUrls(String routingKey) throws ExecutionException, InterruptedException {
+        ListenableFuture<Map<String, Object>> listenableFuture = eventProducer.publish(routingKey, new HashMap<>(), true);
+        Map<String, Object> result = listenableFuture.get();
+
+        if (result.containsKey("data")) {
+            return objectMapper.convertValue(result.get("data"), new TypeReference<>() {
+            });
+        }
+        return new ArrayList<>();
     }
 }
