@@ -30,7 +30,7 @@ public class CampaignRecipientService implements ICampaignRecipientService {
 
     private final CampaignRecipientRepository campaignRecipientRepository;
 
-    private final CampaignRepository  campaignRepository;
+    private final CampaignRepository campaignRepository;
 
     private final EventProducer eventProducer;
 
@@ -151,7 +151,11 @@ public class CampaignRecipientService implements ICampaignRecipientService {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("userId", userId);
 
-        Map<String, Object> resultMap = eventProducer.publishAndWait(serviceConfig.getUserTopic(),  serviceConfig.getReplyTopic(),"user.exist", requestMap);
+        Map<String, Object> resultMap = eventProducer.publishAndWait(
+                serviceConfig.getUserTopic(),
+                serviceConfig.getUserToCampaignReplyTopic(),
+                serviceConfig.getCheckUserExistEvent(),
+                requestMap);
 
         log.info("Result back: {}", resultMap);
 

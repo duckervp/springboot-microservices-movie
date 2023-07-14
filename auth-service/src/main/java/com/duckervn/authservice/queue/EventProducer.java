@@ -1,13 +1,13 @@
 package com.duckervn.authservice.queue;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.duckervn.authservice.common.Constants;
+import com.duckervn.authservice.common.TypeRef;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.header.Header;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
@@ -38,8 +38,7 @@ public class EventProducer {
 
         RequestReplyFuture<String, String, String> replyFuture = replyingKafkaTemplate.sendAndReceive(record);
         ConsumerRecord<String, String> consumerRecord = replyFuture.get(10, TimeUnit.SECONDS);
-        return objectMapper.readValue(consumerRecord.value(), new TypeReference<>() {
-        });
+        return objectMapper.readValue(consumerRecord.value(), TypeRef.MAP_STRING_OBJECT);
     }
 
     public void publish(String topic, String event, Object data) {
@@ -51,8 +50,8 @@ public class EventProducer {
     @SneakyThrows
     private ProducerRecord<String, String> populateData(String topic, String replyTopic, String event, Object data) {
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("event", event);
-        requestMap.put("data", data);
+        requestMap.put(Constants.EVENT_ATTR, event);
+        requestMap.put(Constants.DATA_ATTR, data);
         String requestString = objectMapper.writeValueAsString(requestMap);
 
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic, 0, null, requestString);

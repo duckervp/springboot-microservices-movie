@@ -3,7 +3,14 @@ topic:
   user: dev-user
   reply:
     userToCampaign: dev-user-campaign-reply
-    userToStream: dev-user-stream-reply
+
+event:
+  campaign:
+    addRecipient: campaign-recipient.add
+  user:
+    find: user.find
+    exist: user.exist
+
 loki:
     url: ${LOKI_URL}
 

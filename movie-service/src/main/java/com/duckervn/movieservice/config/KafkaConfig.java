@@ -22,16 +22,16 @@ public class KafkaConfig {
     private final ServiceConfig serviceConfig;
 
     @Bean
-    public NewTopic movieRequestTopic() {
-        return TopicBuilder.name(serviceConfig.getMovieRequestTopic())
+    public NewTopic movieTopic() {
+        return TopicBuilder.name(serviceConfig.getMovieTopic())
                 .partitions(1)
                 .replicas(1)
                 .build();
     }
 
     @Bean
-    public NewTopic movieResponseTopic() {
-        return TopicBuilder.name(serviceConfig.getMovieResponseTopic())
+    public NewTopic movieToStreamReplyTopic() {
+        return TopicBuilder.name(serviceConfig.getMovieToStreamReplyTopic())
                 .partitions(1)
                 .replicas(1)
                 .build();
@@ -55,7 +55,7 @@ public class KafkaConfig {
 
     @Bean
     public KafkaMessageListenerContainer<String, String> replyContainer(ConsumerFactory<String, String> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getMovieResponseTopic());
+        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getMovieToStreamReplyTopic());
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 }

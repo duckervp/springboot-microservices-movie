@@ -1,8 +1,10 @@
 package com.duckervn.campaignservice.queue;
 
+import com.duckervn.campaignservice.common.Constants;
+import com.duckervn.campaignservice.common.TypeRef;
+import com.duckervn.campaignservice.config.ServiceConfig;
 import com.duckervn.campaignservice.domain.model.addcampaignrecipient.CampaignRecipientInput;
 import com.duckervn.campaignservice.service.impl.CampaignRecipientService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -21,26 +23,25 @@ public class EventConsumer {
 
     private final ObjectMapper objectMapper;
 
+    private final ServiceConfig serviceConfig;
+
     @SneakyThrows
     @KafkaListener(topics = "${topic.campaign}")
     public void consumeMessage(String request) {
         log.info("Consume message: {}", request);
 
-        Map<String, Object> requestMap = objectMapper.readValue(request, new TypeReference<>() {
-        });
-
-        log.info("Consume message: {}", requestMap);
+        Map<String, Object> requestMap = objectMapper.readValue(request, TypeRef.MAP_STRING_OBJECT);
 
         String event = null;
 
-        if (requestMap.containsKey("event")) {
-            event = (String) requestMap.get("event");
+        if (requestMap.containsKey(Constants.EVENT_ATTR)) {
+            event = (String) requestMap.get(Constants.EVENT_ATTR);
         }
 
         if (Objects.nonNull(event)) {
-            if (event.equals("campaign-recipient.add")) {
-                if (requestMap.containsKey("data")) {
-                    CampaignRecipientInput campaignRecipientInput = objectMapper.convertValue(requestMap.get("data"), CampaignRecipientInput.class);
+            if (event.equals(serviceConfig.getAddCampaignRecipientEvent())) {
+                if (requestMap.containsKey(Constants.DATA_ATTR)) {
+                    CampaignRecipientInput campaignRecipientInput = objectMapper.convertValue(requestMap.get(Constants.DATA_ATTR), CampaignRecipientInput.class);
                     campaignRecipientService.save(campaignRecipientInput);
                 }
             }

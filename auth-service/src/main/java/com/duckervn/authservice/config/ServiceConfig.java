@@ -42,4 +42,17 @@ public class ServiceConfig {
 
     @Value("${topic.reply.userToStream}")
     private String userToStreamReplyTopic;
+
+    @Value("${event.user.find}")
+    private String findUserEvent;
+
+    @Value("${event.user.exist}")
+    private String checkUserExistEvent;
+
+    @Value("${event.user.findStoredFile}")
+    private String findUserStoredFileEvent;
+
+    @Value("${event.campaign.addRecipient}")
+    private String addCampaignRecipientEvent;
+
 }

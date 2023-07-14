@@ -224,7 +224,7 @@ public class UserService implements IUserService {
                 .build();
 
 
-        eventProducer.publish(serviceConfig.getCampaignTopic(), "campaign-recipient.add", campaignRecipientInput);
+        eventProducer.publish(serviceConfig.getCampaignTopic(), serviceConfig.getAddCampaignRecipientEvent(), campaignRecipientInput);
 
 
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.REQUEST_PASSWORD_RESET).build();

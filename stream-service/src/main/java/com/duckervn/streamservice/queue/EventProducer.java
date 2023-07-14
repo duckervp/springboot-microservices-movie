@@ -1,6 +1,6 @@
 package com.duckervn.streamservice.queue;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.duckervn.streamservice.common.TypeRef;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -37,8 +37,7 @@ public class EventProducer {
 
         RequestReplyFuture<String, String, String> replyFuture = replyingKafkaTemplate.sendAndReceive(record);
         ConsumerRecord<String, String> consumerRecord = replyFuture.get(10, TimeUnit.SECONDS);
-        return objectMapper.readValue(consumerRecord.value(), new TypeReference<>() {
-        });
+        return objectMapper.readValue(consumerRecord.value(), TypeRef.MAP_STRING_OBJECT);
     }
 
     public void publish(String topic, String event, Object data) {

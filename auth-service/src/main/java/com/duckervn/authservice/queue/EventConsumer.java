@@ -1,9 +1,10 @@
 package com.duckervn.authservice.queue;
 
+import com.duckervn.authservice.common.Constants;
+import com.duckervn.authservice.common.TypeRef;
 import com.duckervn.authservice.config.ServiceConfig;
 import com.duckervn.authservice.repository.UserRepository;
 import com.duckervn.authservice.service.IFileStoreService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -35,38 +36,35 @@ public class EventConsumer {
     public String consumeMessageFromQueue(String request) {
         log.info("Consume message: {}", request);
 
-        Map<String, Object> requestMap = objectMapper.readValue(request, new TypeReference<>() {});
+        Map<String, Object> requestMap = objectMapper.readValue(request, TypeRef.MAP_STRING_OBJECT);
 
         String userId = null;
         String event = null;
 
-        if (requestMap.containsKey("data")) {
-            Map<String, Object> data = objectMapper.convertValue(requestMap.get("data"), new TypeReference<>() {
-            });
+        if (requestMap.containsKey(Constants.DATA_ATTR)) {
+            Map<String, Object> data = objectMapper.convertValue(requestMap.get(Constants.DATA_ATTR), TypeRef.MAP_STRING_OBJECT);
             if (Objects.nonNull(data) && data.containsKey("userId")) {
                 userId = (String) data.get("userId");
             }
         }
 
-        if (requestMap.containsKey("event")) {
-            event = (String) requestMap.get("event");
+        if (requestMap.containsKey(Constants.EVENT_ATTR)) {
+            event = (String) requestMap.get(Constants.EVENT_ATTR);
         }
 
         Map<String, Object> resultMap = new HashMap<>();
 
-        resultMap.put("event", event);
-
         if (Objects.nonNull(event)) {
-            if (Objects.nonNull(userId) && event.equals("user.exist")) {
+            resultMap.put(Constants.EVENT_ATTR, event);
+            if (Objects.nonNull(userId) && event.equals(serviceConfig.getCheckUserExistEvent())) {
                 resultMap.put("userId", userId);
                 resultMap.put("exist", userRepository.existsById(userId));
-            } else if (Objects.nonNull(userId) && event.equals("user.find")) {
-                Map<String, Object> map = objectMapper.convertValue(userRepository.findById(userId).orElse(null), new TypeReference<>() {
-                });
+            } else if (Objects.nonNull(userId) && event.equals(serviceConfig.getFindUserEvent())) {
+                Map<String, Object> map = objectMapper.convertValue(userRepository.findById(userId).orElse(null), TypeRef.MAP_STRING_OBJECT);
                 resultMap.putAll(map);
             } else {
-                if (event.equals("user-stored-file.find")) {
-                    resultMap.put("data", fileStoreService.getStoredImageUrls());
+                if (event.equals(serviceConfig.getFindUserStoredFileEvent())) {
+                    resultMap.put(Constants.DATA_ATTR, fileStoreService.getStoredImageUrls());
                 }
             }
         }

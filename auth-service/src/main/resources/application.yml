@@ -5,6 +5,14 @@ topic:
     userToCampaign: dev-user-campaign-reply
     userToStream: dev-user-stream-reply
 
+event:
+  user:
+    find: user.find
+    exist: user.exist
+    findStoredFile: user-stored-file.find
+  campaign:
+    addRecipient: campaign-recipient.add
+
 provider:
   issuerUri: ${AUTH_SERVICE_URL}
 

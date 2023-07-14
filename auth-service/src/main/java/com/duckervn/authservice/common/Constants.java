@@ -13,4 +13,8 @@ public class Constants {
 
     public static final String RESET_PASSWORD_LINK = "resetPasswordLink";
 
+    public static final String DATA_ATTR = "data";
+
+    public static final String EVENT_ATTR = "event";
+
 }

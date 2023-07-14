@@ -37,4 +37,8 @@ public class Constants {
     public static final List<String> SEND_METHODS = Arrays.asList(SMTP, API);
 
     public static final Integer MAX_RETRY = 3;
+
+    public static final String DATA_ATTR = "data";
+
+    public static final String EVENT_ATTR = "event";
 }

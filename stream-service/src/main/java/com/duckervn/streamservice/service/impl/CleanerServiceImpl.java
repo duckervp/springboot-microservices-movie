@@ -1,13 +1,13 @@
 package com.duckervn.streamservice.service.impl;
 
 import com.duckervn.streamservice.common.Response;
+import com.duckervn.streamservice.common.TypeRef;
 import com.duckervn.streamservice.common.Utils;
 import com.duckervn.streamservice.config.ServiceConfig;
 import com.duckervn.streamservice.domain.model.output.FileInfo;
 import com.duckervn.streamservice.queue.EventProducer;
 import com.duckervn.streamservice.service.CleanerService;
 import com.duckervn.streamservice.service.FileStorageService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -51,15 +51,23 @@ public class CleanerServiceImpl implements CleanerService {
         boolean isError = false;
 
         try {
-//            storedFileUrls.addAll(processGetUrls(serviceConfig.getMovieRequestTopic(), "movie-stored-file.find"));
-            storedFileUrls.addAll(processGetUrls(serviceConfig.getUserTopic(), "user-stored-file.find"));
+            storedFileUrls.addAll(processGetUrls(
+                    serviceConfig.getMovieTopic(),
+                    serviceConfig.getMovieToStreamReplyTopic(),
+                    "movie-stored-file.find")
+            );
+            storedFileUrls.addAll(processGetUrls(
+                    serviceConfig.getUserTopic(),
+                    serviceConfig.getUserToStreamReplyTopic(),
+                    "user-stored-file.find")
+            );
         } catch (Exception e) {
             log.info("Error: ", e);
             isError = true;
         }
 
         log.info("Stored file size: {}", storedFileUrls.size());
-        log.info("Stored file size: {}", storedFileUrls.get(0));
+        log.info("Stored files: {}", String.join(",", storedFileUrls));
 
         List<String> deletedFileNames = new ArrayList<>();
 
@@ -84,8 +92,16 @@ public class CleanerServiceImpl implements CleanerService {
         List<String> storedFileUrls = new ArrayList<>();
 
         try {
-//            storedFileUrls.addAll(processGetUrls(serviceConfig.getMovieTopic(), "movie-stored-file.find"));
-            storedFileUrls.addAll(processGetUrls(serviceConfig.getUserTopic(), "user-stored-file.find"));
+            storedFileUrls.addAll(processGetUrls(
+                    serviceConfig.getMovieTopic(),
+                    serviceConfig.getMovieToStreamReplyTopic(),
+                    "movie-stored-file.find")
+            );
+            storedFileUrls.addAll(processGetUrls(
+                    serviceConfig.getUserTopic(),
+                    serviceConfig.getUserToStreamReplyTopic(),
+                    "user-stored-file.find")
+            );
         } catch (Exception e) {
             log.info("Error: ", e);
         }
@@ -97,12 +113,11 @@ public class CleanerServiceImpl implements CleanerService {
     }
 
 
-    private List<String> processGetUrls(String topic, String event) {
-        Map<String, Object> result = eventProducer.publishAndWait(topic, serviceConfig.getUserToStreamReplyTopic(), event, new HashMap<>());
+    private List<String> processGetUrls(String topic, String replyTopic, String event) {
+        Map<String, Object> result = eventProducer.publishAndWait(topic, replyTopic, event, new HashMap<>());
 
         if (result.containsKey("data")) {
-            return objectMapper.convertValue(result.get("data"), new TypeReference<>() {
-            });
+            return objectMapper.convertValue(result.get("data"), TypeRef.LIST_STRING);
         }
         return new ArrayList<>();
     }

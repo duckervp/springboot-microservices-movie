@@ -19,8 +19,13 @@ public class ServiceConfig {
     @Value("${topic.reply.userToCampaign}")
     private String userToCampaignReplyTopic;
 
-    @Value("${topic.reply.userToStream}")
-    private String userToStreamReplyTopic;
+    @Value("${event.campaign.addRecipient}")
+    private String addCampaignRecipientEvent;
 
+    @Value("${event.user.find}")
+    private String findUserEvent;
+
+    @Value("${event.user.exist}")
+    private String checkUserExistEvent;
 
 }

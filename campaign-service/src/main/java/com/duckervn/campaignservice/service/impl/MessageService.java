@@ -1,6 +1,7 @@
 package com.duckervn.campaignservice.service.impl;
 
 import com.duckervn.campaignservice.common.Constants;
+import com.duckervn.campaignservice.common.TypeRef;
 import com.duckervn.campaignservice.config.ServiceConfig;
 import com.duckervn.campaignservice.domain.entity.Campaign;
 import com.duckervn.campaignservice.domain.entity.CampaignRecipient;
@@ -57,18 +58,21 @@ public class MessageService implements IMessageService {
     }
 
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> getDataMapping(CampaignRecipient campaignRecipient) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("userId", campaignRecipient.getRecipientId());
-        Map<String, Object> resultMap = eventProducer.publishAndWait(serviceConfig.getUserTopic(), serviceConfig.getReplyTopic(),"user.exist", requestMap);
+        Map<String, Object> resultMap = eventProducer.publishAndWait(
+                serviceConfig.getUserTopic(),
+                serviceConfig.getUserToCampaignReplyTopic(),
+                serviceConfig.getFindUserEvent(),
+                requestMap);
 
         log.info("Result back: {}", resultMap);
 
         Map<String, Object> mapping = new HashMap<>(resultMap);
         if (Objects.nonNull(campaignRecipient.getFixedParams())) {
-            Map<String, Object> fixedParams = objectMapper.readValue(campaignRecipient.getFixedParams(), Map.class);
+            Map<String, Object> fixedParams = objectMapper.readValue(campaignRecipient.getFixedParams(), TypeRef.MAP_STRING_OBJECT);
             mapping.putAll(fixedParams);
         }
         return mapping;

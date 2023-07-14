@@ -38,8 +38,16 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic replyTopic() {
+    public NewTopic userToStreamReplyTopic() {
         return TopicBuilder.name(serviceConfig.getUserToStreamReplyTopic())
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic movieToStreamReplyTopic() {
+        return TopicBuilder.name(serviceConfig.getMovieToStreamReplyTopic())
                 .partitions(1)
                 .replicas(1)
                 .build();
@@ -63,7 +71,7 @@ public class KafkaConfig {
 
     @Bean
     public KafkaMessageListenerContainer<String, String> replyContainer(ConsumerFactory<String, String> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getUserToStreamReplyTopic());
+        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getUserToStreamReplyTopic(), serviceConfig.getMovieToStreamReplyTopic());
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 }

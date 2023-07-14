@@ -11,10 +11,10 @@ public class ServiceConfig {
     @Value("${loki.url}")
     private String lokiUrl;
 
-    @Value("${topic.movie.request}")
-    private String movieRequestTopic;
+    @Value("${topic.movie}")
+    private String movieTopic;
 
-    @Value("${topic.movie.response}")
-    private String movieResponseTopic;
+    @Value("${topic.reply.movieToStream}")
+    private String movieToStreamReplyTopic;
 
 }

@@ -39,15 +39,7 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic userToCampaignReplyTopic() {
-        return TopicBuilder.name(serviceConfig.getUserToCampaignReplyTopic())
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
-
-    @Bean
-    public NewTopic userToStreamReplyTopic() {
-        return TopicBuilder.name(serviceConfig.getUserToStreamReplyTopic())
+        return TopicBuilder.name(serviceConfig.getAddCampaignRecipientEvent())
                 .partitions(1)
                 .replicas(1)
                 .build();
@@ -71,7 +63,7 @@ public class KafkaConfig {
 
     @Bean
     public KafkaMessageListenerContainer<String, String> replyContainer(ConsumerFactory<String, String> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getUserToCampaignReplyTopic(), serviceConfig.getUserToStreamReplyTopic());
+        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getAddCampaignRecipientEvent());
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 }
