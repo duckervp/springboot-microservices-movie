@@ -1,6 +1,33 @@
 version: "3"
 
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"
+
+  broker:
+    image: confluentinc/cp-kafka:latest
+    container_name: broker
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
   mysql-db:
     image: mysql:latest
     environment:
@@ -10,6 +37,7 @@ services:
       - "3306:3306"
     volumes:
       - db:/var/lib/mysql_data
+
   discovery-service:
     image: duckervn/msult-discovery-service
     environment:
@@ -49,6 +77,8 @@ services:
       CRON_PASSWORD: CRON_PASSWORD
       RPT_CAMPAIGN_ID: 1
       RPT_VALIDITY_IN_MINUTE: 60
+      KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
+      KAFKA_CONSUMER_GROUP_ID: consumer-group
     ports:
       - "8909:8909"
     build:
@@ -57,6 +87,7 @@ services:
     depends_on:
       - mysql-db
       - discovery-service
+      - broker
 
   movie-service:
     image: duckervn/msult-movie-service
@@ -69,6 +100,8 @@ services:
       MYSQL_PASSWORD: root
       SERVER_PORT: 8910
       LOKI_URL: http://host.docker.internal:3100
+      KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
+      KAFKA_CONSUMER_GROUP_ID: consumer-group
     ports:
       - "8910:8910"
     build:
@@ -77,6 +110,7 @@ services:
     depends_on:
       - mysql-db
       - discovery-service
+      - broker
 
   stream-service:
     image: duckervn/msult-stream-service
@@ -88,6 +122,8 @@ services:
       SERVER_PORT: 8911
       LOKI_URL: http://host.docker.internal:3100
       GATEWAY_URL: http://localhost:8762
+      KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
+      KAFKA_CONSUMER_GROUP_ID: consumer-group
     ports:
       - "8911:8911"
     build:
@@ -96,6 +132,7 @@ services:
     depends_on:
       - mysql-db
       - discovery-service
+      - broker
     volumes:
       - store:/mnt/files
 
@@ -120,6 +157,7 @@ services:
     depends_on:
       - mysql-db
       - discovery-service
+      - broker
 
   campaign-service:
     image: duckervn/msult-campaign-service
@@ -133,6 +171,8 @@ services:
       SERVER_PORT: 8913
       LOKI_URL: http://host.docker.internal:3100
       FRONTEND_GATEWAY: http://localhost:3000
+      KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
+      KAFKA_CONSUMER_GROUP_ID: consumer-group
     ports:
       - "8913:8913"
     build:
@@ -141,6 +181,7 @@ services:
     depends_on:
       - mysql-db
       - discovery-service
+      - broker
 
   gate-service:
     image: duckervn/msult-gateway-service

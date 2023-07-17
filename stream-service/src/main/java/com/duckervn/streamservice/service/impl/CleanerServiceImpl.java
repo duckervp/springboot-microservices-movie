@@ -1,5 +1,6 @@
 package com.duckervn.streamservice.service.impl;
 
+import com.duckervn.streamservice.common.Constants;
 import com.duckervn.streamservice.common.Response;
 import com.duckervn.streamservice.common.TypeRef;
 import com.duckervn.streamservice.common.Utils;
@@ -54,12 +55,12 @@ public class CleanerServiceImpl implements CleanerService {
             storedFileUrls.addAll(processGetUrls(
                     serviceConfig.getMovieTopic(),
                     serviceConfig.getMovieToStreamReplyTopic(),
-                    "movie-stored-file.find")
+                    serviceConfig.getFindMovieStoredFileEvent())
             );
             storedFileUrls.addAll(processGetUrls(
                     serviceConfig.getUserTopic(),
                     serviceConfig.getUserToStreamReplyTopic(),
-                    "user-stored-file.find")
+                    serviceConfig.getFindUserStoredFileEvent())
             );
         } catch (Exception e) {
             log.info("Error: ", e);
@@ -67,7 +68,6 @@ public class CleanerServiceImpl implements CleanerService {
         }
 
         log.info("Stored file size: {}", storedFileUrls.size());
-        log.info("Stored files: {}", String.join(",", storedFileUrls));
 
         List<String> deletedFileNames = new ArrayList<>();
 
@@ -95,12 +95,12 @@ public class CleanerServiceImpl implements CleanerService {
             storedFileUrls.addAll(processGetUrls(
                     serviceConfig.getMovieTopic(),
                     serviceConfig.getMovieToStreamReplyTopic(),
-                    "movie-stored-file.find")
+                    serviceConfig.getFindMovieStoredFileEvent())
             );
             storedFileUrls.addAll(processGetUrls(
                     serviceConfig.getUserTopic(),
                     serviceConfig.getUserToStreamReplyTopic(),
-                    "user-stored-file.find")
+                    serviceConfig.getFindUserStoredFileEvent())
             );
         } catch (Exception e) {
             log.info("Error: ", e);
@@ -116,8 +116,8 @@ public class CleanerServiceImpl implements CleanerService {
     private List<String> processGetUrls(String topic, String replyTopic, String event) {
         Map<String, Object> result = eventProducer.publishAndWait(topic, replyTopic, event, new HashMap<>());
 
-        if (result.containsKey("data")) {
-            return objectMapper.convertValue(result.get("data"), TypeRef.LIST_STRING);
+        if (result.containsKey(Constants.DATA_ATTR)) {
+            return objectMapper.convertValue(result.get(Constants.DATA_ATTR), TypeRef.LIST_STRING);
         }
         return new ArrayList<>();
     }

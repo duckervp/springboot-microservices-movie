@@ -1,5 +1,6 @@
 package com.duckervn.streamservice.queue;
 
+import com.duckervn.streamservice.common.Constants;
 import com.duckervn.streamservice.common.TypeRef;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -49,8 +50,8 @@ public class EventProducer {
     @SneakyThrows
     private ProducerRecord<String, String> populateData(String topic, String replyTopic, String event, Object data) {
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("event", event);
-        requestMap.put("data", data);
+        requestMap.put(Constants.EVENT_ATTR, event);
+        requestMap.put(Constants.DATA_ATTR, data);
         String requestString = objectMapper.writeValueAsString(requestMap);
 
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic, 0, null, requestString);

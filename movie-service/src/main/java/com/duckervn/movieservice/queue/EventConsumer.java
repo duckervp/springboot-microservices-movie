@@ -1,6 +1,8 @@
 package com.duckervn.movieservice.queue;
 
+import com.duckervn.movieservice.common.Constants;
 import com.duckervn.movieservice.common.TypeRef;
+import com.duckervn.movieservice.config.ServiceConfig;
 import com.duckervn.movieservice.service.IFileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,8 @@ public class EventConsumer {
 
     private final IFileService fileService;
 
+    private final ServiceConfig serviceConfig;
+
     @SneakyThrows
     @KafkaListener(topics = "${topic.movie}")
     @SendTo
@@ -33,16 +37,16 @@ public class EventConsumer {
 
         String event = null;
 
-        if (requestMap.containsKey("event")) {
-            event = (String) requestMap.get("event");
+        if (requestMap.containsKey(Constants.EVENT_ATTR)) {
+            event = (String) requestMap.get(Constants.EVENT_ATTR);
         }
 
         Map<String, Object> resultMap = new HashMap<>();
 
         if (Objects.nonNull(event)) {
-            resultMap.put("event", event);
-            if (event.equals("movie-stored-file.find")) {
-                resultMap.put("data", fileService.getAllStoredFiles());
+            resultMap.put(Constants.EVENT_ATTR, event);
+            if (event.equals(serviceConfig.getFindMovieStoredFileEvent())) {
+                resultMap.put(Constants.DATA_ATTR, fileService.getAllStoredFiles());
             }
         }
 

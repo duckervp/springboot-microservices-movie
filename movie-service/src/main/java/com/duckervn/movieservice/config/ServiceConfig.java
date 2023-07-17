@@ -17,4 +17,6 @@ public class ServiceConfig {
     @Value("${topic.reply.movieToStream}")
     private String movieToStreamReplyTopic;
 
+    @Value("${event.movie.findStoredFile}")
+    private String findMovieStoredFileEvent;
 }
