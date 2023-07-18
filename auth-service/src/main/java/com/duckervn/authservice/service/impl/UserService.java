@@ -199,7 +199,7 @@ public class UserService implements IUserService {
             updatePassword(client, changePasswordInput.getNewPassword(), true);
             message = RespMessage.PASSWORD_CHANGED;
         } else {
-            message = RespMessage.CANNOT_CHANGE_PASSWORD;
+            throw new IllegalArgumentException(RespMessage.OLD_PASSWORD_NOT_MATCH);
         }
         return Response.builder().code(HttpStatus.OK.value()).message(message).build();
     }

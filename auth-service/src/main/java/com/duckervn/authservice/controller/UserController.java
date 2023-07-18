@@ -75,7 +75,7 @@ public class UserController {
     }
 
     @PatchMapping("/change-password")
-    public ResponseEntity<Response> changePassword(@RequestBody ChangePasswordInput changePasswordInput) {
+    public ResponseEntity<Response> changePassword(@RequestBody @Valid ChangePasswordInput changePasswordInput) {
         return ResponseEntity.ok(userService.changePassword(changePasswordInput));
     }
 
@@ -85,7 +85,7 @@ public class UserController {
     }
 
     @PatchMapping("/reset-password")
-    public ResponseEntity<Response> resetPassword(@RequestParam String token, @RequestBody ResetPasswordInput resetPasswordInput) {
+    public ResponseEntity<Response> resetPassword(@RequestParam String token, @RequestBody @Valid ResetPasswordInput resetPasswordInput) {
         return ResponseEntity.ok(userService.resetPassword(token, resetPasswordInput));
     }
 }

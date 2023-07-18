@@ -17,7 +17,7 @@ public class RespMessage {
 
     public static final String PASSWORD_CHANGED = "Password changed successfully!";
 
-    public static final String CANNOT_CHANGE_PASSWORD = "Password change failed!";
+    public static final String OLD_PASSWORD_NOT_MATCH = "Old password does not match!";
 
     public static final String PASSWORD_RESET = "Password reset successfully!";
 
