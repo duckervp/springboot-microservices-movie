@@ -23,6 +23,7 @@ public class WebSecurityConfig {
                 .antMatchers("/users/register").permitAll()
                 .antMatchers("/users/reset-password-request").permitAll()
                 .antMatchers("/users/reset-password").permitAll()
+                .antMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer()

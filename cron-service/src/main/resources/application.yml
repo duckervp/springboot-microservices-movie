@@ -27,6 +27,20 @@ spring:
         jwt:
           issuer-uri: ${AUTH_SERVICE_URL}
 
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
 eureka:
   client:
     serviceUrl:

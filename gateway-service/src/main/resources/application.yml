@@ -39,6 +39,20 @@ spring:
 server:
   port: ${SERVER_PORT}
 
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
 eureka:
   client:
     serviceUrl:

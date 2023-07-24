@@ -20,6 +20,7 @@ public class WebFluxSecurityConfig {
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) throws Exception {
         return http.cors().and().csrf().disable()
                 .authorizeExchange()
+                .pathMatchers("/actuator/**").permitAll()
                 .anyExchange().authenticated()
                 .and().oauth2ResourceServer()
                 .jwt().and().authenticationEntryPoint(authenticationEntryPoint)

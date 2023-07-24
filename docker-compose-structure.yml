@@ -201,6 +201,13 @@ services:
       dockerfile: "Dockerfile"
     depends_on:
       - discovery-service
+  prometheus:
+    image: "prom/prometheus"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    container_name: prometheus
 
 volumes:
   db:

@@ -22,6 +22,7 @@ public class WebFluxSecurityConfig {
         http.cors().and().csrf().disable()
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.GET, "/files/{name}").permitAll()
+                .pathMatchers("/actuator/**").permitAll()
                 .anyExchange().authenticated()
                 .and().oauth2ResourceServer()
                 .jwt().and().authenticationEntryPoint(authenticationEntryPoint);
