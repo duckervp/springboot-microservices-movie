@@ -1,0 +1,66 @@
+topic:
+  movie: dev-movie
+  user: dev-user
+  reply:
+    userToActivity: dev-user-activity-reply
+    movieToActivity: dev-movie-activity-reply
+
+event:
+  movie:
+    exist: movie.exist
+  user:
+    exist: user.exist
+    updateExp: user-exp.update
+
+loki:
+    url: ${LOKI_URL}
+
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  jpa:
+    openInView: false
+    databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddlAuto: update
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_URL}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  application:
+    name: activity-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_SERVICE_URL}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS_URL}
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${DISCOVERY_SERVICE_URL}

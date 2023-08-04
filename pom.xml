@@ -26,6 +26,7 @@
         <module>stream-service</module>
         <module>cron-service</module>
         <module>campaign-service</module>
+        <module>activity-service</module>
     </modules>
 
     <build>

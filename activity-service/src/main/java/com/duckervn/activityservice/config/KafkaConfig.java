@@ -1,4 +1,4 @@
-package com.duckervn.campaignservice.config;
+package com.duckervn.activityservice.config;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -22,8 +22,8 @@ public class KafkaConfig {
     private final ServiceConfig serviceConfig;
 
     @Bean
-    public NewTopic campaignTopic() {
-        return TopicBuilder.name(serviceConfig.getCampaignTopic())
+    public NewTopic movieTopic() {
+        return TopicBuilder.name(serviceConfig.getMovieTopic())
                 .partitions(1)
                 .replicas(1)
                 .build();
@@ -38,8 +38,16 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic userToCampaignReplyTopic() {
-        return TopicBuilder.name(serviceConfig.getUserToCampaignReplyTopic())
+    public NewTopic userToActivityReplyTopic() {
+        return TopicBuilder.name(serviceConfig.getUserToActivityReplyTopic())
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic movieToActivityReplyTopic() {
+        return TopicBuilder.name(serviceConfig.getMovieToActivityReplyTopic())
                 .partitions(1)
                 .replicas(1)
                 .build();
@@ -63,7 +71,7 @@ public class KafkaConfig {
 
     @Bean
     public KafkaMessageListenerContainer<String, String> replyContainer(ConsumerFactory<String, String> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getUserToCampaignReplyTopic());
+        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getUserToActivityReplyTopic(), serviceConfig.getMovieToActivityReplyTopic());
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 }

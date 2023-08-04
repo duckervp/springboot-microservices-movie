@@ -48,6 +48,12 @@ public class User {
 
     private String avatarUrl;
 
+    private Integer level;
+
+    private Long exp;
+
+    private String title;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime modifiedAt;
