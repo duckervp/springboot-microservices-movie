@@ -55,7 +55,7 @@ public class KafkaConfig {
 
     @Bean
     public KafkaMessageListenerContainer<String, String> replyContainer(ConsumerFactory<String, String> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getMovieToStreamReplyTopic());
+        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getMovieToStreamReplyTopic(), serviceConfig.getMovieToActivityReplyTopic());
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 }

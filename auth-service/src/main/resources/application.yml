@@ -4,6 +4,7 @@ topic:
   reply:
     userToCampaign: dev-user-campaign-reply
     userToStream: dev-user-stream-reply
+    userToActivity: dev-user-activity-reply
 
 event:
   user:

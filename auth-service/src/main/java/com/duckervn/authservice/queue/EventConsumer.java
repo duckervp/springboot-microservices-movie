@@ -56,12 +56,18 @@ public class EventConsumer {
 
         if (Objects.nonNull(event)) {
             resultMap.put(Constants.EVENT_ATTR, event);
-            if (Objects.nonNull(userId) && event.equals(serviceConfig.getCheckUserExistEvent())) {
-                resultMap.put("userId", userId);
-                resultMap.put("exist", userRepository.existsById(userId));
+            if (event.equals(serviceConfig.getCheckUserExistEvent())) {
+                boolean exist = false;
+                if (Objects.nonNull(userId)) {
+                    exist = userRepository.existsById(userId);
+                }
+                Map<String, Object> data = new HashMap<>();
+                data.put("userId", userId);
+                data.put("exist", exist);
+                resultMap.put(Constants.DATA_ATTR, data);
             } else if (Objects.nonNull(userId) && event.equals(serviceConfig.getFindUserEvent())) {
-                Map<String, Object> map = objectMapper.convertValue(userRepository.findById(userId).orElse(null), TypeRef.MAP_STRING_OBJECT);
-                resultMap.putAll(map);
+                Map<String, Object> data = objectMapper.convertValue(userRepository.findById(userId).orElse(null), TypeRef.MAP_STRING_OBJECT);
+                resultMap.put(Constants.DATA_ATTR, data);
             } else {
                 if (event.equals(serviceConfig.getFindUserStoredFileEvent())) {
                     resultMap.put(Constants.DATA_ATTR, fileStoreService.getStoredImageUrls());

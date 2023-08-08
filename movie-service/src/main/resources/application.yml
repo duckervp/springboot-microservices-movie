@@ -2,9 +2,11 @@ topic:
   movie: dev-movie
   reply:
     movieToStream: dev-movie-stream-reply
+    movieToActivity: dev-movie-activity-reply
 
 event:
   movie:
+    exist: movie.exist
     findStoredFile: movie-stored-file.find
 
 loki:

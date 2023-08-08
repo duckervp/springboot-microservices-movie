@@ -17,6 +17,12 @@ public class ServiceConfig {
     @Value("${topic.reply.movieToStream}")
     private String movieToStreamReplyTopic;
 
+    @Value("${topic.reply.movieToActivity}")
+    private String movieToActivityReplyTopic;
+
     @Value("${event.movie.findStoredFile}")
     private String findMovieStoredFileEvent;
+
+    @Value("${event.movie.exist}")
+    private String checkMovieExistEvent;
 }

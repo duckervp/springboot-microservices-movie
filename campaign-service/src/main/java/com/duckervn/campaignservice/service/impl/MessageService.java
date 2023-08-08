@@ -70,7 +70,12 @@ public class MessageService implements IMessageService {
 
         log.info("Result back: {}", resultMap);
 
-        Map<String, Object> mapping = new HashMap<>(resultMap);
+        Map<String, Object> data = new HashMap<>();
+        if (Objects.nonNull(resultMap) && Objects.nonNull(resultMap.get(Constants.DATA_ATTR))) {
+            data = objectMapper.readValue((String) resultMap.get(Constants.DATA_ATTR), TypeRef.MAP_STRING_OBJECT);
+        }
+
+        Map<String, Object> mapping = new HashMap<>(data);
         if (Objects.nonNull(campaignRecipient.getFixedParams())) {
             Map<String, Object> fixedParams = objectMapper.readValue(campaignRecipient.getFixedParams(), TypeRef.MAP_STRING_OBJECT);
             mapping.putAll(fixedParams);

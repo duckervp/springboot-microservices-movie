@@ -30,6 +30,8 @@ public class HistoryService implements IHistoryService {
 
         historyRepository.save(history);
 
+        // TODO: public update movie view ?
+
         return Response.builder().code(HttpStatus.CREATED.value()).message(RespMessage.ADDED_HISTORY).result(history).build();
     }
 

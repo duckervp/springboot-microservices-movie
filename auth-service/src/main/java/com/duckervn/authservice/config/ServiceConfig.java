@@ -43,6 +43,9 @@ public class ServiceConfig {
     @Value("${topic.reply.userToStream}")
     private String userToStreamReplyTopic;
 
+    @Value("${topic.reply.userToActivity}")
+    private String userToActivityReplyTopic;
+
     @Value("${event.user.find}")
     private String findUserEvent;
 

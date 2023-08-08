@@ -69,7 +69,11 @@ public class KafkaConfig {
 
     @Bean
     public KafkaMessageListenerContainer<String, String> replyContainer(ConsumerFactory<String, String> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getUserToCampaignReplyTopic(), serviceConfig.getUserToStreamReplyTopic());
+        ContainerProperties containerProperties = new ContainerProperties(
+                serviceConfig.getUserToCampaignReplyTopic(),
+                serviceConfig.getUserToStreamReplyTopic(),
+                serviceConfig.getUserToActivityReplyTopic()
+        );
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 }

@@ -3,6 +3,7 @@ package com.duckervn.movieservice.queue;
 import com.duckervn.movieservice.common.Constants;
 import com.duckervn.movieservice.common.TypeRef;
 import com.duckervn.movieservice.config.ServiceConfig;
+import com.duckervn.movieservice.repository.MovieRepository;
 import com.duckervn.movieservice.service.IFileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,8 @@ public class EventConsumer {
 
     private final ServiceConfig serviceConfig;
 
+    private final MovieRepository movieRepository;
+
     @SneakyThrows
     @KafkaListener(topics = "${topic.movie}")
     @SendTo
@@ -47,6 +50,19 @@ public class EventConsumer {
             resultMap.put(Constants.EVENT_ATTR, event);
             if (event.equals(serviceConfig.getFindMovieStoredFileEvent())) {
                 resultMap.put(Constants.DATA_ATTR, fileService.getAllStoredFiles());
+            } else if (event.equals(serviceConfig.getCheckMovieExistEvent())) {
+                Long movieId = null;
+                boolean exist = false;
+                if (requestMap.containsKey("movieId") && Objects.nonNull(requestMap.get("movieId"))) {
+                    movieId = Long.valueOf((String) requestMap.get("movieId"));
+                }
+                if (Objects.nonNull(movieId)) {
+                    exist = movieRepository.existsById(movieId);
+                }
+                Map<String, Object> data = new HashMap<>();
+                data.put("movieId", movieId);
+                data.put("exist", exist);
+                resultMap.put(Constants.DATA_ATTR, data);
             }
         }
 

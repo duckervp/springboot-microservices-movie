@@ -3,6 +3,7 @@ package com.duckervn.campaignservice.service.impl;
 import com.duckervn.campaignservice.common.Constants;
 import com.duckervn.campaignservice.common.RespMessage;
 import com.duckervn.campaignservice.common.Response;
+import com.duckervn.campaignservice.common.TypeRef;
 import com.duckervn.campaignservice.config.ServiceConfig;
 import com.duckervn.campaignservice.domain.entity.CampaignRecipient;
 import com.duckervn.campaignservice.domain.exception.ResourceNotFoundException;
@@ -161,9 +162,10 @@ public class CampaignRecipientService implements ICampaignRecipientService {
 
         boolean isExist = false;
 
-        if (Objects.nonNull(resultMap)) {
-            String userId1 = (String) resultMap.get("userId");
-            isExist = (Boolean) resultMap.get("exist");
+        if (Objects.nonNull(resultMap) && Objects.nonNull(resultMap.get(Constants.DATA_ATTR))) {
+            Map<String, Object> data = objectMapper.readValue((String) resultMap.get(Constants.DATA_ATTR), TypeRef.MAP_STRING_OBJECT);
+            String userId1 = (String) data.get("userId");
+            isExist = (Boolean) data.get("exist");
             if (Objects.isNull(userId1) || !userId1.equals(userId) || !isExist) {
                 isExist = false;
             }

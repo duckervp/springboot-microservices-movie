@@ -1,7 +1,9 @@
 package com.duckervn.activityservice.service.impl;
 
+import com.duckervn.activityservice.common.Constants;
 import com.duckervn.activityservice.common.RespMessage;
 import com.duckervn.activityservice.common.Response;
+import com.duckervn.activityservice.common.TypeRef;
 import com.duckervn.activityservice.config.ServiceConfig;
 import com.duckervn.activityservice.domain.entity.Rating;
 import com.duckervn.activityservice.domain.exception.ResourceNotFoundException;
@@ -46,6 +48,8 @@ public class RatingService implements IRatingService {
 
         ratingRepository.save(rating);
 
+        // TODO: public update movie rating point
+
         return Response.builder().code(HttpStatus.CREATED.value())
                 .message(RespMessage.CREATED_RATING)
                 .result(rating).build();
@@ -61,6 +65,10 @@ public class RatingService implements IRatingService {
         }
 
         rating.setModifiedAt(LocalDateTime.now());
+
+        ratingRepository.save(rating);
+
+        // TODO: public update movie rating point
 
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_RATING).build();
     }
@@ -115,12 +123,17 @@ public class RatingService implements IRatingService {
         }
     }
 
+    @SneakyThrows
     private void checkExist(String id, String idFieldName, Map<String, Object> resultMap) {
         boolean isExist = false;
 
         if (Objects.nonNull(resultMap)) {
-            String movieId1 = (String) resultMap.get(idFieldName);
-            isExist = (Boolean) resultMap.get("exist");
+            Map<String, Object> data = new HashMap<>();
+            if (Objects.nonNull(resultMap.get(Constants.DATA_ATTR))) {
+                data = objectMapper.readValue((String) resultMap.get(Constants.DATA_ATTR), TypeRef.MAP_STRING_OBJECT);
+            }
+            String movieId1 = (String) data.get(idFieldName);
+            isExist = (Boolean) data.get("exist");
             if (Objects.isNull(movieId1) || !movieId1.equals(id)) {
                 isExist = false;
             }
