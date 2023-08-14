@@ -31,7 +31,7 @@ public class EpisodeService implements IEpisodeService {
      * @param episodeInput episode
      */
     @Override
-    public Response save(EpisodeInput episodeInput) {
+    public Episode save(EpisodeInput episodeInput) {
         Episode episode = objectMapper.convertValue(episodeInput, Episode.class);
         if (Objects.nonNull(episodeInput.getMovieId())) {
             Movie movie = movieService.findById(episodeInput.getMovieId());
@@ -41,8 +41,7 @@ public class EpisodeService implements IEpisodeService {
         episode.setCreatedAt(LocalDateTime.now());
         episode.setModifiedAt(LocalDateTime.now());
         episodeRepository.save(episode);
-        return Response.builder().code(HttpStatus.CREATED.value())
-                .message(RespMessage.CREATED_EPISODE).build();
+        return episode;
     }
 
     @Override
@@ -51,19 +50,8 @@ public class EpisodeService implements IEpisodeService {
                 .orElseThrow(ResourceNotFoundException::new);
     }
 
-    /**
-     * @param id id
-     * @return Response
-     */
     @Override
-    public Response findEpisode(Long id) {
-        Episode episode = findById(id);
-        return Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.FOUND_EPISODE).result(episode).build();
-    }
-
-    @Override
-    public Object update(Long episodeId, EpisodeInput episodeInput) {
+    public Episode update(Long episodeId, EpisodeInput episodeInput) {
         Episode episode = findById(episodeId);
 
         if (Objects.nonNull(episodeInput.getName())) {
@@ -86,24 +74,20 @@ public class EpisodeService implements IEpisodeService {
 
         episodeRepository.save(episode);
 
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_EPISODE).build();
+        return episode;
     }
 
     @Override
-    public Object delete(Long episodeId) {
+    public void delete(Long episodeId) {
         Episode episode = findById(episodeId);
 
         episodeRepository.delete(episode);
-
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_EPISODE).build();
     }
 
     @Override
-    public Object delete(List<Long> episodeIds) {
+    public void delete(List<Long> episodeIds) {
         List<Episode> episodes = episodeRepository.findAllById(episodeIds);
 
         episodeRepository.deleteAll(episodes);
-
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_EPISODES).build();
     }
 }

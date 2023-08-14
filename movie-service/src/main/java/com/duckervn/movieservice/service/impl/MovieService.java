@@ -1,11 +1,8 @@
 package com.duckervn.movieservice.service.impl;
 
-import com.duckervn.movieservice.common.Response;
-import com.duckervn.movieservice.common.RespMessage;
 import com.duckervn.movieservice.common.Utils;
-import com.duckervn.movieservice.domain.dto.MovieDTO;
-import com.duckervn.movieservice.domain.entity.*;
 import com.duckervn.movieservice.domain.entity.Character;
+import com.duckervn.movieservice.domain.entity.*;
 import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.movieservice.domain.model.addmovie.MovieInput;
 import com.duckervn.movieservice.domain.model.page.PageOutput;
@@ -17,14 +14,17 @@ import com.duckervn.movieservice.service.IProducerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,7 +87,7 @@ public class MovieService implements IMovieService {
      * @return Response
      */
     @Override
-    public Response save(MovieInput movieInput) {
+    public Movie save(MovieInput movieInput) {
         if (Objects.nonNull(movieInput.getId())) {
             update(movieInput.getId(), movieInput);
         }
@@ -109,20 +109,7 @@ public class MovieService implements IMovieService {
 
         movieRepository.save(movie);
 
-        return Response.builder()
-                .code(HttpStatus.CREATED.value())
-                .message(RespMessage.CREATED_MOVIE)
-                .result(movie).build();
-    }
-
-    /**
-     * @param id i
-     * @return movie
-     */
-    @Override
-    public Response findMovie(Long id) {
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_MOVIE)
-                .result(findById(id)).build();
+        return movie;
     }
 
     @Override
@@ -134,17 +121,13 @@ public class MovieService implements IMovieService {
      * @return list movie
      */
     @Override
-    public Response findMovie(String name, Integer releaseYear, String country, String genre, Integer pageNo, Integer pageSize) {
+    @Cacheable(value = "movie")
+    public PageOutput<?> findMovie(String name, Integer releaseYear, String country, String genre, Integer pageNo, Integer pageSize) {
         if (Objects.nonNull(name)) {
             name = "%" + name + "%";
         }
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        PageOutput<?> pageOutput = customMovieRepository.findMovieOutput(name, releaseYear, country, genre, pageable);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_MOVIES)
-                .results(pageOutput.getContent())
-                .pageSize(pageOutput.getPageSize())
-                .totalElements(pageOutput.getTotalElements())
-                .pageNo(pageOutput.getPageNo()).build();
+        return customMovieRepository.findMovieOutput(name, releaseYear, country, genre, pageable);
     }
 
     /**
@@ -153,7 +136,8 @@ public class MovieService implements IMovieService {
      * @return Response
      */
     @Override
-    public Response update(Long id, MovieInput movieInput) {
+    @CacheEvict(value = "movie", allEntries = true)
+    public Movie update(Long id, MovieInput movieInput) {
         Movie targetMovie = findById(id);
 
         if (StringUtils.isNotBlank(movieInput.getName())) {
@@ -228,55 +212,37 @@ public class MovieService implements IMovieService {
 
         movieRepository.save(targetMovie);
 
-        return Response.builder()
-                .code(HttpStatus.OK.value())
-                .message(RespMessage.UPDATED_MOVIE)
-                .result(targetMovie).build();
-    }
-
-    /**
-     * @param id id
-     * @return movie DTO
-     */
-    @Override
-    public MovieDTO findMovieDTOById(Long id) {
-        return movieRepository.findMovieDTOById(id).orElseThrow(RuntimeException::new);
+        return targetMovie;
     }
 
     @Override
-    public Response findMovie(String slug) {
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_MOVIE)
-                .result(movieRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new)).build();
+    @Cacheable(value = "movie", key = "#slug")
+    public Movie findMovie(String slug) {
+        return movieRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
-    public Response resetSlug() {
+    public void resetSlug() {
         List<Movie> movies = movieRepository.findAll();
         for (Movie movie : movies) {
             movie.setSlug(Utils.genSlug(movie.getName()));
         }
         movieRepository.saveAll(movies);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.RESET_SLUG).build();
     }
 
     @Override
-    public Response delete(Long id) {
+    @CacheEvict(value = "movie", allEntries = true)
+    public void delete(Long id) {
         Movie movie = findById(id);
         Set<Episode> episodes = movie.getEpisodes();
         episodeRepository.deleteAll(episodes);
         movieRepository.delete(movie);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_MOVIE).build();
     }
 
     @Override
-    public Response delete(List<Long> ids) {
+    @CacheEvict(value = "movie", allEntries = true)
+    public void delete(List<Long> ids) {
         List<Movie> movies = movieRepository.findAllById(ids);
-
         movieRepository.deleteAll(movies);
-
-        return Response.builder()
-                .code(HttpStatus.OK.value())
-                .message(RespMessage.DELETED_MOVIE)
-                .build();
     }
 }

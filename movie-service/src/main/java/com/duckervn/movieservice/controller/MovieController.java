@@ -1,6 +1,7 @@
 package com.duckervn.movieservice.controller;
 
-import com.duckervn.movieservice.domain.entity.Movie;
+import com.duckervn.movieservice.common.RespMessage;
+import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.model.addmovie.MovieInput;
 import com.duckervn.movieservice.domain.model.page.PageOutput;
 import com.duckervn.movieservice.service.IMovieService;
@@ -9,10 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import javax.ws.rs.Path;
 import java.util.List;
 
 @RestController
@@ -30,45 +29,76 @@ public class MovieController {
             @RequestParam(required = false, defaultValue = "1") Integer pageNo,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize
             ) {
-        return ResponseEntity.ok(movieService.findMovie(name, releaseYear, country, genre, pageNo, pageSize));
+        PageOutput<?> pageOutput = movieService.findMovie(name, releaseYear, country, genre, pageNo, pageSize);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_MOVIES)
+                .results(pageOutput.getContent())
+                .pageSize(pageOutput.getPageSize())
+                .totalElements(pageOutput.getTotalElements())
+                .pageNo(pageOutput.getPageNo()).build();
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping()
     public ResponseEntity<?> save(@RequestBody @Valid MovieInput movieInput) {
-        return new ResponseEntity<>(movieService.save(movieInput), HttpStatus.CREATED);
+        Response response = Response.builder()
+                .code(HttpStatus.CREATED.value())
+                .message(RespMessage.CREATED_MOVIE)
+                .result(movieService.save(movieInput)).build();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody @Valid MovieInput movieInput) {
-        return ResponseEntity.ok(movieService.update(id, movieInput));
+        Response response = Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.UPDATED_MOVIE)
+                .result(movieService.update(id, movieInput))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
-        return ResponseEntity.ok(movieService.delete(id));
+        movieService.delete(id);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_MOVIE).build();
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping
     public ResponseEntity<?> deleteMovie(@RequestParam List<Long> movieIds) {
-        return ResponseEntity.ok(movieService.delete(movieIds));
+        movieService.delete(movieIds);
+        Response response = Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.DELETED_MOVIE)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(movieService.findMovie(id));
+        Response response = Response.builder().code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_MOVIE)
+                .result(movieService.findById(id))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/s/{slug}")
     public ResponseEntity<?> findBySlug(@PathVariable String slug) {
-        return ResponseEntity.ok(movieService.findMovie(slug));
+        Response response = Response.builder().code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_MOVIE)
+                .result(movieService.findMovie(slug)).build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/slug/reset")
     public ResponseEntity<?> resetSlug() {
-        return ResponseEntity.ok(movieService.resetSlug());
+        movieService.resetSlug();
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.RESET_SLUG).build();
+        return ResponseEntity.ok(response);
     }
 }

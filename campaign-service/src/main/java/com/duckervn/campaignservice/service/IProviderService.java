@@ -1,16 +1,19 @@
 package com.duckervn.campaignservice.service;
 
 import com.duckervn.campaignservice.common.Response;
+import com.duckervn.campaignservice.domain.entity.Provider;
 import com.duckervn.campaignservice.domain.model.addprovider.ProviderInput;
 
+import java.util.List;
+
 public interface IProviderService {
-    Response findAll();
+    List<Provider> findAll();
 
-    Response findById(Long providerId);
+    Provider findById(Long providerId);
 
-    Response save(ProviderInput providerInput);
+    Provider save(ProviderInput providerInput);
 
-    Response update(Long providerId, ProviderInput providerInput);
+    Provider update(Long providerId, ProviderInput providerInput);
 
-    Response delete(Long providerId);
+    void delete(Long providerId);
 }

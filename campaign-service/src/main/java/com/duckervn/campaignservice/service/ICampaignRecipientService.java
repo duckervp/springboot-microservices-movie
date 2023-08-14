@@ -1,16 +1,18 @@
 package com.duckervn.campaignservice.service;
 
-import com.duckervn.campaignservice.common.Response;
+import com.duckervn.campaignservice.domain.entity.CampaignRecipient;
 import com.duckervn.campaignservice.domain.model.addcampaignrecipient.CampaignRecipientInput;
 
+import java.util.List;
+
 public interface ICampaignRecipientService {
-    Response findAll();
+    List<CampaignRecipient> findAll();
 
-    Response findById(Long campaignRecipientId);
+    CampaignRecipient findById(Long campaignRecipientId);
 
-    Response save(CampaignRecipientInput campaignRecipientInput);
+    CampaignRecipient save(CampaignRecipientInput campaignRecipientInput);
 
-    Response update(Long campaignRecipientId, CampaignRecipientInput campaignRecipientInput);
+    CampaignRecipient update(Long campaignRecipientId, CampaignRecipientInput campaignRecipientInput);
 
-    Response delete(Long campaignRecipientId);
+    void delete(Long campaignRecipientId);
 }

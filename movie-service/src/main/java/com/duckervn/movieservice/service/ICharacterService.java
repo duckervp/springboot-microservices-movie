@@ -1,25 +1,23 @@
 package com.duckervn.movieservice.service;
 
-import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.entity.Character;
 import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
 
 import java.util.List;
 
 public interface ICharacterService {
-    Response findCharacter(Long id);
 
     Character findById(Long id);
 
-    Response save(Character character);
+    Character save(Character character);
 
-    Response save(CharacterInput characterInput);
+    Character save(CharacterInput characterInput);
 
-    Response findAll(String name);
+    List<Character> findAll(String name);
 
-    Response update(Long characterId, CharacterInput characterInput);
+    Character update(Long characterId, CharacterInput characterInput);
 
-    Response delete(Long characterId);
+    void delete(Long characterId);
 
-    Response delete(List<Long> characterIds);
+    void delete(List<Long> characterIds);
 }

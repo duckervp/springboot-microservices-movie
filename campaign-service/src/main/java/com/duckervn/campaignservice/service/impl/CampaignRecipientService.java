@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,22 +41,17 @@ public class CampaignRecipientService implements ICampaignRecipientService {
     private final ServiceConfig serviceConfig;
 
     @Override
-    public Response findAll() {
-        return Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.FOUND_CAMPAIGN_RECIPIENTS)
-                .results(campaignRecipientRepository.findAll()).build();
+    public List<CampaignRecipient> findAll() {
+        return campaignRecipientRepository.findAll();
     }
 
     @Override
-    public Response findById(Long campaignRecipientId) {
-        return Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.FOUND_CAMPAIGN_RECIPIENT)
-                .result(campaignRecipientRepository.findById(campaignRecipientId).orElseThrow(ResourceNotFoundException::new))
-                .build();
+    public CampaignRecipient findById(Long campaignRecipientId) {
+        return campaignRecipientRepository.findById(campaignRecipientId).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
-    public Response save(CampaignRecipientInput campaignRecipientInput) {
+    public CampaignRecipient save(CampaignRecipientInput campaignRecipientInput) {
         validateStatus(campaignRecipientInput.getStatus(), true);
         validateCampaignId(campaignRecipientInput.getCampaignId(), true);
         validateRecipientId(campaignRecipientInput.getRecipientId(), true);
@@ -71,13 +67,11 @@ public class CampaignRecipientService implements ICampaignRecipientService {
 
         campaignRecipientRepository.save(campaignRecipient);
 
-        return Response.builder().code(HttpStatus.CREATED.value())
-                .message(RespMessage.CREATED_CAMPAIGN_RECIPIENT)
-                .result(campaignRecipient).build();
+        return campaignRecipient;
     }
 
     @Override
-    public Response update(Long campaignRecipientId, CampaignRecipientInput campaignRecipientInput) {
+    public CampaignRecipient update(Long campaignRecipientId, CampaignRecipientInput campaignRecipientInput) {
         CampaignRecipient campaignRecipient = campaignRecipientRepository.findById(campaignRecipientId)
                 .orElseThrow(ResourceNotFoundException::new);
 
@@ -119,17 +113,17 @@ public class CampaignRecipientService implements ICampaignRecipientService {
 
         campaignRecipient.setModifiedAt(LocalDateTime.now());
 
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_CAMPAIGN_RECIPIENT).build();
+        campaignRecipientRepository.save(campaignRecipient);
+
+        return campaignRecipient;
     }
 
     @Override
-    public Response delete(Long campaignRecipientId) {
+    public void delete(Long campaignRecipientId) {
         CampaignRecipient campaignRecipient = campaignRecipientRepository.findById(campaignRecipientId)
                 .orElseThrow(ResourceNotFoundException::new);
 
         campaignRecipientRepository.delete(campaignRecipient);
-
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_CAMPAIGN_RECIPIENT).build();
     }
 
     private void validateStatus(String status, boolean isRequired) {

@@ -2,7 +2,6 @@ package com.duckervn.movieservice.service.impl;
 
 import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.common.RespMessage;
-import com.duckervn.movieservice.common.Utils;
 import com.duckervn.movieservice.domain.entity.Character;
 import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.movieservice.domain.model.addcharacter.CharacterInput;
@@ -29,33 +28,21 @@ public class CharacterService implements ICharacterService {
 
     private final ObjectMapper objectMapper;
 
-    /**
-     * @param id id
-     * @return character
-     */
-    @Override
-    public Response findCharacter(Long id) {
-        Character character =  findById(id);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_CHARACTER)
-                .result(character).build();
-    }
-
     @Override
     public Character findById(Long id) {
         return characterRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
-    public Response save(Character character) {
+    public Character save(Character character) {
         character.setCreatedAt(LocalDateTime.now());
         character.setModifiedAt(LocalDateTime.now());
         characterRepository.save(character);
-        return Response.builder().code(HttpStatus.CREATED.value()).message(RespMessage.CREATED_CHARACTER)
-                .result(character).build();
+        return character;
     }
 
     @Override
-    public Response save(CharacterInput characterInput) {
+    public Character save(CharacterInput characterInput) {
         Character character = objectMapper.convertValue(characterInput, Character.class);
         return save(character);
     }
@@ -64,16 +51,15 @@ public class CharacterService implements ICharacterService {
      * @return list character
      */
     @Override
-    public Response findAll(String name) {
+    public List<Character> findAll(String name) {
         if (Objects.nonNull(name)) {
             name = "%" + name + "%";
         }
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_CHARACTERS)
-                .results(characterRepository.findAll(name)).build();
+        return characterRepository.findAll(name);
     }
 
     @Override
-    public Response update(Long characterId, CharacterInput characterInput) {
+    public Character update(Long characterId, CharacterInput characterInput) {
         Character character = findById(characterId);
 
         if (Objects.nonNull(characterInput.getName())) {
@@ -92,28 +78,24 @@ public class CharacterService implements ICharacterService {
 
         characterRepository.save(character);
 
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_CHARACTER).build();
+        return character;
     }
 
     @Override
-    public Response delete(Long characterId) {
+    public void delete(Long characterId) {
         Character character = findById(characterId);
 
         movieCharacterRepository.deleteByCharacterId(characterId);
 
         characterRepository.delete(character);
-
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_CHARACTER).build();
     }
 
     @Override
-    public Response delete(List<Long> characterIds) {
+    public void delete(List<Long> characterIds) {
         List<Character> characters = characterRepository.findAllById(characterIds);
 
         movieCharacterRepository.deleteByCharacterIdIn(characterIds);
 
         characterRepository.deleteAll(characters);
-
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_CHARACTERS).build();
     }
 }

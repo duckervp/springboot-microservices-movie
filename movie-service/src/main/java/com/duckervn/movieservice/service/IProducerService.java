@@ -1,27 +1,23 @@
 package com.duckervn.movieservice.service;
 
-import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.entity.Producer;
 import com.duckervn.movieservice.domain.model.addproducer.ProducerInput;
 
 import java.util.List;
 
 public interface IProducerService {
-    Response findProducer(Long id);
 
     Producer findById(Long id);
 
-    Response save(ProducerInput producerInput);
+    Producer save(ProducerInput producerInput);
 
-    Response save(Producer producer);
+    Producer save(Producer producer);
 
-    Response findProductDTOById(Long id);
+    List<Producer> findAll();
 
-    Response findAll();
+    Producer update(Long producerId, ProducerInput producerInput);
 
-    Response update(Long producerId, ProducerInput producerInput);
+    void delete(Long producerId);
 
-    Response delete(Long producerId);
-
-    Response delete(List<Long> producerIds);
+    void delete(List<Long> producerIds);
 }

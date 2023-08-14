@@ -21,18 +21,16 @@ public class MovieCharacterService implements IMovieCharacterService {
     private final MovieCharacterRepository movieCharacterRepository;
 
     @Override
-    public Response add(Long movieId, List<Long> characterIds) {
+    public void add(Long movieId, List<Long> characterIds) {
         List<MovieCharacter> movieCharacters = new ArrayList<>();
         for (Long characterId : characterIds) {
             movieCharacters.add(new MovieCharacter(movieId, characterId));
         }
         movieCharacterRepository.saveAll(movieCharacters);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.ADDED_MOVIE_CHARACTERS).build();
     }
 
     @Override
-    public Response delete(Long movieId, List<Long> characterIds) {
+    public void delete(Long movieId, List<Long> characterIds) {
         movieCharacterRepository.deleteByMovieIdAndCharacterIdIn(movieId, characterIds);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_MOVIE_CHARACTERS).build();
     }
 }

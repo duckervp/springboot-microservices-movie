@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -29,22 +30,17 @@ public class CampaignService implements ICampaignService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public Response findAll() {
-        return Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.FOUND_CAMPAIGNS)
-                .results(campaignRepository.findAll()).build();
+    public List<Campaign> findAll() {
+        return campaignRepository.findAll();
     }
 
     @Override
-    public Response findById(Long campaignId) {
-        return Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.FOUND_CAMPAIGN)
-                .result(campaignRepository.findById(campaignId).orElseThrow(ResourceNotFoundException::new))
-                .build();
+    public Campaign findById(Long campaignId) {
+        return campaignRepository.findById(campaignId).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
-    public Response save(CampaignInput campaignInput) {
+    public Campaign save(CampaignInput campaignInput) {
         validateStatus(campaignInput.getStatus(), true);
         validateType(campaignInput.getType(), true);
 
@@ -59,13 +55,11 @@ public class CampaignService implements ICampaignService {
 
         campaignRepository.save(campaign);
 
-        return Response.builder().code(HttpStatus.CREATED.value())
-                .message(RespMessage.CREATED_CAMPAIGN)
-                .result(campaign).build();
+        return campaign;
     }
 
     @Override
-    public Response update(Long campaignId, CampaignInput campaignInput) {
+    public Campaign update(Long campaignId, CampaignInput campaignInput) {
         validateStatus(campaignInput.getStatus(), false);
         validateType(campaignInput.getType(), false);
 
@@ -101,18 +95,14 @@ public class CampaignService implements ICampaignService {
 
         campaignRepository.save(campaign);
 
-        return Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.UPDATED_CAMPAIGN)
-                .result(campaign).build();
+        return campaign;
     }
 
     @Override
-    public Response delete(Long campaignId) {
+    public void delete(Long campaignId) {
         Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(ResourceNotFoundException::new);
 
         campaignRepository.delete(campaign);
-
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_CAMPAIGN).build();
     }
 
     private void validateStatus(String status, boolean isRequired) {

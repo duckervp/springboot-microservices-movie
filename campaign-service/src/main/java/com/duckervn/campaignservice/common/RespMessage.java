@@ -23,7 +23,7 @@ public class RespMessage {
 
     public static final String INVALID_CAMPAIGN_TYPE =  "Invalid campaign type!";
 
-    // Campaing Recipient
+    // Campaign Recipient
 
     public static final String FOUND_CAMPAIGN_RECIPIENTS = "Found Campaign Recipients successfully!";
 
@@ -38,5 +38,17 @@ public class RespMessage {
     public static final String CANNOT_UPDATE_CAMPAIGN_RECIPIENT = "Cannot update final status campaign recipient!";
 
     public static final String INVALID_CAMPAIGN_RECIPIENT_STATUS =  "Invalid campaign recipient status!";
+
+    // Provider
+
+    public static final String FOUND_PROVIDERS = "Found Providers successfully!";
+
+    public static final String FOUND_PROVIDER = "Found Provider successfully!";
+
+    public static final String CREATED_PROVIDER = "Created Provider successfully!";
+
+    public static final String UPDATED_PROVIDER = "Updated Provider successfully!";
+
+    public static final String DELETED_PROVIDER = "Deleted Provider successfully!";
 
 }

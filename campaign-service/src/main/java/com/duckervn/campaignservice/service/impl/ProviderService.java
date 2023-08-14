@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -25,22 +26,17 @@ public class ProviderService implements IProviderService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public Response findAll() {
-        return Response.builder().code(HttpStatus.OK.value())
-                .message("Found Providers successfully!")
-                .results(providerRepository.findAll()).build();
+    public List<Provider> findAll() {
+        return providerRepository.findAll();
     }
 
     @Override
-    public Response findById(Long providerId) {
-        return Response.builder().code(HttpStatus.OK.value())
-                .message("Found Provider successfully!")
-                .result(providerRepository.findById(providerId).orElseThrow(ResourceNotFoundException::new))
-                .build();
+    public Provider findById(Long providerId) {
+        return providerRepository.findById(providerId).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
-    public Response save(ProviderInput providerInput) {
+    public Provider save(ProviderInput providerInput) {
         validateType(providerInput.getType(), true);
         validateStatus(providerInput.getStatus(), true);
         validateSendMethod(providerInput.getSendMethod(), true);
@@ -52,11 +48,11 @@ public class ProviderService implements IProviderService {
 
         providerRepository.save(provider);
 
-        return Response.builder().code(HttpStatus.CREATED.value()).message("Created Provider successfully!").result(provider).build();
+        return provider;
     }
 
     @Override
-    public Response update(Long providerId, ProviderInput providerInput) {
+    public Provider update(Long providerId, ProviderInput providerInput) {
         validateType(providerInput.getType(), false);
         validateStatus(providerInput.getStatus(), false);
         validateSendMethod(providerInput.getSendMethod(), false);
@@ -111,16 +107,14 @@ public class ProviderService implements IProviderService {
 
         providerRepository.save(provider);
 
-        return Response.builder().code(HttpStatus.OK.value()).message("Updated Provider successfully!").result(provider).build();
+        return provider;
     }
 
     @Override
-    public Response delete(Long providerId) {
+    public void delete(Long providerId) {
         Provider provider = providerRepository.findById(providerId).orElseThrow(ResourceNotFoundException::new);
 
         providerRepository.delete(provider);
-
-        return Response.builder().code(HttpStatus.OK.value()).message("Deleted Provider successfully!").build();
     }
 
     private void validateStatus(String status, boolean isRequired) {

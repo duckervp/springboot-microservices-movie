@@ -1,5 +1,7 @@
 package com.duckervn.movieservice.controller;
 
+import com.duckervn.movieservice.common.RespMessage;
+import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.model.addgenre.GenreInput;
 import com.duckervn.movieservice.domain.model.addproducer.ProducerInput;
 import com.duckervn.movieservice.service.IProducerService;
@@ -21,36 +23,55 @@ public class ProducerController {
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping
     public ResponseEntity<?> save(@RequestBody ProducerInput producerInput) {
-        return new ResponseEntity<>(producerService.save(producerInput), HttpStatus.CREATED);
+        Response response = Response.builder()
+                .code(HttpStatus.CREATED.value())
+                .message(RespMessage.CREATED_PRODUCER)
+                .result(producerService.save(producerInput))
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PatchMapping("/{producerId}")
     public ResponseEntity<?> update(@PathVariable Long producerId, @RequestBody @Valid ProducerInput producerInput) {
-        return ResponseEntity.ok(producerService.update(producerId, producerInput));
+        Response response = Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.UPDATED_PRODUCER)
+                .result(producerService.update(producerId, producerInput))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/{producerId}")
     public ResponseEntity<?> delete(@PathVariable Long producerId) {
-        return ResponseEntity.ok(producerService.delete(producerId));
+        producerService.delete(producerId);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_PRODUCER).build();
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping
     public ResponseEntity<?> delete(@RequestParam List<Long> producerIds) {
-        return ResponseEntity.ok(producerService.delete(producerIds));
+        producerService.delete(producerIds);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_PRODUCERS).build();
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
     public ResponseEntity<?> findAll() {
-        return ResponseEntity.ok(producerService.findAll());
+        Response response = Response.builder().code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_ALL_PRODUCERS)
+                .results(producerService.findAll()).build();
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(producerService.findProducer(id));
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_PRODUCER)
+                .result(producerService.findById(id)).build();
+        return ResponseEntity.ok(response);
     }
 }

@@ -20,18 +20,16 @@ public class MovieGenreService implements IMovieGenreService {
     private final MovieGenreRepository movieGenreRepository;
 
     @Override
-    public Response add(Long movieId, List<Long> genreIds) {
+    public void add(Long movieId, List<Long> genreIds) {
         List<MovieGenre> movieGenres = new ArrayList<>();
         for (Long genreId : genreIds) {
             movieGenres.add(new MovieGenre(movieId, genreId));
         }
         movieGenreRepository.saveAll(movieGenres);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.ADDED_MOVIE_GENRES).build();
     }
 
     @Override
-    public Response delete(Long movieId, List<Long> genreIds) {
+    public void delete(Long movieId, List<Long> genreIds) {
         movieGenreRepository.deleteByMovieIdAndGenreIdIn(movieId, genreIds);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_MOVIE_GENRES).build();
     }
 }
