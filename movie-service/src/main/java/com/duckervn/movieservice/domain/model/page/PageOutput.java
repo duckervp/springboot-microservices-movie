@@ -1,5 +1,6 @@
 package com.duckervn.movieservice.domain.model.page;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PageOutput<T> {
+public class PageOutput<T> implements Serializable {
     List<T> content;
 
     private Integer pageNo;

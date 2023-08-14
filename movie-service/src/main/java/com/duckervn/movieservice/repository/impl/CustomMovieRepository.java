@@ -31,7 +31,7 @@ public class CustomMovieRepository implements ICustomMovieRepository {
      * @return list of movie after paging
      */
     @Override
-    public List<?> findMovieOutput(String name, Integer releaseYear, String country, String genre, Pageable pageable) {
+    public PageOutput<?> findMovieOutput(String name, Integer releaseYear, String country, String genre, Pageable pageable) {
         Assert.isTrue(pageable.getPageNumber() > 0, "pageNo is greater than zero");
         Assert.isTrue(pageable.getPageSize() > 0, "pageSize is greater than zero");
         StringBuilder countQueryString = new StringBuilder();
@@ -85,14 +85,14 @@ public class CustomMovieRepository implements ICustomMovieRepository {
 
         if (pageable.getPageNumber() > totalElements / pageable.getPageSize() + 1) {
             // page number get over total page
-            return List.of(new PageOutput<>(new ArrayList<>(), pageable.getPageNumber(), pageable.getPageSize(), totalElements));
+            return new PageOutput<>(new ArrayList<>(), pageable.getPageNumber(), pageable.getPageSize(), totalElements);
 
         }
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = findQuery.getResultList();
         if (CollectionUtils.isEmpty(results)) {
-            return List.of(new PageOutput<>(new ArrayList<>(), pageable.getPageNumber(), pageable.getPageSize(), totalElements));
+            return new PageOutput<>(new ArrayList<>(), pageable.getPageNumber(), pageable.getPageSize(), totalElements);
         }
 
         List<?> movieOutputs = results.stream()
@@ -110,7 +110,7 @@ public class CustomMovieRepository implements ICustomMovieRepository {
                         .slug((String) objects[10])
                         .build())
                 .collect(Collectors.toList());
-        return List.of(new PageOutput<>(movieOutputs, pageable.getPageNumber(), pageable.getPageSize(), totalElements));
+        return new PageOutput<>(movieOutputs, pageable.getPageNumber(), pageable.getPageSize(), totalElements);
     }
 
     /**

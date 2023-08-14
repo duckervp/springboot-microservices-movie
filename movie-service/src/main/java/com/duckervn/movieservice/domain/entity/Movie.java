@@ -1,9 +1,11 @@
 package com.duckervn.movieservice.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
@@ -27,7 +30,7 @@ import java.util.stream.Collectors;
                 @NamedAttributeNode("producer")
         }
 )
-public class Movie {
+public class Movie implements Serializable {
     public static final String FULL_MOVIE_GRAPH = "full-movie-graph";
 
     @Id

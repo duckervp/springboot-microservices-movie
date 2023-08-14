@@ -22,7 +22,7 @@ public class ServiceConfig {
     @Value("${topic.reply.movieToActivity}")
     private String movieToActivityReplyTopic;
 
-    @Value("${event.campaign.addRecipient}")
+    @Value("${event.movie.update}")
     private String updateMovieRating;
 
     @Value("${event.user.updateExp}")

@@ -139,7 +139,7 @@ public class MovieService implements IMovieService {
             name = "%" + name + "%";
         }
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        PageOutput<?> pageOutput = (PageOutput<?>) customMovieRepository.findMovieOutput(name, releaseYear, country, genre, pageable).get(0);
+        PageOutput<?> pageOutput = customMovieRepository.findMovieOutput(name, releaseYear, country, genre, pageable);
         return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_ALL_MOVIES)
                 .results(pageOutput.getContent())
                 .pageSize(pageOutput.getPageSize())
