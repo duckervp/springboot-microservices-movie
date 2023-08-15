@@ -11,9 +11,6 @@ import java.time.LocalDateTime;
 public class CampaignRecipientInput {
     private Long id;
 
-    @NotNull(message = "campaignId must not be null")
-    private Long campaignId;
-
     @NotNull(message = "recipientId must not be null")
     private String recipientId;
 

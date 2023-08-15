@@ -36,12 +36,18 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody @Valid UpdateUserInput input) {
-        return ResponseEntity.ok(userService.updateUser(userId, input));
+        Response response = Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.UPDATED_USER)
+                .result(userService.updateUser(userId, input)).build();
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable String userId) {
-        return ResponseEntity.ok(userService.deleteUser(userId));
+        userService.deleteUser(userId);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_USER).build();
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
@@ -59,8 +65,8 @@ public class UserController {
     public ResponseEntity<Response> findAllUsers() {
         return ResponseEntity.ok(Response.builder()
                         .code(HttpStatus.OK.value())
-                        .message(RespMessage.FOUND_USER)
-                        .result(userService.findAll())
+                        .message(RespMessage.FOUND_USERS)
+                        .results(userService.findAll())
                 .build());
     }
 
@@ -76,16 +82,22 @@ public class UserController {
 
     @PatchMapping("/change-password")
     public ResponseEntity<Response> changePassword(@RequestBody @Valid ChangePasswordInput changePasswordInput) {
-        return ResponseEntity.ok(userService.changePassword(changePasswordInput));
+        userService.changePassword(changePasswordInput);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.PASSWORD_CHANGED).build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/reset-password-request")
     public ResponseEntity<Response> requestResetPassword(@RequestParam String email) {
-        return ResponseEntity.ok(userService.requestResetPassword(email));
+        userService.requestResetPassword(email);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.REQUEST_PASSWORD_RESET).build();
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/reset-password")
     public ResponseEntity<Response> resetPassword(@RequestParam String token, @RequestBody @Valid ResetPasswordInput resetPasswordInput) {
-        return ResponseEntity.ok(userService.resetPassword(token, resetPasswordInput));
+        userService.resetPassword(token, resetPasswordInput);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.PASSWORD_RESET).build();
+        return ResponseEntity.ok(response);
     }
 }

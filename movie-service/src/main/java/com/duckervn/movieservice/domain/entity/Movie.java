@@ -53,6 +53,8 @@ public class Movie implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private Double rating;
+
     @Column(unique = true)
     private String slug;
 

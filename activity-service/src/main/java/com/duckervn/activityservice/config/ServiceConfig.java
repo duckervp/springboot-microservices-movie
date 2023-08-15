@@ -22,8 +22,8 @@ public class ServiceConfig {
     @Value("${topic.reply.movieToActivity}")
     private String movieToActivityReplyTopic;
 
-    @Value("${event.movie.update}")
-    private String updateMovieRating;
+    @Value("${event.movie.updateRating}")
+    private String updateMovieRatingEvent;
 
     @Value("${event.user.updateExp}")
     private String updateUserExpEvent;

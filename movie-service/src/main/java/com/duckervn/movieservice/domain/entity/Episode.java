@@ -25,6 +25,8 @@ public class Episode implements Serializable {
 
     private Long duration;
 
+    private Long view;
+
     private String url;
 
     private String description;

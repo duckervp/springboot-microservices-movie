@@ -1,8 +1,6 @@
 package com.duckervn.activityservice.service.impl;
 
 import com.duckervn.activityservice.common.Constants;
-import com.duckervn.activityservice.common.RespMessage;
-import com.duckervn.activityservice.common.Response;
 import com.duckervn.activityservice.common.TypeRef;
 import com.duckervn.activityservice.config.ServiceConfig;
 import com.duckervn.activityservice.domain.entity.Rating;
@@ -15,11 +13,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -37,9 +35,9 @@ public class RatingService implements IRatingService {
     private final EventProducer eventProducer;
 
     @Override
-    public Response save(RatingInput ratingInput) {
-        validateMovieId(ratingInput.getMovieId(), true);
-        validateRecipientId(ratingInput.getUserId(), true);
+    public Rating save(RatingInput ratingInput) {
+        validateMovieId(ratingInput.getMovieId());
+        validateRecipientId(ratingInput.getUserId());
 
         Rating rating = objectMapper.convertValue(ratingInput, Rating.class);
 
@@ -48,15 +46,14 @@ public class RatingService implements IRatingService {
 
         ratingRepository.save(rating);
 
-        // TODO: public update movie rating point
+        // update movie rating point
+        updateMovieRating(rating.getMovieId());
 
-        return Response.builder().code(HttpStatus.CREATED.value())
-                .message(RespMessage.CREATED_RATING)
-                .result(rating).build();
+        return rating;
     }
 
     @Override
-    public Response update(Long ratingId, Integer point) {
+    public Rating update(Long ratingId, Integer point) {
         Rating rating = ratingRepository.findById(ratingId)
                 .orElseThrow(ResourceNotFoundException::new);
 
@@ -68,59 +65,58 @@ public class RatingService implements IRatingService {
 
         ratingRepository.save(rating);
 
-        // TODO: public update movie rating point
+        // update movie rating point
+        updateMovieRating(rating.getMovieId());
 
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_RATING).build();
+        return rating;
     }
 
     @Override
-    public Response delete(Long ratingId) {
+    public void delete(Long ratingId) {
         Rating rating = ratingRepository.findById(ratingId)
                 .orElseThrow(ResourceNotFoundException::new);
 
         ratingRepository.delete(rating);
-
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_RATING).build();
     }
 
     @SneakyThrows
-    private void validateRecipientId(String userId, boolean isRequired) {
-        if (Objects.isNull(userId) && isRequired) {
+    private void validateRecipientId(String userId) {
+        if (Objects.isNull(userId)) {
             throw new ResourceNotFoundException();
-        } else if (Objects.nonNull(userId)) {
-            Map<String, Object> requestMap = new HashMap<>();
-            requestMap.put("userId", userId);
-
-            Map<String, Object> resultMap = eventProducer.publishAndWait(
-                    serviceConfig.getUserTopic(),
-                    serviceConfig.getUserToActivityReplyTopic(),
-                    serviceConfig.getCheckUserExistEvent(),
-                    requestMap);
-
-            log.info("Result back: {}", resultMap);
-
-            checkExist(userId, "userId", resultMap);
         }
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("userId", userId);
+
+        Map<String, Object> resultMap = eventProducer.publishAndWait(
+                serviceConfig.getUserTopic(),
+                serviceConfig.getUserToActivityReplyTopic(),
+                serviceConfig.getCheckUserExistEvent(),
+                requestMap);
+
+        log.info("Result back: {}", resultMap);
+
+        checkExist(userId, "userId", resultMap);
+
     }
 
     @SneakyThrows
-    private void validateMovieId(Long movieId, boolean isRequired) {
-        if (Objects.isNull(movieId) && isRequired) {
+    private void validateMovieId(Long movieId) {
+        if (Objects.isNull(movieId)) {
             throw new ResourceNotFoundException();
-        } else if (Objects.nonNull(movieId)) {
-            Map<String, Object> requestMap = new HashMap<>();
-            requestMap.put("movieId", movieId);
-
-            Map<String, Object> resultMap = eventProducer.publishAndWait(
-                    serviceConfig.getMovieTopic(),
-                    serviceConfig.getMovieToActivityReplyTopic(),
-                    serviceConfig.getCheckMovieExistEvent(),
-                    requestMap);
-
-            log.info("Result back: {}", resultMap);
-
-            checkExist(movieId.toString(), "movieId", resultMap);
         }
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("movieId", movieId);
+
+        Map<String, Object> resultMap = eventProducer.publishAndWait(
+                serviceConfig.getMovieTopic(),
+                serviceConfig.getMovieToActivityReplyTopic(),
+                serviceConfig.getCheckMovieExistEvent(),
+                requestMap);
+
+        log.info("Result back: {}", resultMap);
+
+        checkExist(movieId.toString(), "movieId", resultMap);
+
     }
 
     @SneakyThrows
@@ -142,6 +138,26 @@ public class RatingService implements IRatingService {
         if (!isExist) {
             throw new ResourceNotFoundException();
         }
+    }
+
+    private void updateMovieRating(Long movieId) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("movieId", movieId);
+
+        List<Rating> movieRatings = ratingRepository.findByMovieId(movieId);
+
+        double ratingPoint = 0D;
+
+        if (!movieRatings.isEmpty()) {
+            int sumOfPoint = movieRatings.stream()
+                    .map(Rating::getPoint)
+                    .reduce(0, Integer::sum);
+            ratingPoint = ((double) sumOfPoint) / movieRatings.size();
+        }
+
+        data.put("ratingPoint", ratingPoint);
+
+        eventProducer.publish(serviceConfig.getMovieTopic(), serviceConfig.getUpdateMovieRatingEvent(), data);
     }
 
 }

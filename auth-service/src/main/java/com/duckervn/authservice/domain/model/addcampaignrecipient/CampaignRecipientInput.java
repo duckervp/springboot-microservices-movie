@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 public class CampaignRecipientInput {
     private Long id;
 
-    private Long campaignId;
-
     private String recipientId;
 
     private LocalDateTime queueDate;

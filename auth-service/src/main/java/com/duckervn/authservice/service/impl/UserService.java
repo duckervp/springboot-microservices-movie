@@ -6,6 +6,7 @@ import com.duckervn.authservice.domain.entity.Client;
 import com.duckervn.authservice.domain.entity.Gender;
 import com.duckervn.authservice.domain.entity.ResetPasswordToken;
 import com.duckervn.authservice.domain.entity.User;
+import com.duckervn.authservice.domain.exception.InvalidTokenException;
 import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.authservice.domain.model.addcampaignrecipient.CampaignRecipientInput;
 import com.duckervn.authservice.domain.model.changepassword.ChangePasswordInput;
@@ -23,7 +24,6 @@ import com.duckervn.authservice.service.client.OAuth2AuthorizationClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -136,7 +136,7 @@ public class UserService implements IUserService {
      * @return Response
      */
     @Override
-    public Response updateUser(String userId, UpdateUserInput input) {
+    public User updateUser(String userId, UpdateUserInput input) {
         User user = findById(userId);
 
         if (Objects.nonNull(input.getName())) {
@@ -173,15 +173,14 @@ public class UserService implements IUserService {
 
         user.setModifiedAt(LocalDateTime.now());
         userRepository.save(user);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.UPDATED_USER).result(user).build();
+        return user;
     }
 
     @Override
-    public Response deleteUser(String userId) {
+    public void deleteUser(String userId) {
         User user = findById(userId);
         clientRepository.deleteByClientId(user.getId());
         userRepository.delete(user);
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_USER).build();
     }
 
     @Override
@@ -192,21 +191,17 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Response changePassword(ChangePasswordInput changePasswordInput) {
+    public void changePassword(ChangePasswordInput changePasswordInput) {
         Client client = findClientByEmail(changePasswordInput.getEmail());
-        String message;
-        if (passwordEncoder.matches(changePasswordInput.getOldPassword(), client.getClientSecret())) {
-            updatePassword(client, changePasswordInput.getNewPassword(), true);
-            message = RespMessage.PASSWORD_CHANGED;
-        } else {
+        if (!passwordEncoder.matches(changePasswordInput.getOldPassword(), client.getClientSecret())) {
             throw new IllegalArgumentException(RespMessage.OLD_PASSWORD_NOT_MATCH);
         }
-        return Response.builder().code(HttpStatus.OK.value()).message(message).build();
+        updatePassword(client, changePasswordInput.getNewPassword(), true);
     }
 
     @SneakyThrows
     @Override
-    public Response requestResetPassword(String email) {
+    public void requestResetPassword(String email) {
         Client client = findClientByEmail(email);
 
         ResetPasswordToken resetPasswordToken = resetPasswordTokenService.generateRPT(client.getClientId());
@@ -216,54 +211,51 @@ public class UserService implements IUserService {
                 .concat("?token=").concat(resetPasswordToken.getToken()));
 
         CampaignRecipientInput campaignRecipientInput = CampaignRecipientInput.builder()
-                .campaignId(serviceConfig.getRptCampaignId())
                 .recipientId(client.getClientId())
                 .status(Constants.WAITING)
                 .retry(0)
                 .fixedParams(objectMapper.writeValueAsString(params))
                 .build();
 
-
-        eventProducer.publish(serviceConfig.getCampaignTopic(), serviceConfig.getAddCampaignRecipientEvent(), campaignRecipientInput);
-
-
-        return Response.builder().code(HttpStatus.OK.value()).message(RespMessage.REQUEST_PASSWORD_RESET).build();
+        Map<String, Object> data = new HashMap<>();
+        data.put("campaignId", serviceConfig.getRptCampaignId());
+        data.put("campaignRecipientInput", campaignRecipientInput);
+        eventProducer.publish(serviceConfig.getCampaignTopic(), serviceConfig.getAddCampaignRecipientEvent(), data);
     }
 
     @Override
-    public Response resetPassword(String token, ResetPasswordInput resetPasswordInput) {
+    public void resetPassword(String token, ResetPasswordInput resetPasswordInput) {
         String id = Utils.extractBase64Token(token);
 
         ResetPasswordToken resetPasswordToken = resetPasswordTokenService.getById(id);
 
-        String message;
-        if (Objects.nonNull(resetPasswordToken)) {
-            String clientId = resetPasswordToken.getClientId();
-            Long expiredAt = resetPasswordToken.getExpiredAt();
-            String token1 = resetPasswordToken.getToken();
-            if (Objects.nonNull(clientId) && Objects.nonNull(expiredAt) && Objects.nonNull(token1) && token.equals(token1)) {
-                Timestamp expiryTime = new Timestamp(expiredAt);
-                if (expiryTime.toLocalDateTime().isAfter(LocalDateTime.now())) {
-                    Optional<Client> clientOptional = clientRepository.findByClientId(clientId);
-                    if (clientOptional.isPresent()) {
-                        updatePassword(clientOptional.get(), resetPasswordInput.getNewPassword(), true);
-                        message = RespMessage.PASSWORD_RESET;
-                    } else {
-                        message = RespMessage.INVALID_TOKEN;
-                    }
-                } else {
-                    message = RespMessage.TOKEN_EXPIRED;
-                }
-            } else {
-                message = RespMessage.INVALID_TOKEN;
+        if (Objects.isNull(resetPasswordToken)) {
+            throw new InvalidTokenException(RespMessage.INVALID_TOKEN);
+        }
+
+        String clientId = resetPasswordToken.getClientId();
+        Long expiredAt = resetPasswordToken.getExpiredAt();
+        String token1 = resetPasswordToken.getToken();
+
+        if (Objects.nonNull(clientId) && Objects.nonNull(expiredAt) && Objects.nonNull(token1) && token.equals(token1)) {
+            Timestamp expiryTime = new Timestamp(expiredAt);
+
+            if (expiryTime.toLocalDateTime().isBefore(LocalDateTime.now())) {
+                throw new InvalidTokenException(RespMessage.TOKEN_EXPIRED);
             }
+
+            Optional<Client> clientOptional = clientRepository.findByClientId(clientId);
+
+            if (clientOptional.isEmpty()) {
+                throw new InvalidTokenException(RespMessage.INVALID_TOKEN);
+            }
+
+            updatePassword(clientOptional.get(), resetPasswordInput.getNewPassword(), true);
         } else {
-            message = RespMessage.INVALID_TOKEN;
+            throw new InvalidTokenException(RespMessage.INVALID_TOKEN);
         }
 
         resetPasswordTokenService.remove(resetPasswordToken);
-
-        return Response.builder().code(HttpStatus.OK.value()).message(message).build();
     }
 
     private Client findClientByEmail(String email) {
@@ -273,9 +265,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Response findAll() {
-        return Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.FOUND_USERS)
-                .results(userRepository.findAll()).build();
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }

@@ -2,7 +2,6 @@ package com.duckervn.campaignservice.service.impl;
 
 import com.duckervn.campaignservice.common.Constants;
 import com.duckervn.campaignservice.common.RespMessage;
-import com.duckervn.campaignservice.common.Response;
 import com.duckervn.campaignservice.common.TypeRef;
 import com.duckervn.campaignservice.config.ServiceConfig;
 import com.duckervn.campaignservice.domain.entity.CampaignRecipient;
@@ -16,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -41,22 +39,24 @@ public class CampaignRecipientService implements ICampaignRecipientService {
     private final ServiceConfig serviceConfig;
 
     @Override
-    public List<CampaignRecipient> findAll() {
-        return campaignRecipientRepository.findAll();
+    public List<CampaignRecipient> findAll(Long campaignId) {
+        return campaignRecipientRepository.findByCampaignId(campaignId);
     }
 
     @Override
-    public CampaignRecipient findById(Long campaignRecipientId) {
-        return campaignRecipientRepository.findById(campaignRecipientId).orElseThrow(ResourceNotFoundException::new);
+    public CampaignRecipient findByCampaignIdAndRecipientId(Long campaignId, Long campaignRecipientId) {
+        return campaignRecipientRepository.findByCampaignIdAndId(campaignId, campaignRecipientId).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
-    public CampaignRecipient save(CampaignRecipientInput campaignRecipientInput) {
+    public CampaignRecipient save(Long campaignId, CampaignRecipientInput campaignRecipientInput) {
         validateStatus(campaignRecipientInput.getStatus(), true);
-        validateCampaignId(campaignRecipientInput.getCampaignId(), true);
+        validateCampaignId(campaignId);
         validateRecipientId(campaignRecipientInput.getRecipientId(), true);
 
         CampaignRecipient campaignRecipient = objectMapper.convertValue(campaignRecipientInput, CampaignRecipient.class);
+
+        campaignRecipient.setCampaignId(campaignId);
 
         if (Objects.isNull(campaignRecipient.getQueueDate())) {
             campaignRecipient.setQueueDate(LocalDateTime.now());
@@ -71,7 +71,8 @@ public class CampaignRecipientService implements ICampaignRecipientService {
     }
 
     @Override
-    public CampaignRecipient update(Long campaignRecipientId, CampaignRecipientInput campaignRecipientInput) {
+    public CampaignRecipient update(Long campaignId, Long campaignRecipientId, CampaignRecipientInput campaignRecipientInput) {
+        validateCampaignId(campaignId);
         CampaignRecipient campaignRecipient = campaignRecipientRepository.findById(campaignRecipientId)
                 .orElseThrow(ResourceNotFoundException::new);
 
@@ -80,12 +81,7 @@ public class CampaignRecipientService implements ICampaignRecipientService {
         }
 
         validateStatus(campaignRecipientInput.getStatus(), false);
-        validateCampaignId(campaignRecipientInput.getCampaignId(), false);
         validateRecipientId(campaignRecipientInput.getRecipientId(), false);
-
-        if (Objects.nonNull(campaignRecipientInput.getCampaignId())) {
-            campaignRecipient.setCampaignId(campaignRecipientInput.getCampaignId());
-        }
 
         if (Objects.nonNull(campaignRecipientInput.getRecipientId())) {
             campaignRecipient.setRecipientId(campaignRecipientInput.getRecipientId());
@@ -119,9 +115,8 @@ public class CampaignRecipientService implements ICampaignRecipientService {
     }
 
     @Override
-    public void delete(Long campaignRecipientId) {
-        CampaignRecipient campaignRecipient = campaignRecipientRepository.findById(campaignRecipientId)
-                .orElseThrow(ResourceNotFoundException::new);
+    public void delete(Long campaignId, Long campaignRecipientId) {
+        CampaignRecipient campaignRecipient = findByCampaignIdAndRecipientId(campaignId, campaignRecipientId);
 
         campaignRecipientRepository.delete(campaignRecipient);
     }
@@ -134,9 +129,8 @@ public class CampaignRecipientService implements ICampaignRecipientService {
         }
     }
 
-    private void validateCampaignId(Long campaignId, boolean isRequired) {
-        if ((Objects.nonNull(campaignId) && !campaignRepository.existsById(campaignId))
-                || (Objects.isNull(campaignId) && isRequired)) {
+    private void validateCampaignId(Long campaignId) {
+        if ((Objects.nonNull(campaignId) && !campaignRepository.existsById(campaignId)) || (Objects.isNull(campaignId))) {
             throw new ResourceNotFoundException();
         }
     }

@@ -41,8 +41,10 @@ public class EventConsumer {
         if (Objects.nonNull(event)) {
             if (event.equals(serviceConfig.getAddCampaignRecipientEvent())) {
                 if (requestMap.containsKey(Constants.DATA_ATTR)) {
-                    CampaignRecipientInput campaignRecipientInput = objectMapper.convertValue(requestMap.get(Constants.DATA_ATTR), CampaignRecipientInput.class);
-                    campaignRecipientService.save(campaignRecipientInput);
+                    Map<String, Object> data = objectMapper.readValue((String) requestMap.get(Constants.DATA_ATTR), TypeRef.MAP_STRING_OBJECT);
+                    Long campaignId = Long.parseLong(data.getOrDefault("campaignId", "-1").toString());
+                    CampaignRecipientInput campaignRecipientInput = objectMapper.convertValue(requestMap.get("campaignRecipientInput"), CampaignRecipientInput.class);
+                    campaignRecipientService.save(campaignId, campaignRecipientInput);
                 }
             }
         }

@@ -22,7 +22,7 @@ public class LoginActivityService implements ILoginActivityService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public Response save(LoginActivityInput input) {
+    public LoginActivity save(LoginActivityInput input) {
         LoginActivity loginActivity = objectMapper.convertValue(input, LoginActivity.class);
 
         loginActivity.setLoginAt(LocalDateTime.now());
@@ -31,9 +31,7 @@ public class LoginActivityService implements ILoginActivityService {
 
         // TODO: public add user exp here
 
-        return Response.builder().code(HttpStatus.CREATED.value())
-                .message(RespMessage.ADDED_LOGIN_ACTIVITY)
-                .result(loginActivity).build();
+        return loginActivity;
     }
 
 }

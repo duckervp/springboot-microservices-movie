@@ -2,6 +2,7 @@ package com.duckervn.authservice.controller;
 
 import com.duckervn.authservice.common.RespMessage;
 import com.duckervn.authservice.common.Response;
+import com.duckervn.authservice.domain.exception.InvalidTokenException;
 import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,16 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ControllerExceptionHandler {
+    @ExceptionHandler(InvalidTokenException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<?> handleException(InvalidTokenException e) {
+        Response response =  Response.builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleException(MethodArgumentNotValidException e) {
@@ -43,7 +54,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<?> handleException(ResourceNotFoundException e) {
+    public ResponseEntity<?> handleException() {
         Response response =  Response.builder()
                 .code(HttpStatus.NOT_FOUND.value())
                 .message(RespMessage.RESOURCE_NOT_FOUND)

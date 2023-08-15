@@ -1,7 +1,6 @@
 package com.duckervn.campaignservice.service.impl;
 
 import com.duckervn.campaignservice.common.Constants;
-import com.duckervn.campaignservice.common.Response;
 import com.duckervn.campaignservice.domain.entity.Provider;
 import com.duckervn.campaignservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.campaignservice.domain.model.addprovider.ProviderInput;
@@ -10,7 +9,6 @@ import com.duckervn.campaignservice.service.IProviderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

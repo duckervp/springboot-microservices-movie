@@ -8,7 +8,7 @@ topic:
 event:
   movie:
     exist: movie.exist
-    update: movie.update
+    updateRating: movie-rating.update
   user:
     exist: user.exist
     updateExp: user-exp.update

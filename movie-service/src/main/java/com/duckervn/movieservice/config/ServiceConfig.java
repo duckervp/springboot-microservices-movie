@@ -25,4 +25,7 @@ public class ServiceConfig {
 
     @Value("${event.movie.exist}")
     private String checkMovieExistEvent;
+
+    @Value("${event.movie.updateRating}")
+    private String updateMovieRatingEvent;
 }

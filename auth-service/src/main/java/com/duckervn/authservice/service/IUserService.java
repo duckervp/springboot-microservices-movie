@@ -9,25 +9,27 @@ import com.duckervn.authservice.domain.model.register.RegisterInput;
 import com.duckervn.authservice.domain.model.resetpassword.ResetPasswordInput;
 import com.duckervn.authservice.domain.model.updateuser.UpdateUserInput;
 
+import java.util.List;
+
 public interface IUserService {
 
     TokenOutput register(RegisterInput registerInput);
 
     User findById(String id);
 
-    Response updateUser(String userId, UpdateUserInput input);
+    User updateUser(String userId, UpdateUserInput input);
 
-    Response deleteUser(String userId);
+    void deleteUser(String userId);
 
     TokenOutput login(String clientId, String clientSecret);
 
     void updatePassword(Client client, String newPassword, boolean encode);
 
-    Response changePassword(ChangePasswordInput changePasswordInput);
+    void changePassword(ChangePasswordInput changePasswordInput);
 
-    Response requestResetPassword(String email);
+    void requestResetPassword(String email);
 
-    Response resetPassword(String token, ResetPasswordInput resetPasswordInput);
+    void resetPassword(String token, ResetPasswordInput resetPasswordInput);
 
-    Response findAll();
+    List<User> findAll();
 }

@@ -19,6 +19,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -175,38 +176,46 @@ public class MovieService implements IMovieService {
             targetMovie.setDescription(movieInput.getDescription());
         }
 
-        for (Episode episode : movieInput.getEpisodes()) {
-            if (Objects.isNull(episode.getId())) {
-                episode.setCreatedAt(LocalDateTime.now());
-            }
-            episode.setModifiedAt(LocalDateTime.now());
-        }
-        targetMovie.setEpisodes(movieInput.getEpisodes());
-
-        targetMovie.setGenres(processInputGenres(movieInput.getGenres()));
-
-        Set<Character> movieCharacters = movieInput.getCharacters().stream().map(character -> {
-            if (Objects.isNull(character.getId())) {
-                characterService.save(character);
-                return character;
-            } else {
-                Character character1 = characterService.findById(character.getId());
-                if (!character1.getName().equals(character.getName())
-                        || !character1.getDescription().equals(character.getDescription())
-                        || !character1.getAvatarUrl().equals(character.getAvatarUrl())) {
-                    character1.setName(character.getName());
-                    character1.setDescription(character.getDescription());
-                    character1.setAvatarUrl(character.getAvatarUrl());
-                    character1.setModifiedAt(LocalDateTime.now());
-                    characterRepository.save(character1);
+        if (!CollectionUtils.isEmpty(movieInput.getEpisodes())) {
+            for (Episode episode : movieInput.getEpisodes()) {
+                if (Objects.isNull(episode.getId())) {
+                    episode.setCreatedAt(LocalDateTime.now());
                 }
-                return character1;
+                episode.setModifiedAt(LocalDateTime.now());
             }
-        }).collect(Collectors.toSet());
+            targetMovie.setEpisodes(movieInput.getEpisodes());
+        }
 
-        targetMovie.setCharacters(movieCharacters);
+        if (!CollectionUtils.isEmpty(movieInput.getGenres())) {
+            targetMovie.setGenres(processInputGenres(movieInput.getGenres()));
+        }
 
-        targetMovie.setProducer(processInputProducer(movieInput.getProducer()));
+        if (!CollectionUtils.isEmpty(movieInput.getCharacters())) {
+            Set<Character> movieCharacters = movieInput.getCharacters().stream().map(character -> {
+                if (Objects.isNull(character.getId())) {
+                    characterService.save(character);
+                    return character;
+                } else {
+                    Character character1 = characterService.findById(character.getId());
+                    if (!character1.getName().equals(character.getName())
+                            || !character1.getDescription().equals(character.getDescription())
+                            || !character1.getAvatarUrl().equals(character.getAvatarUrl())) {
+                        character1.setName(character.getName());
+                        character1.setDescription(character.getDescription());
+                        character1.setAvatarUrl(character.getAvatarUrl());
+                        character1.setModifiedAt(LocalDateTime.now());
+                        characterRepository.save(character1);
+                    }
+                    return character1;
+                }
+            }).collect(Collectors.toSet());
+
+            targetMovie.setCharacters(movieCharacters);
+        }
+
+        if (Objects.nonNull(movieInput.getProducer())) {
+            targetMovie.setProducer(processInputProducer(movieInput.getProducer()));
+        }
 
         targetMovie.setModifiedAt(LocalDateTime.now());
 

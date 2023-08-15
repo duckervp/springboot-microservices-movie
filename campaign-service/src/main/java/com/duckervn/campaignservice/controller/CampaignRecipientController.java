@@ -14,51 +14,51 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/campaigns/recipients")
+@RequestMapping("/campaigns/{campaignId}/recipients")
 public class CampaignRecipientController {
     private final ICampaignRecipientService campaignRecipientService;
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
-    public ResponseEntity<?> findAll() {
+    public ResponseEntity<?> findAll(@PathVariable Long campaignId) {
         Response response = Response.builder().code(HttpStatus.OK.value())
                 .message(RespMessage.FOUND_CAMPAIGN_RECIPIENTS)
-                .results(campaignRecipientService.findAll()).build();
+                .results(campaignRecipientService.findAll(campaignId)).build();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{campaignRecipientId}")
-    public ResponseEntity<?> findCampaignRecipient(@PathVariable Long campaignRecipientId) {
+    public ResponseEntity<?> findCampaignRecipient(@PathVariable Long campaignId, @PathVariable Long campaignRecipientId) {
         Response response = Response.builder().code(HttpStatus.OK.value())
                 .message(RespMessage.FOUND_CAMPAIGN_RECIPIENT)
-                .result(campaignRecipientService.findById(campaignRecipientId))
+                .result(campaignRecipientService.findByCampaignIdAndRecipientId(campaignId, campaignRecipientId))
                 .build();
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createCampaignRecipient(@RequestBody @Valid CampaignRecipientInput input) {
+    public ResponseEntity<?> createCampaignRecipient(@PathVariable Long campaignId, @RequestBody @Valid CampaignRecipientInput input) {
         Response response = Response.builder().code(HttpStatus.CREATED.value())
                 .message(RespMessage.CREATED_CAMPAIGN_RECIPIENT)
-                .result(campaignRecipientService.save(input)).build();
+                .result(campaignRecipientService.save(campaignId, input)).build();
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PatchMapping("/{campaignRecipientId}")
-    public ResponseEntity<?> updateCampaignRecipient(@PathVariable Long campaignRecipientId, @RequestBody CampaignRecipientInput input) {
+    public ResponseEntity<?> updateCampaignRecipient(@PathVariable Long campaignId, @PathVariable Long campaignRecipientId, @RequestBody CampaignRecipientInput input) {
         Response response = Response.builder()
                 .code(HttpStatus.OK.value())
-                .result(campaignRecipientService.update(campaignRecipientId, input))
+                .result(campaignRecipientService.update(campaignId, campaignRecipientId, input))
                 .message(RespMessage.UPDATED_CAMPAIGN_RECIPIENT).build();
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/{campaignRecipientId}")
-    public ResponseEntity<?> deleteCampaignRecipient(@PathVariable Long campaignRecipientId) {
-        campaignRecipientService.delete(campaignRecipientId);
+    public ResponseEntity<?> deleteCampaignRecipient(@PathVariable Long campaignId, @PathVariable Long campaignRecipientId) {
+        campaignRecipientService.delete(campaignId, campaignRecipientId);
         Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_CAMPAIGN_RECIPIENT).build();
         return ResponseEntity.ok(response);
     }

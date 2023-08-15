@@ -1,8 +1,11 @@
 package com.duckervn.activityservice.controller;
 
+import com.duckervn.activityservice.common.RespMessage;
+import com.duckervn.activityservice.common.Response;
 import com.duckervn.activityservice.domain.model.addloginactivity.LoginActivityInput;
 import com.duckervn.activityservice.service.ILoginActivityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +20,10 @@ public class LoginActivityController {
 
     @PostMapping
     public ResponseEntity<?> addLoginActivity(@RequestBody LoginActivityInput input) {
-        return ResponseEntity.ok(campaignService.save(input));
+        Response response = Response.builder().code(HttpStatus.CREATED.value())
+                .message(RespMessage.ADDED_LOGIN_ACTIVITY)
+                .result(campaignService.save(input)).build();
+        return ResponseEntity.ok(response);
     }
 
 }
