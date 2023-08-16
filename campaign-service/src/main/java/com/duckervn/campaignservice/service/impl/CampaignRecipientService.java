@@ -2,25 +2,21 @@ package com.duckervn.campaignservice.service.impl;
 
 import com.duckervn.campaignservice.common.Constants;
 import com.duckervn.campaignservice.common.RespMessage;
-import com.duckervn.campaignservice.common.TypeRef;
-import com.duckervn.campaignservice.config.ServiceConfig;
 import com.duckervn.campaignservice.domain.entity.CampaignRecipient;
 import com.duckervn.campaignservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.campaignservice.domain.model.addcampaignrecipient.CampaignRecipientInput;
-import com.duckervn.campaignservice.queue.EventProducer;
 import com.duckervn.campaignservice.repository.CampaignRecipientRepository;
 import com.duckervn.campaignservice.repository.CampaignRepository;
 import com.duckervn.campaignservice.service.ICampaignRecipientService;
+import com.duckervn.campaignservice.service.client.SpecialUserClient;
+import com.duckervn.campaignservice.service.client.UserClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -32,11 +28,11 @@ public class CampaignRecipientService implements ICampaignRecipientService {
 
     private final CampaignRepository campaignRepository;
 
-    private final EventProducer eventProducer;
+    private final UserClient userClient;
+
+    private final SpecialUserClient specialUserClient;
 
     private final ObjectMapper objectMapper;
-
-    private final ServiceConfig serviceConfig;
 
     @Override
     public List<CampaignRecipient> findAll(Long campaignId) {
@@ -49,10 +45,10 @@ public class CampaignRecipientService implements ICampaignRecipientService {
     }
 
     @Override
-    public CampaignRecipient save(Long campaignId, CampaignRecipientInput campaignRecipientInput) {
+    public CampaignRecipient save(Long campaignId, CampaignRecipientInput campaignRecipientInput, boolean fromQueue) {
         validateStatus(campaignRecipientInput.getStatus(), true);
         validateCampaignId(campaignId);
-        validateRecipientId(campaignRecipientInput.getRecipientId(), true);
+        validateRecipientId(campaignRecipientInput.getRecipientId(), true, fromQueue);
 
         CampaignRecipient campaignRecipient = objectMapper.convertValue(campaignRecipientInput, CampaignRecipient.class);
 
@@ -81,7 +77,7 @@ public class CampaignRecipientService implements ICampaignRecipientService {
         }
 
         validateStatus(campaignRecipientInput.getStatus(), false);
-        validateRecipientId(campaignRecipientInput.getRecipientId(), false);
+        validateRecipientId(campaignRecipientInput.getRecipientId(), false, false);
 
         if (Objects.nonNull(campaignRecipientInput.getRecipientId())) {
             campaignRecipient.setRecipientId(campaignRecipientInput.getRecipientId());
@@ -135,31 +131,10 @@ public class CampaignRecipientService implements ICampaignRecipientService {
         }
     }
 
-    @SneakyThrows
-    private void validateRecipientId(String userId, boolean isRequired) {
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("userId", userId);
-
-        Map<String, Object> resultMap = eventProducer.publishAndWait(
-                serviceConfig.getUserTopic(),
-                serviceConfig.getUserToCampaignReplyTopic(),
-                serviceConfig.getCheckUserExistEvent(),
-                requestMap);
-
-        log.info("Result back: {}", resultMap);
-
-        boolean isExist = false;
-
-        if (Objects.nonNull(resultMap) && Objects.nonNull(resultMap.get(Constants.DATA_ATTR))) {
-            Map<String, Object> data = objectMapper.readValue((String) resultMap.get(Constants.DATA_ATTR), TypeRef.MAP_STRING_OBJECT);
-            String userId1 = (String) data.get("userId");
-            isExist = (Boolean) data.get("exist");
-            if (Objects.isNull(userId1) || !userId1.equals(userId) || !isExist) {
-                isExist = false;
-            }
-        }
-
-        if ((Objects.nonNull(userId) && !isExist || (Objects.isNull(userId) && isRequired))) {
+    private void validateRecipientId(String userId, boolean isRequired, boolean fromQueue) {
+        if ((Objects.nonNull(userId) && !fromQueue && Objects.isNull(userClient.findUserById(userId).getResult()))
+                || (Objects.nonNull(userId) && fromQueue && Objects.isNull(specialUserClient.findUserById(userId).getResult()))
+                || (Objects.isNull(userId) && isRequired)) {
             throw new ResourceNotFoundException();
         }
     }

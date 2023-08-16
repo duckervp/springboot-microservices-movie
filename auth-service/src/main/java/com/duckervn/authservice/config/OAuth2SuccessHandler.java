@@ -59,13 +59,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             TokenOutput tokenOutput;
             Optional<User> userOptional = userRepository.findByEmail(email);
             if (userOptional.isPresent()) {
-                String clientId = userOptional.get().getId();
-                Optional<Client> clientOptional = clientRepository.findByClientId(clientId);
+                String uniqueId = userOptional.get().getId();
+                Optional<Client> clientOptional = clientRepository.findById(uniqueId);
                 if (clientOptional.isPresent()) {
                     Client client = clientOptional.get();
                     String oldClientSecret = client.getClientSecret();
                     userService.updatePassword(client, password, true);
-                    tokenOutput = userService.login(clientId, password);
+                    tokenOutput = userService.login(client.getClientId(), password);
                     userService.updatePassword(client, oldClientSecret, false);
                 } else {
                     tokenOutput = new TokenOutput();

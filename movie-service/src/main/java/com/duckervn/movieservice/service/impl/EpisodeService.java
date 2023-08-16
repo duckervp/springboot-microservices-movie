@@ -1,7 +1,5 @@
 package com.duckervn.movieservice.service.impl;
 
-import com.duckervn.movieservice.common.RespMessage;
-import com.duckervn.movieservice.common.Response;
 import com.duckervn.movieservice.domain.entity.Episode;
 import com.duckervn.movieservice.domain.entity.Movie;
 import com.duckervn.movieservice.domain.exception.ResourceNotFoundException;
@@ -11,7 +9,6 @@ import com.duckervn.movieservice.service.IEpisodeService;
 import com.duckervn.movieservice.service.IMovieService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,6 +30,7 @@ public class EpisodeService implements IEpisodeService {
     @Override
     public Episode save(EpisodeInput episodeInput) {
         Episode episode = objectMapper.convertValue(episodeInput, Episode.class);
+        episode.setView(0L);
         if (Objects.nonNull(episodeInput.getMovieId())) {
             Movie movie = movieService.findById(episodeInput.getMovieId());
             episode.addMovie(movie);
@@ -68,6 +66,10 @@ public class EpisodeService implements IEpisodeService {
 
         if (Objects.nonNull(episodeInput.getDuration())) {
             episode.setDuration(episodeInput.getDuration());
+        }
+
+        if (Objects.nonNull(episodeInput.getView())) {
+            episode.setView(episodeInput.getView());
         }
 
         episode.setModifiedAt(LocalDateTime.now());

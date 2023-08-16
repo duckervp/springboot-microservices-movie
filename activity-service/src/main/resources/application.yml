@@ -9,6 +9,7 @@ event:
   movie:
     exist: movie.exist
     updateRating: movie-rating.update
+    updateEpisodeView: movie-episode-view.update
   user:
     exist: user.exist
     updateExp: user-exp.update

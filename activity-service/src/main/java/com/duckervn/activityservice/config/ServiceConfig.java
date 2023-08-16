@@ -25,6 +25,9 @@ public class ServiceConfig {
     @Value("${event.movie.updateRating}")
     private String updateMovieRatingEvent;
 
+    @Value("${event.movie.updateEpisodeView}")
+    private String updateEpisodeViewEvent;
+
     @Value("${event.user.updateExp}")
     private String updateUserExpEvent;
 

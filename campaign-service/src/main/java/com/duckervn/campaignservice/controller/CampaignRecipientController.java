@@ -41,7 +41,7 @@ public class CampaignRecipientController {
     public ResponseEntity<?> createCampaignRecipient(@PathVariable Long campaignId, @RequestBody @Valid CampaignRecipientInput input) {
         Response response = Response.builder().code(HttpStatus.CREATED.value())
                 .message(RespMessage.CREATED_CAMPAIGN_RECIPIENT)
-                .result(campaignRecipientService.save(campaignId, input)).build();
+                .result(campaignRecipientService.save(campaignId, input, false)).build();
         return ResponseEntity.ok(response);
     }
 

@@ -1,19 +1,19 @@
 package com.duckervn.campaignservice.service.impl;
 
 import com.duckervn.campaignservice.common.Constants;
+import com.duckervn.campaignservice.common.Response;
 import com.duckervn.campaignservice.common.TypeRef;
-import com.duckervn.campaignservice.config.ServiceConfig;
 import com.duckervn.campaignservice.domain.entity.Campaign;
 import com.duckervn.campaignservice.domain.entity.CampaignRecipient;
 import com.duckervn.campaignservice.domain.entity.Provider;
 import com.duckervn.campaignservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.campaignservice.domain.model.startcampaign.SendCampaignOutput;
-import com.duckervn.campaignservice.queue.EventProducer;
 import com.duckervn.campaignservice.repository.CampaignRecipientRepository;
 import com.duckervn.campaignservice.repository.CampaignRepository;
 import com.duckervn.campaignservice.repository.ProviderRepository;
 import com.duckervn.campaignservice.service.IMessageService;
 import com.duckervn.campaignservice.service.VendorSelectorService;
+import com.duckervn.campaignservice.service.client.UserClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mailgun.model.message.MessageResponse;
 import lombok.RequiredArgsConstructor;
@@ -42,9 +42,7 @@ public class MessageService implements IMessageService {
 
     private final ObjectMapper objectMapper;
 
-    private final EventProducer eventProducer;
-
-    private final ServiceConfig serviceConfig;
+    private final UserClient userClient;
 
     @Override
     public Campaign getCampaignDetail(Long campaignId) {
@@ -60,24 +58,11 @@ public class MessageService implements IMessageService {
     @SneakyThrows
     @Override
     public Map<String, Object> getDataMapping(CampaignRecipient campaignRecipient) {
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("userId", campaignRecipient.getRecipientId());
-        Map<String, Object> resultMap = eventProducer.publishAndWait(
-                serviceConfig.getUserTopic(),
-                serviceConfig.getUserToCampaignReplyTopic(),
-                serviceConfig.getFindUserEvent(),
-                requestMap);
-
-        log.info("Result back: {}", resultMap);
-
-        Map<String, Object> data = new HashMap<>();
-        if (Objects.nonNull(resultMap) && Objects.nonNull(resultMap.get(Constants.DATA_ATTR))) {
-            data = objectMapper.readValue((String) resultMap.get(Constants.DATA_ATTR), TypeRef.MAP_STRING_OBJECT);
-        }
-
-        Map<String, Object> mapping = new HashMap<>(data);
+        Response response = userClient.findUserById(campaignRecipient.getRecipientId());
+        Map<String, Object> user = objectMapper.convertValue(response.getResult(), TypeRef.MAP_STRING_OBJECT) ;
+        Map<String, Object> mapping = new HashMap<>(user);
         if (Objects.nonNull(campaignRecipient.getFixedParams())) {
-            Map<String, Object> fixedParams = objectMapper.readValue(campaignRecipient.getFixedParams(), TypeRef.MAP_STRING_OBJECT);
+            Map<String, Object> fixedParams = objectMapper.convertValue(campaignRecipient.getFixedParams(), TypeRef.MAP_STRING_OBJECT);
             mapping.putAll(fixedParams);
         }
         return mapping;

@@ -10,7 +10,7 @@ public interface ICampaignRecipientService {
 
     CampaignRecipient findByCampaignIdAndRecipientId(Long campaignId, Long campaignRecipientId);
 
-    CampaignRecipient save(Long campaignId, CampaignRecipientInput campaignRecipientInput);
+    CampaignRecipient save(Long campaignId, CampaignRecipientInput campaignRecipientInput, boolean fromQueue);
 
     CampaignRecipient update(Long campaignId, Long campaignRecipientId, CampaignRecipientInput campaignRecipientInput);
 

@@ -3,6 +3,7 @@ package com.duckervn.authservice.queue;
 import com.duckervn.authservice.common.Constants;
 import com.duckervn.authservice.common.TypeRef;
 import com.duckervn.authservice.config.ServiceConfig;
+import com.duckervn.authservice.domain.entity.User;
 import com.duckervn.authservice.repository.UserRepository;
 import com.duckervn.authservice.service.IFileStoreService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +14,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -61,16 +63,21 @@ public class EventConsumer {
                 if (Objects.nonNull(userId)) {
                     exist = userRepository.existsById(userId);
                 }
-                Map<String, Object> data = new HashMap<>();
-                data.put("userId", userId);
-                data.put("exist", exist);
-                resultMap.put(Constants.DATA_ATTR, data);
-            } else if (Objects.nonNull(userId) && event.equals(serviceConfig.getFindUserEvent())) {
-                Map<String, Object> data = objectMapper.convertValue(userRepository.findById(userId).orElse(null), TypeRef.MAP_STRING_OBJECT);
-                resultMap.put(Constants.DATA_ATTR, data);
-            } else {
-                if (event.equals(serviceConfig.getFindUserStoredFileEvent())) {
-                    resultMap.put(Constants.DATA_ATTR, fileStoreService.getStoredImageUrls());
+                Map<String, Object> response = new HashMap<>();
+                response.put("userId", userId);
+                response.put("exist", exist);
+                resultMap.put(Constants.DATA_ATTR, response);
+            } else if (event.equals(serviceConfig.getFindUserEvent()) && Objects.nonNull(userId)) {
+                Map<String, Object> response = objectMapper.convertValue(userRepository.findById(userId).orElse(null), TypeRef.MAP_STRING_OBJECT);
+                resultMap.put(Constants.DATA_ATTR, response);
+            } else if (event.equals(serviceConfig.getFindUserStoredFileEvent())) {
+                resultMap.put(Constants.DATA_ATTR, fileStoreService.getStoredImageUrls());
+            } else if (event.equals(serviceConfig.getUpdateUserExpEvent()) && Objects.nonNull(userId)) {
+                User user = userRepository.findById(userId).orElse(null);
+                if (Objects.nonNull(user)) {
+                    user.setExp(Objects.nonNull(user.getExp()) ? user.getExp() + 2L : 2L);
+                    user.setModifiedAt(LocalDateTime.now());
+                    userRepository.save(user);
                 }
             }
         }

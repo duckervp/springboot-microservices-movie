@@ -36,42 +36,4 @@ public class KafkaConfig {
                 .replicas(1)
                 .build();
     }
-
-    @Bean
-    public NewTopic userToActivityReplyTopic() {
-        return TopicBuilder.name(serviceConfig.getUserToActivityReplyTopic())
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
-
-    @Bean
-    public NewTopic movieToActivityReplyTopic() {
-        return TopicBuilder.name(serviceConfig.getMovieToActivityReplyTopic())
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
-
-    @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory(
-            ReplyingKafkaTemplate<String, String, String> replyKafkaTemplate,
-            ConsumerFactory<String, Object> cf
-    ) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
-        factory.setReplyTemplate(replyKafkaTemplate);
-        factory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(cf.getConfigurationProperties()));
-        return factory;
-    }
-
-    @Bean
-    public ReplyingKafkaTemplate<String, String, String> replyKafkaTemplate(ProducerFactory<String, String> pf, KafkaMessageListenerContainer<String, String> container) {
-        return new ReplyingKafkaTemplate<>(pf, container);
-    }
-
-    @Bean
-    public KafkaMessageListenerContainer<String, String> replyContainer(ConsumerFactory<String, String> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(serviceConfig.getUserToActivityReplyTopic(), serviceConfig.getMovieToActivityReplyTopic());
-        return new KafkaMessageListenerContainer<>(cf, containerProperties);
-    }
 }

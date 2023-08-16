@@ -1,15 +1,13 @@
 package com.duckervn.streamservice.service.impl;
 
-import com.duckervn.streamservice.common.Constants;
 import com.duckervn.streamservice.common.Response;
-import com.duckervn.streamservice.common.TypeRef;
 import com.duckervn.streamservice.common.Utils;
 import com.duckervn.streamservice.config.ServiceConfig;
 import com.duckervn.streamservice.domain.model.output.FileInfo;
-import com.duckervn.streamservice.queue.EventProducer;
 import com.duckervn.streamservice.service.CleanerService;
 import com.duckervn.streamservice.service.FileStorageService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.duckervn.streamservice.service.client.MovieClient;
+import com.duckervn.streamservice.service.client.UserClient;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
@@ -31,9 +27,10 @@ public class CleanerServiceImpl implements CleanerService {
 
     private final ServiceConfig serviceConfig;
 
-    private final EventProducer eventProducer;
+    private final MovieClient movieClient;
 
-    private final ObjectMapper objectMapper;
+    private final UserClient userClient;
+
 
     @SneakyThrows
     @Override
@@ -52,16 +49,8 @@ public class CleanerServiceImpl implements CleanerService {
         boolean isError = false;
 
         try {
-            storedFileUrls.addAll(processGetUrls(
-                    serviceConfig.getMovieTopic(),
-                    serviceConfig.getMovieToStreamReplyTopic(),
-                    serviceConfig.getFindMovieStoredFileEvent())
-            );
-            storedFileUrls.addAll(processGetUrls(
-                    serviceConfig.getUserTopic(),
-                    serviceConfig.getUserToStreamReplyTopic(),
-                    serviceConfig.getFindUserStoredFileEvent())
-            );
+            storedFileUrls.addAll(userClient.getAllStoredFiles());
+            storedFileUrls.addAll(movieClient.getAllStoredFiles());
         } catch (Exception e) {
             log.info("Error: ", e);
             isError = true;
@@ -92,16 +81,8 @@ public class CleanerServiceImpl implements CleanerService {
         List<String> storedFileUrls = new ArrayList<>();
 
         try {
-            storedFileUrls.addAll(processGetUrls(
-                    serviceConfig.getMovieTopic(),
-                    serviceConfig.getMovieToStreamReplyTopic(),
-                    serviceConfig.getFindMovieStoredFileEvent())
-            );
-            storedFileUrls.addAll(processGetUrls(
-                    serviceConfig.getUserTopic(),
-                    serviceConfig.getUserToStreamReplyTopic(),
-                    serviceConfig.getFindUserStoredFileEvent())
-            );
+            storedFileUrls.addAll(userClient.getAllStoredFiles());
+            storedFileUrls.addAll(movieClient.getAllStoredFiles());
         } catch (Exception e) {
             log.info("Error: ", e);
         }
@@ -110,15 +91,5 @@ public class CleanerServiceImpl implements CleanerService {
             Utils.saveFileFromUrl(url);
             Thread.sleep(1000);
         }
-    }
-
-
-    private List<String> processGetUrls(String topic, String replyTopic, String event) {
-        Map<String, Object> result = eventProducer.publishAndWait(topic, replyTopic, event, new HashMap<>());
-
-        if (result.containsKey(Constants.DATA_ATTR)) {
-            return objectMapper.convertValue(result.get(Constants.DATA_ATTR), TypeRef.LIST_STRING);
-        }
-        return new ArrayList<>();
     }
 }

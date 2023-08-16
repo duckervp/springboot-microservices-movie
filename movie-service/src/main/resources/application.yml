@@ -9,6 +9,7 @@ event:
     exist: movie.exist
     findStoredFile: movie-stored-file.find
     updateRating: movie-rating.update
+    updateEpisodeView: movie-episode-view.update
 
 loki:
   url: ${LOKI_URL}

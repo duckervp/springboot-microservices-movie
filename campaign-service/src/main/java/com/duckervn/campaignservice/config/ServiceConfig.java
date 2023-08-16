@@ -10,6 +10,12 @@ public class ServiceConfig {
     @Value("${loki.url}")
     private String lokiUrl;
 
+    @Value("${cron.username}")
+    private String cronUsername;
+
+    @Value("${cron.password}")
+    private String cronPassword;
+
     @Value("${topic.campaign}")
     private String campaignTopic;
 

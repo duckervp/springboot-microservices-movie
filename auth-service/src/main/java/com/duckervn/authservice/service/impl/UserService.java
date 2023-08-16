@@ -81,19 +81,21 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Email is already exist: " + registerInput.getEmail());
         }
 
+        String uniqueId = UUID.randomUUID().toString();
+
         User user = objectMapper.convertValue(registerInput, User.class);
-        user.setId(registerInput.getUsername());
+        user.setId(uniqueId);
         user.setCreatedAt(LocalDateTime.now());
         if (Objects.nonNull(registerInput.getBirthdate())) {
             user.setDob(convertStringToLocalDate(registerInput.getBirthdate()));
         }
 
-        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId(user.getId())
+        RegisteredClient registeredClient = RegisteredClient.withId(uniqueId)
+                .clientId(registerInput.getUsername())
                 .clientSecret(passwordEncoder.encode(registerInput.getPassword()))
                 .scope(Scope.USER.toString())
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                .clientName(Objects.nonNull(user.getName()) ? user.getName() : user.getId())
+                .clientName(Objects.nonNull(user.getName()) ? user.getName() : registerInput.getUsername())
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .tokenSettings(tokenSettings)
                 .build();
@@ -211,7 +213,7 @@ public class UserService implements IUserService {
                 .concat("?token=").concat(resetPasswordToken.getToken()));
 
         CampaignRecipientInput campaignRecipientInput = CampaignRecipientInput.builder()
-                .recipientId(client.getClientId())
+                .recipientId(client.getId())
                 .status(Constants.WAITING)
                 .retry(0)
                 .fixedParams(objectMapper.writeValueAsString(params))
@@ -261,7 +263,7 @@ public class UserService implements IUserService {
     private Client findClientByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(ResourceNotFoundException::new);
-        return clientRepository.findByClientId(user.getId()).orElseThrow(ResourceNotFoundException::new);
+        return clientRepository.findById(user.getId()).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override

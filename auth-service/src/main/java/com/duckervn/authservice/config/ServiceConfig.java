@@ -58,4 +58,7 @@ public class ServiceConfig {
     @Value("${event.campaign.addRecipient}")
     private String addCampaignRecipientEvent;
 
+    @Value("${event.user.updateExp}")
+    private String updateUserExpEvent;
+
 }

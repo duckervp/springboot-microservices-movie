@@ -18,6 +18,8 @@ public class EpisodeInput {
 
     private String url;
 
+    private Long view;
+
     private String description;
 
     private Long movieId;

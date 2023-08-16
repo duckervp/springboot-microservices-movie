@@ -11,6 +11,7 @@ event:
     find: user.find
     exist: user.exist
     findStoredFile: user-stored-file.find
+    updateExp: user-exp.update
   campaign:
     addRecipient: campaign-recipient.add
 
