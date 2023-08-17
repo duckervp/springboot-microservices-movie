@@ -1,13 +1,8 @@
 topic:
   movie: dev-movie
-  reply:
-    movieToStream: dev-movie-stream-reply
-    movieToActivity: dev-movie-activity-reply
 
 event:
   movie:
-    exist: movie.exist
-    findStoredFile: movie-stored-file.find
     updateRating: movie-rating.update
     updateEpisodeView: movie-episode-view.update
 
@@ -23,8 +18,8 @@ spring:
   cache:
     type: redis
   redis:
-    host: localhost
-    port: 6379
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
   jpa:
     openInView: false
     databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect

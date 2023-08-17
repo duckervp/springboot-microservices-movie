@@ -15,22 +15,4 @@ public class ServiceConfig {
 
     @Value("${loki.url}")
     private String lokiUrl;
-
-    @Value("${topic.movie}")
-    private String movieTopic;
-
-    @Value("${topic.user}")
-    private String userTopic;
-
-    @Value("${topic.reply.userToStream}")
-    private String userToStreamReplyTopic;
-
-    @Value("${topic.reply.movieToStream}")
-    private String movieToStreamReplyTopic;
-
-    @Value("${event.movie.findStoredFile}")
-    private String findMovieStoredFileEvent;
-
-    @Value("${event.user.findStoredFile}")
-    private String findUserStoredFileEvent;
 }

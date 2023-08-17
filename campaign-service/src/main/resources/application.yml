@@ -1,27 +1,23 @@
 topic:
   campaign: dev-campaign
-  user: dev-user
-  reply:
-    userToCampaign: dev-user-campaign-reply
 
 event:
   campaign:
     addRecipient: campaign-recipient.add
-  user:
-    find: user.find
-    exist: user.exist
 
 loki:
     url: ${LOKI_URL}
 
 cron:
-  username: cronuser
-  password: cronuser
+  username: ${CRON_USERNAME}
+  password: ${CRON_PASSWORD}
 
 server:
   port: ${SERVER_PORT}
 
 spring:
+  application:
+    name: campaign-service
   jpa:
     openInView: false
     databasePlatform: org.hibernate.dialect.MySQL5InnoDBDialect
@@ -32,8 +28,6 @@ spring:
     url: jdbc:mysql://${MYSQL_URL}?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
-  application:
-    name: campaign-service
   security:
     oauth2:
       resourceserver:

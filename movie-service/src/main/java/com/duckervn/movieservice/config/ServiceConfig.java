@@ -11,21 +11,6 @@ public class ServiceConfig {
     @Value("${loki.url}")
     private String lokiUrl;
 
-    @Value("${topic.movie}")
-    private String movieTopic;
-
-    @Value("${topic.reply.movieToStream}")
-    private String movieToStreamReplyTopic;
-
-    @Value("${topic.reply.movieToActivity}")
-    private String movieToActivityReplyTopic;
-
-    @Value("${event.movie.findStoredFile}")
-    private String findMovieStoredFileEvent;
-
-    @Value("${event.movie.exist}")
-    private String checkMovieExistEvent;
-
     @Value("${event.movie.updateRating}")
     private String updateMovieRatingEvent;
 

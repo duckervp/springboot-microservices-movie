@@ -24,6 +24,11 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: [ 'host.docker.internal:8913' ]
+  - job_name: 'activity-service'
+    scrape_interval: 5s
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'host.docker.internal:8914' ]
   - job_name: 'discovery-service'
     scrape_interval: 5s
     metrics_path: '/actuator/prometheus'

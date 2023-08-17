@@ -1,8 +1,8 @@
 package com.duckervn.movieservice.repository;
 
-import com.duckervn.movieservice.domain.dto.MovieDTO;
 import com.duckervn.movieservice.domain.dto.MovieImageDTO;
 import com.duckervn.movieservice.domain.entity.Movie;
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,14 +14,9 @@ import java.util.Optional;
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long> {
 
-    @Query(value = "SELECT m.id, m.name, m.releaseYear AS releaseYear, " +
-            "m.totalEpisode AS totalEpisode, m.country, m.bannerUrl AS bannerUrl, " +
-            "m.posterUrl AS posterUrl, m.description, m.createdAt AS createdAt, m.modifiedAt AS modifiedAt " +
-            "FROM Movie m WHERE m.id = :id")
-    Optional<MovieDTO> findMovieDTOById(Long id);
-
     @EntityGraph(Movie.FULL_MOVIE_GRAPH)
-    Optional<Movie> findById(Long id);
+    @NonNull
+    Optional<Movie> findById(@NonNull Long id);
 
     @EntityGraph(Movie.FULL_MOVIE_GRAPH)
     Optional<Movie> findBySlug(String slug);

@@ -1,16 +1,3 @@
-topic:
-  movie: dev-movie
-  user: dev-user
-  reply:
-    userToStream: dev-user-stream-reply
-    movieToStream: dev-movie-stream-reply
-
-event:
-  movie:
-    findStoredFile: movie-stored-file.find
-  user:
-    findStoredFile: user-stored-file.find
-
 root:
   location: ${LOCAL_STORAGE}
 
@@ -31,15 +18,6 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${AUTH_SERVICE_URL}
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS_URL}
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      group-id: ${KAFKA_CONSUMER_GROUP_ID}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 management:
   metrics:

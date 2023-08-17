@@ -16,12 +16,6 @@ public class ServiceConfig {
     @Value("${topic.user}")
     private String userTopic;
 
-    @Value("${topic.reply.userToActivity}")
-    private String userToActivityReplyTopic;
-
-    @Value("${topic.reply.movieToActivity}")
-    private String movieToActivityReplyTopic;
-
     @Value("${event.movie.updateRating}")
     private String updateMovieRatingEvent;
 
@@ -30,11 +24,5 @@ public class ServiceConfig {
 
     @Value("${event.user.updateExp}")
     private String updateUserExpEvent;
-
-    @Value("${event.user.exist}")
-    private String checkUserExistEvent;
-
-    @Value("${event.movie.exist}")
-    private String checkMovieExistEvent;
 
 }

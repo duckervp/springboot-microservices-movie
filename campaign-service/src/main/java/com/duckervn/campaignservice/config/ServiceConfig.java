@@ -16,22 +16,7 @@ public class ServiceConfig {
     @Value("${cron.password}")
     private String cronPassword;
 
-    @Value("${topic.campaign}")
-    private String campaignTopic;
-
-    @Value("${topic.user}")
-    private String userTopic;
-
-    @Value("${topic.reply.userToCampaign}")
-    private String userToCampaignReplyTopic;
-
     @Value("${event.campaign.addRecipient}")
     private String addCampaignRecipientEvent;
-
-    @Value("${event.user.find}")
-    private String findUserEvent;
-
-    @Value("${event.user.exist}")
-    private String checkUserExistEvent;
 
 }

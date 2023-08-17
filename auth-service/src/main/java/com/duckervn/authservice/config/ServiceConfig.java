@@ -10,20 +10,11 @@ public class ServiceConfig {
     @Value("${provider.issuerUri}")
     private String providerIssuerUri;
 
-    @Value("${server.port}")
-    private int serverPort;
-
     @Value("${frontend.gateway}")
     private String frontendGateway;
 
     @Value("${loki.url}")
     private String lokiUrl;
-
-    @Value("${cron.username}")
-    private String cronUsername;
-
-    @Value("${cron.password}")
-    private String cronPassword;
 
     @Value("${rpt.campaignId}")
     private Long rptCampaignId;
@@ -33,27 +24,6 @@ public class ServiceConfig {
 
     @Value("${topic.campaign}")
     private String campaignTopic;
-
-    @Value("${topic.user}")
-    private String userTopic;
-
-    @Value("${topic.reply.userToCampaign}")
-    private String userToCampaignReplyTopic;
-
-    @Value("${topic.reply.userToStream}")
-    private String userToStreamReplyTopic;
-
-    @Value("${topic.reply.userToActivity}")
-    private String userToActivityReplyTopic;
-
-    @Value("${event.user.find}")
-    private String findUserEvent;
-
-    @Value("${event.user.exist}")
-    private String checkUserExistEvent;
-
-    @Value("${event.user.findStoredFile}")
-    private String findUserStoredFileEvent;
 
     @Value("${event.campaign.addRecipient}")
     private String addCampaignRecipientEvent;

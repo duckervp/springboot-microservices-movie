@@ -85,6 +85,9 @@ public class UserService implements IUserService {
 
         User user = objectMapper.convertValue(registerInput, User.class);
         user.setId(uniqueId);
+        user.setExp(0L);
+        user.setLevel(0);
+        user.setTitle("New Member");
         user.setCreatedAt(LocalDateTime.now());
         if (Objects.nonNull(registerInput.getBirthdate())) {
             user.setDob(convertStringToLocalDate(registerInput.getBirthdate()));

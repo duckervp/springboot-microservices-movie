@@ -1,16 +1,9 @@
 topic:
   campaign: dev-campaign
   user: dev-user
-  reply:
-    userToCampaign: dev-user-campaign-reply
-    userToStream: dev-user-stream-reply
-    userToActivity: dev-user-activity-reply
 
 event:
   user:
-    find: user.find
-    exist: user.exist
-    findStoredFile: user-stored-file.find
     updateExp: user-exp.update
   campaign:
     addRecipient: campaign-recipient.add
@@ -24,11 +17,6 @@ rpt:
 
 loki:
   url: ${LOKI_URL}
-
-cron:
-  username: ${CRON_USERNAME}
-  password: ${CRON_PASSWORD}
-
 
 frontend:
   gateway: ${FRONTEND_GATEWAY}

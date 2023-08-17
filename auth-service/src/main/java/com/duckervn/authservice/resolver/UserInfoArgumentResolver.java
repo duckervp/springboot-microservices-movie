@@ -2,6 +2,7 @@ package com.duckervn.authservice.resolver;
 
 import com.duckervn.authservice.repository.UserRepository;
 import com.duckervn.authservice.resolver.annotation.UserInfo;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,14 +38,14 @@ public class UserInfoArgumentResolver implements HandlerMethodArgumentResolver {
      */
     @Override
     public Object resolveArgument(
-            MethodParameter parameter,
+            @NonNull MethodParameter parameter,
             ModelAndViewContainer mavContainer,
-            NativeWebRequest webRequest,
+            @NonNull NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory) {
          Jwt jwt = (Jwt) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
-        return userRepository.findById(jwt.getSubject());
+        return userRepository.findByEmail(jwt.getSubject());
     }
 }

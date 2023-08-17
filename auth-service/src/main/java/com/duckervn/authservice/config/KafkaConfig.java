@@ -27,12 +27,4 @@ public class KafkaConfig {
                 .build();
     }
 
-    @Bean
-    public NewTopic userTopic() {
-        return TopicBuilder.name(serviceConfig.getUserTopic())
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
-
 }

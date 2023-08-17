@@ -1,6 +1,23 @@
 version: "3"
 
 services:
+  redis:
+    image: docker.io/bitnami/redis:7.0
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+
+  prometheus:
+    image: "prom/prometheus"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
@@ -73,8 +90,6 @@ services:
       GITHUB_REDIRECT_URI: http://localhost:8909/login/oauth2/code/github
       FRONTEND_GATEWAY: http://localhost:3000
       CAMPAIGN_SERVICE_URL: http://campaign-service:8913
-      CRON_USERNAME: CRON_USERNAME
-      CRON_PASSWORD: CRON_PASSWORD
       RPT_CAMPAIGN_ID: 1
       RPT_VALIDITY_IN_MINUTE: 60
       KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
@@ -102,6 +117,8 @@ services:
       LOKI_URL: http://host.docker.internal:3100
       KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
       KAFKA_CONSUMER_GROUP_ID: consumer-group
+      REDIS_HOST: host.docker.internal
+      REDIS_PORT: 6379
     ports:
       - "8910:8910"
     build:
@@ -122,8 +139,6 @@ services:
       SERVER_PORT: 8911
       LOKI_URL: http://host.docker.internal:3100
       GATEWAY_URL: http://localhost:8762
-      KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
-      KAFKA_CONSUMER_GROUP_ID: consumer-group
     ports:
       - "8911:8911"
     build:
@@ -132,7 +147,6 @@ services:
     depends_on:
       - mysql-db
       - discovery-service
-      - broker
     volumes:
       - store:/mnt/files
 
@@ -157,7 +171,6 @@ services:
     depends_on:
       - mysql-db
       - discovery-service
-      - broker
 
   campaign-service:
     image: duckervn/msult-campaign-service
@@ -171,12 +184,37 @@ services:
       SERVER_PORT: 8913
       LOKI_URL: http://host.docker.internal:3100
       FRONTEND_GATEWAY: http://localhost:3000
+      CRON_USERNAME: CRON_USERNAME
+      CRON_PASSWORD: CRON_PASSWORD
       KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
       KAFKA_CONSUMER_GROUP_ID: consumer-group
     ports:
       - "8913:8913"
     build:
       context: "./campaign-service"
+      dockerfile: "Dockerfile"
+    depends_on:
+      - mysql-db
+      - discovery-service
+      - broker
+
+  activity-service:
+    image: duckervn/msult-activity-service
+    environment:
+      DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
+      AUTH_SERVICE_URL: http://auth-service:8909
+      MOVIE_SERVICE_URL: http://movie-service:8910
+      MYSQL_URL: host.docker.internal:3306/ult_activity
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+      SERVER_PORT: 8914
+      LOKI_URL: http://host.docker.internal:3100
+      KAFKA_BOOTSTRAP_SERVERS_URL: broker:9092
+      KAFKA_CONSUMER_GROUP_ID: consumer-group
+    ports:
+      - "8914:8914"
+    build:
+      context: "./activity-service"
       dockerfile: "Dockerfile"
     depends_on:
       - mysql-db
@@ -192,6 +230,7 @@ services:
       STREAM_SERVICE_URL: http://stream-service:8911
       CRON_SERVICE_URL: http://cron-service:8912
       CAMPAIGN_SERVICE_URL: http://campaign-service:8913
+      ACTIVITY_SERVICE_URL: http://activity-service:8914
       SERVER_PORT: 8762
       LOKI_URL: http://host.docker.internal:3100
     ports:
@@ -201,14 +240,9 @@ services:
       dockerfile: "Dockerfile"
     depends_on:
       - discovery-service
-  prometheus:
-    image: "prom/prometheus"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    container_name: prometheus
 
 volumes:
   db:
   store:
+  redis_data:
+    driver: local

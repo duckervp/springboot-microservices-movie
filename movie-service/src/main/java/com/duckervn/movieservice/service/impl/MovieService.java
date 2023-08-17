@@ -104,6 +104,8 @@ public class MovieService implements IMovieService {
             movie.setSlug(Utils.genSlug(movie.getName()));
         }
 
+        movie.setRating(0D);
+
         movie.setCreatedAt(LocalDateTime.now());
 
         movie.setModifiedAt(LocalDateTime.now());
