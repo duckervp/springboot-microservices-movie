@@ -24,7 +24,17 @@ public class HistoryController {
                 .code(HttpStatus.CREATED.value())
                 .message(RespMessage.ADDED_HISTORY)
                 .result(historyService.save(input)).build();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping()
+    public ResponseEntity<?> getUserHistory(@RequestParam String userId) {
+        Response response = Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_USER_HISTORY)
+                .results(historyService.findUserHistory(userId)).build();
         return ResponseEntity.ok(response);
     }
+
 
 }

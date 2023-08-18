@@ -13,6 +13,8 @@ public interface IMovieService {
 
     Movie findById(Long id);
 
+    List<Movie> findByIds(List<Long> ids);
+
     PageOutput<?> findMovie(String name, Integer releaseYear, String country, String genre, Integer pageNo, Integer pageSize);
 
     Movie update(Long id, MovieInput movieInput);

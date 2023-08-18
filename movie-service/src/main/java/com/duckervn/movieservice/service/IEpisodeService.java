@@ -15,4 +15,6 @@ public interface IEpisodeService {
     void delete(Long episodeId);
 
     void delete(List<Long> episodeIds);
+
+    Episode findNextEpisode(Long currentEpId);
 }

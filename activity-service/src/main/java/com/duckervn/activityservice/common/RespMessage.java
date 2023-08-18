@@ -13,6 +13,8 @@ public class RespMessage {
 
     public static final String ADDED_HISTORY = "Added History successfully!";
 
+    public static final String FOUND_USER_HISTORY = "Found User History successfully!";
+
 
     // Rating
 

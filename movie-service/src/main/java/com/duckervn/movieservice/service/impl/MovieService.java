@@ -120,6 +120,11 @@ public class MovieService implements IMovieService {
         return movieRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
+    @Override
+    public List<Movie> findByIds(List<Long> ids) {
+        return movieRepository.findByIdIn(ids);
+    }
+
     /**
      * @return list movie
      */

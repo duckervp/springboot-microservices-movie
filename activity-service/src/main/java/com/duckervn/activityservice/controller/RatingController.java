@@ -23,7 +23,7 @@ public class RatingController {
         Response response = Response.builder().code(HttpStatus.CREATED.value())
                 .message(RespMessage.CREATED_RATING)
                 .result(ratingService.save(input)).build();
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{ratingId}")

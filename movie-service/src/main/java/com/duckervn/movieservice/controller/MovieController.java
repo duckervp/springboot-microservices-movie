@@ -87,6 +87,15 @@ public class MovieController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/ids")
+    public ResponseEntity<?> findByIds(@RequestParam List<Long> values) {
+        Response response = Response.builder().code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_ALL_MOVIES)
+                .results(movieService.findByIds(values))
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/s/{slug}")
     public ResponseEntity<?> findBySlug(@PathVariable String slug) {
         Response response = Response.builder().code(HttpStatus.OK.value())

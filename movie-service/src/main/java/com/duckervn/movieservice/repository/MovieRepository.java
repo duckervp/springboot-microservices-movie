@@ -23,4 +23,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     @Query("SELECT m.bannerUrl AS bannerUrl, m.posterUrl AS posterUrl FROM Movie m")
     List<MovieImageDTO> findMovieImageUrls();
+
+    @EntityGraph(Movie.FULL_MOVIE_GRAPH)
+    List<Movie> findByIdIn(List<Long> ids);
 }

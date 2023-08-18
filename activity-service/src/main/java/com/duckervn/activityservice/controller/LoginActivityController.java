@@ -23,7 +23,7 @@ public class LoginActivityController {
         Response response = Response.builder().code(HttpStatus.CREATED.value())
                 .message(RespMessage.ADDED_LOGIN_ACTIVITY)
                 .result(campaignService.save(input)).build();
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 }

@@ -92,4 +92,9 @@ public class EpisodeService implements IEpisodeService {
 
         episodeRepository.deleteAll(episodes);
     }
+
+    @Override
+    public Episode findNextEpisode(Long currentEpId) {
+        return episodeRepository.findNextEpisode(currentEpId).orElseThrow(ResourceNotFoundException::new);
+    }
 }

@@ -13,5 +13,5 @@ public class TypeRef {
 
     public static final TypeReference<Map<String, Object>> MAP_STRING_OBJECT = new TypeReference<>(){};
 
-
+    public static final TypeReference<List<Map<String, Object>>> LIST_MAP_STRING_OBJECT = new TypeReference<>(){};
 }

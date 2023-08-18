@@ -61,4 +61,13 @@ public class EpisodeController {
                 .result(episodeService.findById(id)).build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/next")
+    public ResponseEntity<?> findNextEpisode(@RequestParam Long currentEpId) {
+        Response response = Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_EPISODE)
+                .result(episodeService.findNextEpisode(currentEpId)).build();
+        return ResponseEntity.ok(response);
+    }
 }
