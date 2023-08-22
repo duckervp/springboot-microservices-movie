@@ -2,6 +2,7 @@ package com.duckervn.activityservice.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,6 +18,7 @@ public class WebSecurityConfig {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/actuator/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/activities/history").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer()
