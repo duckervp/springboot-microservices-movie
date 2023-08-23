@@ -27,11 +27,11 @@ public class RatingController {
     }
 
     @PatchMapping("/{ratingId}")
-    public ResponseEntity<?> editRating(@PathVariable Long ratingId, @RequestParam Integer point) {
+    public ResponseEntity<?> editRating(@PathVariable Long ratingId, @RequestBody RatingInput ratingInput) {
         Response response = Response.builder()
                 .code(HttpStatus.OK.value())
                 .message(RespMessage.UPDATED_RATING)
-                .result(ratingService.update(ratingId, point))
+                .result(ratingService.update(ratingId, ratingInput))
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -44,4 +44,13 @@ public class RatingController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<?> findRating(@RequestParam String userId,@RequestParam Long movieId) {
+        Response response = Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_RATING)
+                .result(ratingService.findByUserIdAndMovieId(userId, movieId))
+                .build();
+        return ResponseEntity.ok(response);
+    }
 }

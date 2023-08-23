@@ -1,8 +1,5 @@
 package com.duckervn.activityservice.service.impl;
 
-import com.duckervn.activityservice.common.Constants;
-import com.duckervn.activityservice.common.Response;
-import com.duckervn.activityservice.common.TypeRef;
 import com.duckervn.activityservice.config.ServiceConfig;
 import com.duckervn.activityservice.domain.entity.Rating;
 import com.duckervn.activityservice.domain.exception.ResourceNotFoundException;
@@ -43,7 +40,7 @@ public class RatingService implements IRatingService {
 
     @Override
     public Rating save(RatingInput ratingInput) {
-        validateRecipientId(ratingInput.getUserId());
+        validateUserId(ratingInput.getUserId());
         validateMovieId(ratingInput.getMovieId());
 
         Rating rating = objectMapper.convertValue(ratingInput, Rating.class);
@@ -60,9 +57,11 @@ public class RatingService implements IRatingService {
     }
 
     @Override
-    public Rating update(Long ratingId, Integer point) {
+    public Rating update(Long ratingId, RatingInput ratingInput) {
         Rating rating = ratingRepository.findById(ratingId)
                 .orElseThrow(ResourceNotFoundException::new);
+
+        Integer point = ratingInput.getPoint();
 
         if (Objects.nonNull(point) && point >= 0 && point <= 10) {
             rating.setPoint(point);
@@ -87,7 +86,7 @@ public class RatingService implements IRatingService {
     }
 
     @SneakyThrows
-    private void validateRecipientId(String userId) {
+    private void validateUserId(String userId) {
         if (Objects.isNull(userId) || userClient.findUserById(userId).getCode() == 404) {
             throw new ResourceNotFoundException();
         }
@@ -120,5 +119,11 @@ public class RatingService implements IRatingService {
         eventProducer.publish(serviceConfig.getMovieTopic(), serviceConfig.getUpdateMovieRatingEvent(), data);
     }
 
+    @Override
+    public Rating findByUserIdAndMovieId(String userId, Long movieId) {
+        validateUserId(userId);
+        validateMovieId(movieId);
+        return ratingRepository.findByUserIdAndMovieId(userId, movieId).orElse(new Rating());
+    }
 }
 

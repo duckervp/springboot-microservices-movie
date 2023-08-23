@@ -44,7 +44,6 @@ public class RequestLogFilter extends GenericFilterBean {
         Map<String, String[]> parameters = request.getParameterMap();
         Map<String, Object> headers = headersToMap(Collections.list(request.getHeaderNames()), request::getHeader);
         String body = new String(request.getContentAsByteArray());
-        body = body.replaceAll("\\s+", "");
         log.info(Constants.REQUEST);
         log.info("ENDPOINT: {}", request.getMethod() + request.getRequestURI());
         log.info("PARAMETERS: {}", mapToString(parameters));
@@ -56,7 +55,6 @@ public class RequestLogFilter extends GenericFilterBean {
     private void logResponse(ContentCachingResponseWrapper response) throws IOException {
         Map<String, Object> headers = headersToMap(response.getHeaderNames(), response::getHeader);
         String body = new String(response.getContentAsByteArray());
-        body = body.replaceAll("\\s+", "");
         log.info(Constants.RESPONSE);
         log.info("HEADERS: {}", mapToString(headers));
         log.info("BODY: {}", body);

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,19 @@ public class HistoryService implements IHistoryService {
 
         List<Map<String, Object>> movies = objectMapper.convertValue(response.getResults(), TypeRef.LIST_MAP_STRING_OBJECT);
 
-        for (Map<String, Object> movie : movies) {
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        for (Long movieId : movieIds) {
+            for (Map<String, Object> movie : movies) {
+                Long movieId1 = ((Integer) movie.get("id")).longValue();
+                if (movieId.equals(movieId1)) {
+                    results.add(movie);
+                    break;
+                }
+            }
+        }
+
+        for (Map<String, Object> movie : results) {
             Long movieId = ((Integer) movie.get("id")).longValue();
             if (movieHistoryMap.containsKey(movieId)) {
                 List<Map<String, Object>> episodes = objectMapper.convertValue(movie.get("episodes"), TypeRef.LIST_MAP_STRING_OBJECT);
@@ -88,7 +101,7 @@ public class HistoryService implements IHistoryService {
             movie.remove("rating");
         }
 
-        return movies;
+        return results;
     }
 
     private void updateEpisodeView(History history) {

@@ -7,7 +7,9 @@ public interface  IRatingService {
 
     Rating save(RatingInput ratingInput);
 
-    Rating update(Long ratingId, Integer point);
+    Rating update(Long ratingId, RatingInput ratingInput);
 
     void delete(Long ratingId);
+
+    Rating findByUserIdAndMovieId(String userId, Long movieId);
 }
