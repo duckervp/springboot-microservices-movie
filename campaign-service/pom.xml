@@ -15,7 +15,7 @@
 	<description>campaign-service</description>
 	<properties>
 		<java.version>11</java.version>
-		<oauth2-authorization.version>0.3.1</oauth2-authorization.version>
+		<oauth2-authorization.version>1.1.2</oauth2-authorization.version>
 		<spring-cloud.version>2021.0.3</spring-cloud.version>
 		<json.version>1.1.1</json.version>
 	</properties>

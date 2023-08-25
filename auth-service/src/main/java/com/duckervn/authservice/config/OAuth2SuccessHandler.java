@@ -12,6 +12,7 @@ import com.duckervn.authservice.validation.validator.EmailValidator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -36,9 +37,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
 
+    private final OAuth2SocialProvider oauth2SocialProvider;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         OAuth2User user = (OAuth2User) authentication.getPrincipal();
+
         Map<String, Object> userInfo = user.getAttributes();
 
         String name = (String) userInfo.get("name");
@@ -55,35 +59,32 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         EmailValidator emailValidator = new EmailValidator();
         if (StringUtils.isNotBlank(email) && emailValidator.isValid(email, null)) {
-            String password = Utils.genSecret(email);
-            TokenOutput tokenOutput;
+            String tokenValue = "";
             Optional<User> userOptional = userRepository.findByEmail(email);
             if (userOptional.isPresent()) {
                 String uniqueId = userOptional.get().getId();
                 Optional<Client> clientOptional = clientRepository.findById(uniqueId);
                 if (clientOptional.isPresent()) {
-                    Client client = clientOptional.get();
-                    String oldClientSecret = client.getClientSecret();
-                    userService.updatePassword(client, password, true);
-                    tokenOutput = userService.login(client.getClientId(), password);
-                    userService.updatePassword(client, oldClientSecret, false);
-                } else {
-                    tokenOutput = new TokenOutput();
+
+                    OAuth2AccessToken accessToken = oauth2SocialProvider.authenticate(clientOptional.get());
+
+                    tokenValue = accessToken.getTokenValue();
                 }
             } else {
-                tokenOutput = userService.register(
+                String password = Utils.genSecret(email);
+                TokenOutput tokenOutput = userService.register(
                         RegisterInput.builder()
                                 .name(name)
                                 .email(email)
                                 .avatarUrl(imageUrl)
-                                .username(email)
                                 .password(password)
                                 .build());
+                tokenValue = tokenOutput.getAccess_token();
             }
 
             // Add query parameters
-            if (StringUtils.isNotBlank(tokenOutput.getAccess_token())) {
-                builder.queryParam("token", tokenOutput.getAccess_token());
+            if (StringUtils.isNotBlank(tokenValue)) {
+                builder.queryParam("token", tokenValue);
             }
         } else {
             // Add query parameters

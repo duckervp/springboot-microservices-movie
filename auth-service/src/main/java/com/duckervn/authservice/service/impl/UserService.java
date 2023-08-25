@@ -74,9 +74,6 @@ public class UserService implements IUserService {
      */
     @Override
     public TokenOutput register(RegisterInput registerInput) {
-        if (userRepository.existsById(registerInput.getUsername())) {
-            throw new IllegalArgumentException("Username is already taken: " + registerInput.getUsername());
-        }
         if (userRepository.existsByEmail(registerInput.getEmail())) {
             throw new IllegalArgumentException("Email is already exist: " + registerInput.getEmail());
         }
@@ -89,16 +86,17 @@ public class UserService implements IUserService {
         user.setLevel(0);
         user.setTitle("New Member");
         user.setCreatedAt(LocalDateTime.now());
+
         if (Objects.nonNull(registerInput.getBirthdate())) {
             user.setDob(convertStringToLocalDate(registerInput.getBirthdate()));
         }
 
         RegisteredClient registeredClient = RegisteredClient.withId(uniqueId)
-                .clientId(registerInput.getUsername())
+                .clientId(registerInput.getEmail())
                 .clientSecret(passwordEncoder.encode(registerInput.getPassword()))
                 .scope(Scope.USER.toString())
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                .clientName(Objects.nonNull(user.getName()) ? user.getName() : registerInput.getUsername())
+                .clientName(Objects.nonNull(user.getName()) ? user.getName() : registerInput.getEmail())
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .tokenSettings(tokenSettings)
                 .build();
@@ -107,7 +105,7 @@ public class UserService implements IUserService {
 
         userRepository.save(user);
 
-        return login(registerInput.getUsername(), registerInput.getPassword());
+        return login(registerInput.getEmail(), registerInput.getPassword());
     }
 
     /**
@@ -146,10 +144,6 @@ public class UserService implements IUserService {
 
         if (Objects.nonNull(input.getName())) {
             user.setName(input.getName());
-        }
-
-        if (Objects.nonNull(input.getEmail())) {
-            user.setEmail(input.getEmail());
         }
 
         if (Objects.nonNull(input.getGender())) {

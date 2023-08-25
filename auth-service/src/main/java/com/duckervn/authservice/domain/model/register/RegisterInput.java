@@ -22,16 +22,12 @@ import javax.validation.constraints.Size;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class  RegisterInput {
-    @NotBlank(message = "username must not be blank")
-    @Size(min = 3, max = 25, message = "username must be 3 - 25 character length")
-    private String username;
+    @ValidEmail(message = "email must be a valid email")
+    private String email;
 
     @NotBlank(message = "password must not be blank")
     @Size(min = 8, max = 25, message = "password must be 8 - 25 character length")
     private String password;
-
-    @ValidEmail(message = "email must be a valid email")
-    private String email;
 
     @NotBlankIfNotNull(message = "name must not be blank")
     @Size(min = 3, max = 25, message = "name must be 3 - 25 character length")

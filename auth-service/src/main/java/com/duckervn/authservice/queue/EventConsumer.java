@@ -30,7 +30,6 @@ public class EventConsumer {
 
     @SneakyThrows
     @KafkaListener(topics = "${topic.user}")
-    @SendTo
     public void consumeMessageFromQueue(String request) {
         log.info("Consume message: {}", request);
 
