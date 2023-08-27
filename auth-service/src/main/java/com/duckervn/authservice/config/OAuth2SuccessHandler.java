@@ -1,19 +1,17 @@
 package com.duckervn.authservice.config;
 
 import com.duckervn.authservice.common.Utils;
-import com.duckervn.authservice.domain.entity.Client;
-import com.duckervn.authservice.domain.entity.User;
 import com.duckervn.authservice.domain.model.gettoken.TokenOutput;
 import com.duckervn.authservice.domain.model.register.RegisterInput;
-import com.duckervn.authservice.repository.ClientRepository;
-import com.duckervn.authservice.repository.UserRepository;
-import com.duckervn.authservice.service.IUserService;
+import com.duckervn.authservice.service.IAuthService;
+import com.duckervn.authservice.service.JpaRegisteredClientRepository;
 import com.duckervn.authservice.validation.validator.EmailValidator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -24,20 +22,18 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-    private final ClientRepository clientRepository;
 
     private final ServiceConfig serviceConfig;
 
-    private final IUserService userService;
+    private final IAuthService authService;
 
-    private final UserRepository userRepository;
+    private final CustomOAuth2AccessTokenProvider customOAuth2AccessTokenProvider;
 
-    private final OAuth2SocialProvider oauth2SocialProvider;
+    private final JpaRegisteredClientRepository jpaRegisteredClientRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -59,20 +55,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         EmailValidator emailValidator = new EmailValidator();
         if (StringUtils.isNotBlank(email) && emailValidator.isValid(email, null)) {
-            String tokenValue = "";
-            Optional<User> userOptional = userRepository.findByEmail(email);
-            if (userOptional.isPresent()) {
-                String uniqueId = userOptional.get().getId();
-                Optional<Client> clientOptional = clientRepository.findById(uniqueId);
-                if (clientOptional.isPresent()) {
-
-                    OAuth2AccessToken accessToken = oauth2SocialProvider.authenticate(clientOptional.get());
-
-                    tokenValue = accessToken.getTokenValue();
-                }
+            String tokenValue;
+            RegisteredClient registeredClient = jpaRegisteredClientRepository.findByClientId(email);
+            if (Objects.nonNull(registeredClient)) {
+                OAuth2AccessToken accessToken = customOAuth2AccessTokenProvider.authenticate(registeredClient);
+                tokenValue = accessToken.getTokenValue();
             } else {
                 String password = Utils.genSecret(email);
-                TokenOutput tokenOutput = userService.register(
+                TokenOutput tokenOutput = authService.register(
                         RegisterInput.builder()
                                 .name(name)
                                 .email(email)

@@ -3,10 +3,10 @@ package com.duckervn.authservice.common;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Utils {
     public static Map<String, Object> genResetPasswordToken(String input, long validityInMinute) {
@@ -28,5 +28,11 @@ public class Utils {
     public static String genSecret(String input) {
         String salt = DigestUtils.md5Hex("tH!s1sS@1t").toUpperCase();
         return DigestUtils.md5Hex(input + salt).toUpperCase();
+    }
+
+    public static LocalDate convertStringToLocalDate(String localDateString) {
+        List<Integer> dobs = Arrays.stream(localDateString.split("[/-:]"))
+                .map(Integer::parseInt).collect(Collectors.toList());
+        return LocalDate.of(dobs.get(2), dobs.get(1), dobs.get(0));
     }
 }

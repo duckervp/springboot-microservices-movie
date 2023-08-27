@@ -1,7 +1,5 @@
 package com.duckervn.authservice.config;
 
-import com.duckervn.authservice.domain.entity.Client;
-import com.duckervn.authservice.service.JpaRegisteredClientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.oauth2.core.*;
@@ -21,22 +19,17 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class OAuth2SocialProvider {
+public class CustomOAuth2AccessTokenProvider {
     private static final String ERROR_URI = "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";
 
     private final OAuth2AuthorizationService authorizationService;
-
-    private final JpaRegisteredClientRepository jpaRegisteredClientRepository;
 
     private final ProviderSettings providerSettings;
 
     private final JwtEncoder jwtEncoder;
 
     @SneakyThrows
-    public OAuth2AccessToken authenticate(Client client) {
-
-        RegisteredClient registeredClient = jpaRegisteredClientRepository.findByClientId(client.getClientId());
-
+    public OAuth2AccessToken authenticate(RegisteredClient registeredClient) {
         assert registeredClient != null;
         OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient, ClientAuthenticationMethod.CLIENT_SECRET_POST, null);
 

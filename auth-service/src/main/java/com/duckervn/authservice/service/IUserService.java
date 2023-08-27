@@ -13,23 +13,11 @@ import java.util.List;
 
 public interface IUserService {
 
-    TokenOutput register(RegisterInput registerInput);
-
     User findById(String id);
 
     User updateUser(String userId, UpdateUserInput input);
 
     void deleteUser(String userId);
-
-    TokenOutput login(String clientId, String clientSecret);
-
-    void updatePassword(Client client, String newPassword, boolean encode);
-
-    void changePassword(ChangePasswordInput changePasswordInput);
-
-    void requestResetPassword(String email);
-
-    void resetPassword(String token, ResetPasswordInput resetPasswordInput);
 
     List<User> findAll();
 }
