@@ -10,9 +10,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
 import org.springframework.security.oauth2.server.authorization.context.ProviderContext;
-import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext;
-import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
+import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -27,6 +25,8 @@ public class CustomOAuth2AccessTokenProvider {
     private final ProviderSettings providerSettings;
 
     private final JwtEncoder jwtEncoder;
+
+    private final OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer;
 
     @SneakyThrows
     public OAuth2AccessToken authenticate(RegisteredClient registeredClient) {
@@ -51,6 +51,7 @@ public class CustomOAuth2AccessTokenProvider {
         // @formatter:on
 
         JwtGenerator tokenGenerator = new JwtGenerator(jwtEncoder);
+        tokenGenerator.setJwtCustomizer(jwtCustomizer);
 
         OAuth2Token generatedAccessToken = tokenGenerator.generate(tokenContext);
         if (generatedAccessToken == null) {
