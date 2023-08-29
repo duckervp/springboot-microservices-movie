@@ -68,6 +68,11 @@ public class AuthService implements IAuthService {
     private final CustomOAuth2AccessTokenProvider customOAuth2AccessTokenProvider;
 
     @Override
+    public void logout(String refreshToken) {
+        customOAuth2RefreshTokenProvider.remove(refreshToken);
+    }
+
+    @Override
     public TokenOutput refresh(String refreshToken) {
         OAuth2AccessToken newAccessToken = customOAuth2RefreshTokenProvider.refresh(refreshToken, jpaRegisteredClientRepository, customOAuth2AccessTokenProvider);
 

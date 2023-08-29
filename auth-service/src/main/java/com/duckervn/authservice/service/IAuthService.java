@@ -13,6 +13,8 @@ public interface IAuthService {
 
     TokenOutput refresh(String refreshToken);
 
+    void logout(String refreshToken);
+
     void updatePassword(Client client, String newPassword, boolean encode);
 
     void changePassword(ChangePasswordInput changePasswordInput);

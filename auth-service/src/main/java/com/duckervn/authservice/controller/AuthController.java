@@ -1,10 +1,12 @@
 package com.duckervn.authservice.controller;
 
 import com.duckervn.authservice.common.Constants;
+import com.duckervn.authservice.common.Credential;
 import com.duckervn.authservice.common.RespMessage;
 import com.duckervn.authservice.common.Response;
 import com.duckervn.authservice.domain.model.changepassword.ChangePasswordInput;
 import com.duckervn.authservice.domain.model.gettoken.TokenOutput;
+import com.duckervn.authservice.domain.model.login.CredentialInput;
 import com.duckervn.authservice.domain.model.register.RegisterInput;
 import com.duckervn.authservice.domain.model.resetpassword.ResetPasswordInput;
 import com.duckervn.authservice.service.IAuthService;
@@ -31,8 +33,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String clientId, @RequestParam String clientSecret) {
-        TokenOutput tokenOutput = authService.login(clientId, clientSecret);
+    public ResponseEntity<?> login(@RequestBody CredentialInput credential) {
+        TokenOutput tokenOutput = authService.login(credential.getClientId(), credential.getClientSecret());
         return responseWithCookie(tokenOutput);
     }
 
@@ -63,16 +65,26 @@ public class AuthController {
         return ResponseEntity.ok(tokenOutput);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@CookieValue(name = Constants.REFRESH_TOKEN_COOKIE) String refreshToken) {
+        authService.logout(refreshToken);
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(Constants.REFRESH_TOKEN_COOKIE, "")
+                .httpOnly(true)
+                .secure(true)
+//                .maxAge(0)
+                .build();
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.LOGGED_OUT).build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).body(response);
+    }
+
     private ResponseEntity<?> responseWithCookie(TokenOutput tokenOutput) {
-        ResponseCookie refreshToken = ResponseCookie.from(Constants.REFRESH_TOKEN_COOKIE, tokenOutput.getRefresh_token())
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(Constants.REFRESH_TOKEN_COOKIE, tokenOutput.getRefresh_token())
                 .httpOnly(true)
                 .secure(true)
                 .maxAge(86400)
-//                .path("/")
-//                .domain("example.com")
                 .build();
 
         tokenOutput.setRefresh_token(null);
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshToken.toString()).body(tokenOutput);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).body(tokenOutput);
     }
 }

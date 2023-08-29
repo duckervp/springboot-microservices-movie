@@ -4,6 +4,7 @@ import com.duckervn.authservice.common.RespMessage;
 import com.duckervn.authservice.common.Response;
 import com.duckervn.authservice.domain.exception.InvalidTokenException;
 import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,24 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class ControllerExceptionHandler {
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<?> handleException(FeignException e) {
+        log.info("Error: ", e);
+        if (e.status() == 401) {
+            Response response =  Response.builder()
+                    .code(HttpStatus.UNAUTHORIZED.value())
+                    .message("Invalid credentials")
+                    .build();
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+        Response response =  Response.builder()
+                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message(e.getMessage())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(InvalidTokenException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleException(InvalidTokenException e) {

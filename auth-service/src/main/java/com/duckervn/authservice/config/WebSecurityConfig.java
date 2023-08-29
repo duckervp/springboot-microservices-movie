@@ -24,6 +24,7 @@ public class WebSecurityConfig {
                 .antMatchers("/users/auth/reset-password-request").permitAll()
                 .antMatchers("/users/auth/reset-password").permitAll()
                 .antMatchers("/users/auth/refresh").permitAll()
+                .antMatchers("/users/auth/logout").permitAll()
                 .antMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

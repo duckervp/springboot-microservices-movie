@@ -98,8 +98,8 @@ public class AuthorizationServerConfig {
     @Bean
     public TokenSettings tokenSettings() {
         return TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofHours(2L))
-                .refreshTokenTimeToLive(Duration.ofHours(24L))
+                .accessTokenTimeToLive(Duration.ofSeconds(30))
+                .refreshTokenTimeToLive(Duration.ofSeconds(60))
                 .build();
     }
 }

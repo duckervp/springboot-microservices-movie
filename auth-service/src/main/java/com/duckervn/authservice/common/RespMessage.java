@@ -7,6 +7,8 @@ public class RespMessage {
 
     // User
 
+    public static final String LOGGED_OUT = "User logged out successfully!";
+
     public static final String FOUND_USER = "Found User successfully!";
 
     public static final String FOUND_USERS = "Found Users successfully!";
