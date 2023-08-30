@@ -1,5 +1,6 @@
 package com.duckervn.authservice.config;
 
+import com.duckervn.authservice.domain.exception.InvalidTokenException;
 import com.duckervn.authservice.service.JpaRegisteredClientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -77,7 +78,7 @@ public class CustomOAuth2RefreshTokenProvider {
         OAuth2Authorization authorization = this.authorizationService.findByToken(refreshToken, OAuth2TokenType.REFRESH_TOKEN);
 
         if (authorization == null) {
-            throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_TOKEN);
+            throw new InvalidTokenException("Invalid refresh token.");
         }
 
         OAuth2Authorization.Token<OAuth2RefreshToken> refreshToken1 = authorization.getRefreshToken();
@@ -85,7 +86,7 @@ public class CustomOAuth2RefreshTokenProvider {
             // As per https://tools.ietf.org/html/rfc6749#section-5.2
             // invalid_grant: The provided authorization grant (e.g., authorization code,
             // resource owner credentials) or refresh token is invalid, expired, revoked [...].
-            throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
+            throw new InvalidTokenException("Invalid refresh token.");
         }
 
         String registeredClientId = authorization.getRegisteredClientId();

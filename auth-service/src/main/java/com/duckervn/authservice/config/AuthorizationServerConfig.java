@@ -99,7 +99,7 @@ public class AuthorizationServerConfig {
     public TokenSettings tokenSettings() {
         return TokenSettings.builder()
                 .accessTokenTimeToLive(Duration.ofSeconds(30))
-                .refreshTokenTimeToLive(Duration.ofSeconds(60))
+                .refreshTokenTimeToLive(Duration.ofMinutes(2))
                 .build();
     }
 }

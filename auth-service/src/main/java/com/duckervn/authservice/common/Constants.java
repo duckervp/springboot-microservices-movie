@@ -17,6 +17,6 @@ public class Constants {
 
     public static final String EVENT_ATTR = "event";
 
-    public static final String REFRESH_TOKEN_COOKIE = "__refresh_token";
+    public static final String REFRESH_TOKEN_COOKIE = "refresh_token";
 
 }

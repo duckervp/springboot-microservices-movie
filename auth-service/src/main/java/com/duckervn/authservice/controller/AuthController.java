@@ -59,18 +59,20 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/refresh")
+    @GetMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue(name = Constants.REFRESH_TOKEN_COOKIE) String refreshToken) {
         TokenOutput tokenOutput = authService.refresh(refreshToken);
         return ResponseEntity.ok(tokenOutput);
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     public ResponseEntity<?> logout(@CookieValue(name = Constants.REFRESH_TOKEN_COOKIE) String refreshToken) {
         authService.logout(refreshToken);
         ResponseCookie refreshTokenCookie = ResponseCookie.from(Constants.REFRESH_TOKEN_COOKIE, "")
                 .httpOnly(true)
                 .secure(true)
+                .path("/")
+                .sameSite("None")
 //                .maxAge(0)
                 .build();
         Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.LOGGED_OUT).build();
@@ -82,6 +84,8 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .maxAge(86400)
+                .path("/")
+                .sameSite("None")
                 .build();
 
         tokenOutput.setRefresh_token(null);

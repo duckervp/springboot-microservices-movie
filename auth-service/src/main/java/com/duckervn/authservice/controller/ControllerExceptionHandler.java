@@ -8,6 +8,7 @@ import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -83,7 +84,18 @@ public class ControllerExceptionHandler {
         log.info("Error: ", e);
         Response response =  Response.builder()
                 .code(HttpStatus.UNAUTHORIZED.value())
-                .message("Invalid request")
+                .message("Invalid request.")
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InsufficientAuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<?> handleException(InsufficientAuthenticationException e) {
+        log.info("Error: ", e);
+        Response response =  Response.builder()
+                .code(HttpStatus.UNAUTHORIZED.value())
+                .message("Unauthorized request.")
                 .build();
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }

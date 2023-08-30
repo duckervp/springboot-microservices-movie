@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 public class UpdateUserInput {
 
     @Column(unique = true)
-    @ValidEmail(message = "email must be a valid email")
+//    @ValidEmail(message = "email must be a valid email")
     private String email;
 
     @NotBlankIfNotNull(message = "name must not be blank")

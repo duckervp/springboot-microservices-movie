@@ -10,6 +10,9 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,7 +24,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException ex) {
         String pathServer = request.getServletPath();
-        log.info("Token: {}", request.getHeaders(HttpHeaders.AUTHORIZATION));
+        Enumeration<String> authorizationHeaders = request.getHeaders(HttpHeaders.AUTHORIZATION);
+        List<String> authorizationHeaderValues = Collections.list(authorizationHeaders);
+
+        for (String authorizationHeaderValue : authorizationHeaderValues) {
+            log.info("Token: {}", authorizationHeaderValue);
+        }
         log.info("FORWARD dispatch for {} URL : {}", request.getMethod(), pathServer);
         handlerExceptionResolver.resolveException(request, response, null, ex);
     }
