@@ -1,5 +1,6 @@
 package com.duckervn.authservice.config;
 
+import com.duckervn.authservice.common.Constants;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -98,8 +99,8 @@ public class AuthorizationServerConfig {
     @Bean
     public TokenSettings tokenSettings() {
         return TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofSeconds(30))
-                .refreshTokenTimeToLive(Duration.ofMinutes(2))
+                .accessTokenTimeToLive(Duration.ofSeconds(Constants.ACCESS_TOKEN_EXPIRE_IN_SECONDS))
+                .refreshTokenTimeToLive(Duration.ofSeconds(Constants.REFRESH_TOKEN_EXPIRE_IN_SECONDS))
                 .build();
     }
 }

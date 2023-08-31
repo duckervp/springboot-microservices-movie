@@ -2,6 +2,7 @@ package com.duckervn.authservice.controller;
 
 import com.duckervn.authservice.common.RespMessage;
 import com.duckervn.authservice.common.Response;
+import com.duckervn.authservice.domain.exception.AccessDeniedException;
 import com.duckervn.authservice.domain.exception.InvalidTokenException;
 import com.duckervn.authservice.domain.exception.ResourceNotFoundException;
 import feign.FeignException;
@@ -109,6 +110,17 @@ public class ControllerExceptionHandler {
                 .message(RespMessage.RESOURCE_NOT_FOUND)
                 .build();
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<?> handleException(AccessDeniedException e) {
+        log.info("Error: ", e);
+        Response response =  Response.builder()
+                .code(HttpStatus.FORBIDDEN.value())
+                .message(RespMessage.ACCESS_DENIED)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

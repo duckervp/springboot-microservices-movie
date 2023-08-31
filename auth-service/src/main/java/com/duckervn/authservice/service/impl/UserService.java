@@ -81,7 +81,7 @@ public class UserService implements IUserService {
     @Override
     public void deleteUser(String userId) {
         User user = findById(userId);
-        clientRepository.deleteByClientId(user.getId());
+        clientRepository.deleteById(user.getId());
         userRepository.delete(user);
     }
 

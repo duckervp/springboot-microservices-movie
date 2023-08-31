@@ -43,6 +43,8 @@ public class User {
 
     private LocalDate dob;
 
+    private String role;
+
     @Column(columnDefinition = "integer default 1")
     private Integer status;
 

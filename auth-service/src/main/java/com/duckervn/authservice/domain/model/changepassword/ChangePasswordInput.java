@@ -8,7 +8,6 @@ import javax.validation.constraints.Size;
 
 @Data
 public class ChangePasswordInput {
-    @ValidEmail(message = "email must be a valid email")
     private String email;
 
     private String oldPassword;

@@ -62,7 +62,7 @@ public class MessageService implements IMessageService {
         Map<String, Object> user = objectMapper.convertValue(response.getResult(), TypeRef.MAP_STRING_OBJECT) ;
         Map<String, Object> mapping = new HashMap<>(user);
         if (Objects.nonNull(campaignRecipient.getFixedParams())) {
-            Map<String, Object> fixedParams = objectMapper.convertValue(campaignRecipient.getFixedParams(), TypeRef.MAP_STRING_OBJECT);
+            Map<String, Object> fixedParams = objectMapper.readValue(campaignRecipient.getFixedParams(), TypeRef.MAP_STRING_OBJECT);
             mapping.putAll(fixedParams);
         }
         return mapping;

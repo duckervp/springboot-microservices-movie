@@ -1,7 +1,9 @@
 package com.duckervn.authservice.common;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.http.ResponseCookie;
 
+import javax.servlet.http.Cookie;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -1,7 +1,6 @@
 package com.duckervn.authservice.controller;
 
 import com.duckervn.authservice.common.Constants;
-import com.duckervn.authservice.common.Credential;
 import com.duckervn.authservice.common.RespMessage;
 import com.duckervn.authservice.common.Response;
 import com.duckervn.authservice.domain.model.changepassword.ChangePasswordInput;

@@ -5,6 +5,8 @@ public class RespMessage {
 
     public static final String RESOURCE_NOT_FOUND = "Resource not found!";
 
+    public static final String ACCESS_DENIED = "Access denied!";
+
     // User
 
     public static final String LOGGED_OUT = "User logged out successfully!";

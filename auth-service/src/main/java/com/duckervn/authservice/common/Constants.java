@@ -19,4 +19,8 @@ public class Constants {
 
     public static final String REFRESH_TOKEN_COOKIE = "refresh_token";
 
+    public static final long REFRESH_TOKEN_EXPIRE_IN_SECONDS = 86400;
+
+    public static final long ACCESS_TOKEN_EXPIRE_IN_SECONDS = 7200;
+
 }

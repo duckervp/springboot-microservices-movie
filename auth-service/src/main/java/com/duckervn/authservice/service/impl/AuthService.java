@@ -114,9 +114,11 @@ public class AuthService implements IAuthService {
 
         User user = objectMapper.convertValue(registerInput, User.class);
         user.setId(uniqueId);
+        user.setStatus(1);
         user.setExp(0L);
         user.setLevel(0);
-        user.setTitle("New Member");
+        user.setTitle("Member");
+        user.setRole(Scope.USER.toString());
         user.setCreatedAt(LocalDateTime.now());
 
         if (Objects.nonNull(registerInput.getBirthdate())) {

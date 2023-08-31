@@ -1,5 +1,6 @@
 package com.duckervn.authservice.config;
 
+import com.duckervn.authservice.common.Constants;
 import com.duckervn.authservice.common.Utils;
 import com.duckervn.authservice.domain.model.gettoken.TokenOutput;
 import com.duckervn.authservice.domain.model.register.RegisterInput;
@@ -10,12 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -32,6 +35,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final IAuthService authService;
 
     private final CustomOAuth2AccessTokenProvider customOAuth2AccessTokenProvider;
+
+    private final CustomOAuth2RefreshTokenProvider customOAuth2RefreshTokenProvider;
 
     private final JpaRegisteredClientRepository jpaRegisteredClientRepository;
 
@@ -75,6 +80,16 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             // Add query parameters
             if (StringUtils.isNotBlank(tokenValue)) {
                 builder.queryParam("token", tokenValue);
+
+                OAuth2RefreshToken generatedRefreshToken = customOAuth2RefreshTokenProvider.authenticate(registeredClient);
+
+                Cookie refreshTokenCookie = new Cookie(Constants.REFRESH_TOKEN_COOKIE, generatedRefreshToken.getTokenValue());
+
+                refreshTokenCookie.setMaxAge(Long.valueOf(Constants.REFRESH_TOKEN_EXPIRE_IN_SECONDS).intValue());
+                refreshTokenCookie.setSecure(true);
+                refreshTokenCookie.setHttpOnly(true);
+                refreshTokenCookie.setPath("/");
+                response.addCookie(refreshTokenCookie);
             }
         } else {
             // Add query parameters
