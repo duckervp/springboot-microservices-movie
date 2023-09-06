@@ -23,6 +23,12 @@ frontend:
 
 server:
   port: ${SERVER_PORT}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: true
+        same-site: strict
 
 spring:
   application:
