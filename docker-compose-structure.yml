@@ -225,12 +225,7 @@ services:
     image: duckervn/msult-gateway-service
     environment:
       DISCOVERY_SERVICE_URL: http://discovery-service:8761/eureka/
-      AUTH_SERVICE_URL: http://auth-service:8909
-      MOVIE_SERVICE_URL: http://movie-service:8910
-      STREAM_SERVICE_URL: http://stream-service:8911
-      CRON_SERVICE_URL: http://cron-service:8912
-      CAMPAIGN_SERVICE_URL: http://campaign-service:8913
-      ACTIVITY_SERVICE_URL: http://activity-service:8914
+      FRONTEND_GATEWAY: http://localhost:3000
       SERVER_PORT: 8762
       LOKI_URL: http://host.docker.internal:3100
     ports:

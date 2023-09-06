@@ -33,6 +33,9 @@ public class RequestLogFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
+        if (requestWrapper.getRequestURI().contains("/actuator")) {
+            return;
+        }
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper((HttpServletResponse) response);
         chain.doFilter(requestWrapper, responseWrapper);
         logRequest(requestWrapper);

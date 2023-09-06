@@ -5,39 +5,43 @@ spring:
   application:
     name: gateway-service
   cloud:
+    loadbalancer:
+      configurations: health-check
     gateway:
+      httpclient:
+        wiretap: true
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: http://localhost:3000
+            allowedOrigins: ${FRONTEND_GATEWAY}
             allowedHeaders: "*"
             allowedMethods: "*"
             allowCredentials: true
       routes:
         - id: auth-service
-          uri: ${AUTH_SERVICE_URL}
+          uri: lb://auth-service
           predicates:
             - Path=/oauth2/**, /users/**, /login/**
         - id: movie-service
-          uri: ${MOVIE_SERVICE_URL}
+          uri: lb://movie-service
           predicates:
             - Path=/movies/**, /genres/**, /characters/**, /episodes/**, /producers/**
         - id: stream-service
-          uri: ${STREAM_SERVICE_URL}
+          uri: lb://stream-service
           predicates:
-            - Path=/files/**
+            - Path=/files/**, /cleaner/**
         - id: cron-service
-          uri: ${CRON_SERVICE_URL}
+          uri: lb://cron-service
           predicates:
             - Path=/schedules/**
         - id: campaign-service
-          uri: ${CAMPAIGN_SERVICE_URL}
+          uri: lb://campaign-service
           predicates:
             - Path=/campaigns/**, /providers/**
         - id: activity-service
-          uri: ${ACTIVITY_SERVICE_URL}
+          uri: lb://activity-service
           predicates:
             - Path=/activities/**
 
@@ -56,9 +60,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus
+        include: prometheus,health
 
 eureka:
   client:
+    webclient:
+      enabled: true
     serviceUrl:
       defaultZone: ${DISCOVERY_SERVICE_URL}
+    fetch-registry: true
+    register-with-eureka: false
+  instance:
+    prefer-ip-address: true
