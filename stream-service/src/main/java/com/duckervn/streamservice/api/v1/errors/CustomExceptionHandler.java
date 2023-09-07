@@ -1,8 +1,8 @@
 package com.duckervn.streamservice.api.v1.errors;
 
 import com.duckervn.streamservice.common.Response;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -10,69 +10,47 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.handler.WebFluxResponseStatusExceptionHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.channels.ClosedChannelException;
-import java.text.SimpleDateFormat;
 
 @Configuration
 @Order(-2)
+@Slf4j
 public class CustomExceptionHandler extends org.springframework.web.reactive.handler.WebFluxResponseStatusExceptionHandler {
 
-    private static final Log logger = LogFactory.getLog(CustomExceptionHandler.class);
-    final SimpleDateFormat simpleDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-
     public CustomExceptionHandler() {
-        logger.info("Initialising custom exception handler");
+        log.info("Initialising custom exception handler");
     }
 
     @Override
-    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+    @NonNull
+    public Mono<Void> handle(@NonNull ServerWebExchange exchange, Throwable ex) {
         if (ex.getCause() instanceof ClosedChannelException) {
-            logger.info("CLOSED CHANNEL ERROR OBSERVED");
+            log.info("CLOSED CHANNEL ERROR OBSERVED");
             // ignore after log
             return Mono.empty();
         }
 
         ServerHttpResponse response = exchange.getResponse();
-        ServerHttpRequest request = exchange.getRequest();
 
         HttpHeaders responseHeaders = response.getHeaders();
 
-        HttpStatus status = super.determineStatus(ex);
+        int status = super.determineRawStatusCode(ex);
 
         Response error = Response.builder()
-                .code(status != null ? status.value() : 0)
+                .code(status)
                 .message(ex.getMessage())
                 .build();
 
-        if (status != null) {
-            if (status == HttpStatus.NOT_FOUND) {
-                logger.warn(buildResponse(exchange, ex));
-            } else if (status == HttpStatus.BAD_REQUEST) {
-                logger.warn(buildResponse(exchange, ex)); // bad routes are warn level
-            } else if (status == HttpStatus.INTERNAL_SERVER_ERROR) {
-                logger.error(buildResponse(exchange, ex), ex); // internal server errors are debug level
-            }
-        } else {
-            // TODO(Refactor)
-            if (ex instanceof NumberFormatException) {
-                response.setStatusCode(HttpStatus.BAD_REQUEST);
-                error.setMessage("The value passed is not an integer");
-                error.setCode(HttpStatus.BAD_REQUEST.value());
-
-                MultiValueMap<String, String> queryParams = request.getQueryParams();
-
-                if (!queryParams.isEmpty() && queryParams.containsKey("partial")) {
-                    error.setMessage("param " + queryParams.getFirst("partial") + " is not an integer. " +
-                            "please provide a number between 1 and 5");
-                }
-            }
+        if (status == HttpStatus.NOT_FOUND.value()) {
+            log.warn(buildResponse(exchange, ex));
+        } else if (status == HttpStatus.BAD_REQUEST.value()) {
+            log.warn(buildResponse(exchange, ex)); // bad routes are warn level
+        } else if (status == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+            log.error(buildResponse(exchange, ex), ex); // internal server errors are debug level
         }
 
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);

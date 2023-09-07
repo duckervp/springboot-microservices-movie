@@ -8,7 +8,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableEurekaClient
-@EnableDiscoveryClient
 @EnableScheduling
 public class CronServiceApplication {
 

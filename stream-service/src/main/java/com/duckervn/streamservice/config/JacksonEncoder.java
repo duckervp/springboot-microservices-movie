@@ -31,7 +31,7 @@ public class JacksonEncoder implements Encoder {
     private final ObjectMapper mapper;
 
     public JacksonEncoder() {
-        this(Collections.<Module>emptyList());
+        this(Collections.emptyList());
     }
 
     public JacksonEncoder(Iterable<Module> modules) {

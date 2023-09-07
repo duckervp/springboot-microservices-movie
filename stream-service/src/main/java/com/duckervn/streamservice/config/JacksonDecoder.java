@@ -33,7 +33,7 @@ public class JacksonDecoder implements Decoder {
     private final ObjectMapper mapper;
 
     public JacksonDecoder() {
-        this(Collections.<Module>emptyList());
+        this(Collections.emptyList());
     }
 
     public JacksonDecoder(Iterable<Module> modules) {
@@ -65,7 +65,7 @@ public class JacksonDecoder implements Decoder {
             return mapper.readValue(reader, mapper.constructType(type));
         } catch (RuntimeJsonMappingException e) {
             if (e.getCause() != null && e.getCause() instanceof IOException) {
-                throw IOException.class.cast(e.getCause());
+                throw (IOException) e.getCause();
             }
             throw e;
         }
