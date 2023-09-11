@@ -28,7 +28,7 @@ server:
       cookie:
         http-only: true
         secure: true
-        same-site: strict
+        same-site: lax
 
 spring:
   application:
