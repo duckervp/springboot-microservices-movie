@@ -38,6 +38,7 @@ public class GenreService implements IGenreService {
      * @return Response
      */
     @Override
+    @CacheEvict(value = "genre", allEntries = true)
     public Genre save(GenreInput genreInput) {
         Genre genre = objectMapper.convertValue(genreInput, Genre.class);
 
