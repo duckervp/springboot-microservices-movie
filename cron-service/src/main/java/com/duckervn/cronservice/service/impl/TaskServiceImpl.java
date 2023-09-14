@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +33,15 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Task findById(String taskId) {
+        return taskRepository.findById(taskId).orElseThrow(ResourceNotFoundException::new);
+    }
+
+    @Override
     public Task add(Task task) {
         String newTaskId = UUID.randomUUID().toString();
 
-        log.info("Adding Task[id={}, cron expression={}, url={}, method={}]", newTaskId, task.getCronExpression(), task.getUrl(), task.getMethod());
+        log.info("Adding Task[id={}, name={}, cron expression={}, url={}, method={}]", newTaskId, task.getName(), task.getCronExpression(), task.getUrl(), task.getMethod());
 
         if (!CronExpression.isValidExpression(task.getCronExpression())) {
             throw new InvalidCronExpression("Invalid cron expression!");
@@ -70,9 +76,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public void delete(List<String> taskIds) {
+        log.info("Deleting Tasks[ids={}]", String.join(", ", taskIds));
+        taskRepository.deleteAllById(taskIds);
+    }
+
+    @Override
     public Task edit(String taskId, Task task) {
         log.info("Updating Task[id={}]", taskId);
         Task task1 = taskRepository.findById(taskId).orElseThrow(ResourceNotFoundException::new);
+
+        if (StringUtils.isNotBlank(task.getName())) {
+            task1.setName(task.getName());
+        }
 
         if (Objects.nonNull(task.getCronExpression())) {
             if (!CronExpression.isValidExpression(task.getCronExpression())) {

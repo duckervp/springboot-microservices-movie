@@ -16,4 +16,6 @@ public interface IProviderService {
     Provider update(Long providerId, ProviderInput providerInput);
 
     void delete(Long providerId);
+
+    void delete(List<Long> providerIds);
 }

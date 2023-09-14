@@ -19,6 +19,8 @@ public class RespMessage {
 
     public static final String DELETED_CAMPAIGN = "Deleted Campaign successfully!";
 
+    public static final String DELETED_CAMPAIGNS = "Deleted Campaigns successfully!";
+
     public static final String INVALID_CAMPAIGN_STATUS =  "Invalid campaign status!";
 
     public static final String INVALID_CAMPAIGN_TYPE =  "Invalid campaign type!";
@@ -50,5 +52,7 @@ public class RespMessage {
     public static final String UPDATED_PROVIDER = "Updated Provider successfully!";
 
     public static final String DELETED_PROVIDER = "Deleted Provider successfully!";
+
+    public static final String DELETED_PROVIDERS = "Deleted Providers successfully!";
 
 }

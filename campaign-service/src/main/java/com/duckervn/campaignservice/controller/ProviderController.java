@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,6 +59,14 @@ public class ProviderController {
     public ResponseEntity<?> deleteProvider(@PathVariable Long providerId) {
         providerService.delete(providerId);
         Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_PROVIDER).build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @DeleteMapping
+    public ResponseEntity<?> deleteProviders(@RequestParam List<Long> providerIds) {
+        providerService.delete(providerIds);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_PROVIDERS).build();
         return ResponseEntity.ok(response);
     }
 

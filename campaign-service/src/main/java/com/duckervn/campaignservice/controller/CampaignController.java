@@ -3,6 +3,7 @@ package com.duckervn.campaignservice.controller;
 import com.duckervn.campaignservice.common.RespMessage;
 import com.duckervn.campaignservice.common.Response;
 import com.duckervn.campaignservice.domain.model.addcampaign.CampaignInput;
+import com.duckervn.campaignservice.domain.model.page.PageOutput;
 import com.duckervn.campaignservice.service.ICampaignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,10 +22,14 @@ public class CampaignController {
 
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
-    public ResponseEntity<?> findAll() {
-        Response response = Response.builder().code(HttpStatus.OK.value())
-                .message(RespMessage.FOUND_CAMPAIGNS)
-                .results(campaignService.findAll()).build();
+    public ResponseEntity<?> findAll(@RequestParam(required = false, defaultValue = "1") Integer pageNo,
+                                     @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+        PageOutput<?> pageOutput = campaignService.findAllCampaignOutput(pageNo, pageSize);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.FOUND_CAMPAIGNS)
+                .results(pageOutput.getContent())
+                .pageSize(pageOutput.getPageSize())
+                .totalElements(pageOutput.getTotalElements())
+                .pageNo(pageOutput.getPageNo()).build();
         return ResponseEntity.ok(response);
     }
 
@@ -63,4 +69,11 @@ public class CampaignController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @DeleteMapping
+    public ResponseEntity<?> deleteCampaigns(@RequestParam List<Long> campaignIds) {
+        campaignService.delete(campaignIds);
+        Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.DELETED_CAMPAIGNS).build();
+        return ResponseEntity.ok(response);
+    }
 }

@@ -64,6 +64,13 @@ public class TaskSchedulingService {
         taskService.delete(taskId);
     }
 
+    public void removeScheduledTasks(List<String> taskIds) {
+        for (String taskId : taskIds) {
+            stopScheduledTask(taskId);
+        }
+        taskService.delete(taskIds);
+    }
+
     private void stopScheduledTask(String taskId) {
         log.info("Stopping Task[id={}]", taskId);
         ScheduledFuture<?> scheduledTask = jobsMap.get(taskId);

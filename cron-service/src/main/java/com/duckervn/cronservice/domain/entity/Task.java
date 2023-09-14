@@ -15,6 +15,8 @@ public class Task {
     @Id
     private String id;
 
+    private String name;
+
     private String cronExpression;
 
     private String method;

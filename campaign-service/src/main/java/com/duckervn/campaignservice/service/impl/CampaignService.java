@@ -5,17 +5,26 @@ import com.duckervn.campaignservice.common.RespMessage;
 import com.duckervn.campaignservice.domain.entity.Campaign;
 import com.duckervn.campaignservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.campaignservice.domain.model.addcampaign.CampaignInput;
+import com.duckervn.campaignservice.domain.model.getcampaign.CampaignOutput;
+import com.duckervn.campaignservice.domain.model.getcampaign.ProviderOutput;
+import com.duckervn.campaignservice.domain.model.page.PageOutput;
 import com.duckervn.campaignservice.repository.CampaignRepository;
 import com.duckervn.campaignservice.repository.ProviderRepository;
 import com.duckervn.campaignservice.service.ICampaignService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +37,29 @@ public class CampaignService implements ICampaignService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public List<Campaign> findAll() {
-        return campaignRepository.findAll();
+    public PageOutput<CampaignOutput> findAllCampaignOutput(Integer pageNo, Integer pageSize) {
+        if (pageNo <= 0) {
+            throw new IllegalArgumentException("pageNo start from one.");
+        }
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<Campaign> campaigns = campaignRepository.findAll(pageable);
+        Set<Long> providerIds = campaigns.getContent()
+                .stream().map(Campaign::getProviderId).collect(Collectors.toSet());
+        List<ProviderOutput> providerOutputs = providerRepository.findAllById(providerIds)
+                .stream().map(provider -> objectMapper.convertValue(provider, ProviderOutput.class))
+                .collect(Collectors.toList());
+        List<CampaignOutput> campaignOutputs = new ArrayList<>();
+        for (Campaign campaign : campaigns.getContent()) {
+            CampaignOutput campaignOutput = objectMapper.convertValue(campaign, CampaignOutput.class);
+            for (ProviderOutput providerOutput : providerOutputs) {
+                if (Objects.nonNull(campaign.getProviderId()) && campaign.getProviderId().equals(providerOutput.getId())) {
+                    campaignOutput.setProvider(providerOutput);
+                    break;
+                }
+            }
+            campaignOutputs.add(campaignOutput);
+        }
+        return new PageOutput<>(campaignOutputs, pageNo, pageSize, campaigns.getTotalElements());
     }
 
     @Override
@@ -101,6 +131,11 @@ public class CampaignService implements ICampaignService {
         Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(ResourceNotFoundException::new);
 
         campaignRepository.delete(campaign);
+    }
+
+    @Override
+    public void delete(List<Long> campaignIds) {
+        campaignRepository.deleteAllById(campaignIds);
     }
 
     private void validateStatus(String status, boolean isRequired) {

@@ -12,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "/schedules")
 @RequiredArgsConstructor
@@ -24,6 +26,16 @@ public class JobSchedulingController {
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
     public Mono<ResponseEntity<Response>> getScheduledTasks() {
+        return Mono.just(ResponseEntity.ok(Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.FOUND_CRONS)
+                .results(taskService.findAll())
+                .build()));
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/{taskId}")
+    public Mono<ResponseEntity<Response>> getScheduledTask(@PathVariable String taskId) {
         return Mono.just(ResponseEntity.ok(Response.builder()
                 .code(HttpStatus.OK.value())
                 .message(RespMessage.FOUND_CRON)
@@ -59,6 +71,16 @@ public class JobSchedulingController {
         return Mono.just(ResponseEntity.ok(Response.builder()
                 .code(HttpStatus.OK.value())
                 .message(RespMessage.DELETED_CRON)
+                .build()));
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @DeleteMapping
+    public Mono<ResponseEntity<Response>> removeTask(@RequestParam List<String> taskIds) {
+        taskSchedulingService.removeScheduledTasks(taskIds);
+        return Mono.just(ResponseEntity.ok(Response.builder()
+                .code(HttpStatus.OK.value())
+                .message(RespMessage.DELETED_CRONS)
                 .build()));
     }
 }

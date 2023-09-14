@@ -115,6 +115,11 @@ public class ProviderService implements IProviderService {
         providerRepository.delete(provider);
     }
 
+    @Override
+    public void delete(List<Long> providerIds) {
+        providerRepository.deleteAllById(providerIds);
+    }
+
     private void validateStatus(String status, boolean isRequired) {
         if ((Objects.nonNull(status) && !Constants.STATUSES.contains(status)) || (Objects.isNull(status) && isRequired)) {
             // throw err
