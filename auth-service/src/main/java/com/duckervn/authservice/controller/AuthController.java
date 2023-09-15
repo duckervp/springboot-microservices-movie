@@ -72,7 +72,6 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .sameSite("None")
-//                .maxAge(0)
                 .build();
         Response response = Response.builder().code(HttpStatus.OK.value()).message(RespMessage.LOGGED_OUT).build();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).body(response);
