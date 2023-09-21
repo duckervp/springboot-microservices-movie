@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
@@ -59,6 +58,7 @@ public class Movie implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "movie_id")
+    @OrderBy("id ASC")
     private Set<Episode> episodes = new HashSet<>();
 
     @ManyToMany
@@ -67,6 +67,7 @@ public class Movie implements Serializable {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
+    @OrderBy("id ASC")
     private Set<Genre> genres = new HashSet<>();
 
     @ManyToMany
@@ -75,6 +76,7 @@ public class Movie implements Serializable {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "character_id")
     )
+    @OrderBy("id ASC")
     private Set<Character> characters = new HashSet<>();
 
     @ManyToOne

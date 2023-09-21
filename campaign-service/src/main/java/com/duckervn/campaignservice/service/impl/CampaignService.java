@@ -3,6 +3,7 @@ package com.duckervn.campaignservice.service.impl;
 import com.duckervn.campaignservice.common.Constants;
 import com.duckervn.campaignservice.common.RespMessage;
 import com.duckervn.campaignservice.domain.entity.Campaign;
+import com.duckervn.campaignservice.domain.entity.Provider;
 import com.duckervn.campaignservice.domain.exception.ResourceNotFoundException;
 import com.duckervn.campaignservice.domain.model.addcampaign.CampaignInput;
 import com.duckervn.campaignservice.domain.model.getcampaign.CampaignOutput;
@@ -63,18 +64,18 @@ public class CampaignService implements ICampaignService {
     }
 
     @Override
-    public Campaign findById(Long campaignId) {
-        return campaignRepository.findById(campaignId).orElseThrow(ResourceNotFoundException::new);
+    public CampaignOutput findById(Long campaignId) {
+        Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(ResourceNotFoundException::new);
+        return convert(campaign, null);
     }
 
     @Override
-    public Campaign save(CampaignInput campaignInput) {
+    public CampaignOutput save(CampaignInput campaignInput) {
         validateStatus(campaignInput.getStatus(), true);
         validateType(campaignInput.getType(), true);
 
-        if (Objects.nonNull(campaignInput.getProviderId()) && !providerRepository.existsById(campaignInput.getProviderId())) {
-            throw new ResourceNotFoundException();
-        }
+        Provider provider = providerRepository.findById(campaignInput.getProviderId())
+                .orElseThrow(ResourceNotFoundException::new);
 
         Campaign campaign = objectMapper.convertValue(campaignInput, Campaign.class);
 
@@ -83,11 +84,11 @@ public class CampaignService implements ICampaignService {
 
         campaignRepository.save(campaign);
 
-        return campaign;
+        return convert(campaign, provider);
     }
 
     @Override
-    public Campaign update(Long campaignId, CampaignInput campaignInput) {
+    public CampaignOutput update(Long campaignId, CampaignInput campaignInput) {
         validateStatus(campaignInput.getStatus(), false);
         validateType(campaignInput.getType(), false);
 
@@ -123,7 +124,7 @@ public class CampaignService implements ICampaignService {
 
         campaignRepository.save(campaign);
 
-        return campaign;
+        return convert(campaign, null);
     }
 
     @Override
@@ -150,5 +151,16 @@ public class CampaignService implements ICampaignService {
             // throw err
             throw new IllegalArgumentException(RespMessage.INVALID_CAMPAIGN_TYPE);
         }
+    }
+
+    private CampaignOutput convert(Campaign campaign, Provider provider) {
+        CampaignOutput campaignOutput = objectMapper.convertValue(campaign, CampaignOutput.class);
+        if (Objects.isNull(provider)) {
+            provider = providerRepository.findById(campaign.getProviderId())
+                    .orElseThrow(ResourceNotFoundException::new);
+        }
+        ProviderOutput providerOutput = objectMapper.convertValue(provider, ProviderOutput.class);
+        campaignOutput.setProvider(providerOutput);
+        return campaignOutput;
     }
 }

@@ -10,11 +10,11 @@ import java.util.List;
 public interface ICampaignService {
     PageOutput<CampaignOutput> findAllCampaignOutput(Integer pageNo, Integer pageSize);
 
-    Campaign findById(Long campaignId);
+    CampaignOutput findById(Long campaignId);
 
-    Campaign save(CampaignInput campaignInput);
+    CampaignOutput save(CampaignInput campaignInput);
 
-    Campaign update(Long campaignId, CampaignInput campaignInput);
+    CampaignOutput update(Long campaignId, CampaignInput campaignInput);
 
     void delete(Long campaignId);
 
